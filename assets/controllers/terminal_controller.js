@@ -30,10 +30,22 @@ export default class extends Controller {
             resultDiv.textContent = this.resultValue;
             this.containerTarget.appendChild(resultDiv);
             
-            // Add new prompt line
+            // Add new prompt line securely
             const newPrompt = document.createElement('div');
             newPrompt.className = "flex gap-2 pt-2";
-            newPrompt.innerHTML = '<span class="text-lab-terminal">➜</span><span class="text-lab-cyan">~</span><span class="animate-blink inline-block w-2 h-4 align-middle bg-lab-primary"></span>';
+            
+            const spanArrow = document.createElement('span');
+            spanArrow.className = "text-lab-terminal";
+            spanArrow.textContent = "➜";
+            
+            const spanTilde = document.createElement('span');
+            spanTilde.className = "text-lab-cyan";
+            spanTilde.textContent = "~";
+            
+            const spanCursor = document.createElement('span');
+            spanCursor.className = "animate-blink inline-block w-2 h-4 align-middle bg-lab-primary";
+            
+            newPrompt.append(spanArrow, spanTilde, spanCursor);
             this.containerTarget.appendChild(newPrompt);
             
             // Hide original cursor

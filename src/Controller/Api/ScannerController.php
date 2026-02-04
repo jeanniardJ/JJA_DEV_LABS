@@ -109,8 +109,21 @@ class ScannerController extends AbstractController
             ]);
         }
 
+        // Real check: does the result exist in DB?
+        $scanResult = $this->scanResultRepository->findOneBy(['scanId' => $scanId]);
+        
+        if ($scanResult && $scanResult->getStatus() === 'completed') {
+            return new JsonResponse([
+                'scan_id' => $scanId,
+                'percentage' => 100,
+                'current_step' => 'Scan terminé. Rapport disponible.',
+                'status' => 'completed',
+            ]);
+        }
+
+        // Simulation capée à 95% tant que la BDD n'est pas prête
         $elapsed = time() - $startTime;
-        $percentage = min(100, $elapsed * 10);
+        $percentage = min(95, $elapsed * 10);
 
         $steps = [
             ['at' => 0, 'label' => 'Vérification réussie. Lancement du moteur...'],
@@ -118,8 +131,7 @@ class ScannerController extends AbstractController
             ['at' => 30, 'label' => 'Scan des ports critiques...'],
             ['at' => 50, 'label' => 'Vérification des en-têtes de sécurité...'],
             ['at' => 70, 'label' => 'Recherche de vulnérabilités (Nuclei)...'],
-            ['at' => 90, 'label' => 'Génération du rapport final...'],
-            ['at' => 100, 'label' => 'Scan terminé.'],
+            ['at' => 90, 'label' => 'Finalisation du rapport...'],
         ];
 
         $currentStep = 'Initialisation...';
@@ -133,7 +145,7 @@ class ScannerController extends AbstractController
             'scan_id' => $scanId,
             'percentage' => $percentage,
             'current_step' => $currentStep,
-            'status' => ($percentage < 100) ? 'scanning' : 'completed',
+            'status' => 'scanning',
         ]);
     }
 

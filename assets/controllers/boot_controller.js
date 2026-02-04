@@ -17,8 +17,8 @@ export default class extends Controller {
 
         // Update text status
         if (this.hasStatusTarget) {
-            setTimeout(() => { this.statusTarget.innerText = "DÉMARRAGE SERVICES..." }, 800);
-            setTimeout(() => { this.statusTarget.innerText = "PRÊT" }, 1800);
+            setTimeout(() => { this.statusTarget.textContent = "DÉMARRAGE SERVICES..." }, 800);
+            setTimeout(() => { this.statusTarget.textContent = "PRÊT" }, 1800);
         }
 
         // Remove boot screen
