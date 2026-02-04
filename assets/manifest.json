@@ -9,25 +9,25 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/build/images/pwa/icon-192x192.png",
+      "src": "/pwa/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/build/images/pwa/icon-512x512.png",
+      "src": "/pwa/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/build/images/pwa/icon-maskable-192x192.png",
+      "src": "/pwa/icon-maskable-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/build/images/pwa/icon-maskable-512x512.png",
+      "src": "/pwa/icon-maskable-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

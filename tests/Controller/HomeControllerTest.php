@@ -12,7 +12,7 @@ final class HomeControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('span.tracking-widest', 'JJA DEV LAB');
+        $this->assertSelectorTextContains('header span.tracking-widest', 'JJA DEV LAB');
     }
 
     public function testNoUnwantedExternalCDNs(): void

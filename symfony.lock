@@ -35,6 +35,15 @@
             "migrations/.gitignore"
         ]
     },
+    "knpuniversity/oauth2-client-bundle": {
+        "version": "2.20",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.20",
+            "ref": "1ff300d8c030f55c99219cc55050b97a695af3f6"
+        }
+    },
     "phpstan/phpstan": {
         "version": "2.1",
         "recipe": {
@@ -60,6 +69,31 @@
             "phpunit.dist.xml",
             "tests/bootstrap.php",
             "bin/phpunit"
+        ]
+    },
+    "pixelopen/cloudflare-turnstile-bundle": {
+        "version": "0.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "6173b9aff0056dd99ca70a2caa940cc7bcac0b4b"
+        },
+        "files": [
+            "config/packages/pixel_open_cloudflare_turnstile.yaml"
+        ]
+    },
+    "scheb/2fa-bundle": {
+        "version": "7.13",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.0",
+            "ref": "1e6f68089146853a790b5da9946fc5974f6fcd49"
+        },
+        "files": [
+            "config/packages/scheb_2fa.yaml",
+            "config/routes/scheb_2fa.yaml"
         ]
     },
     "symfony/asset-mapper": {

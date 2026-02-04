@@ -1,0 +1,74 @@
+{{ form_start(form, {
+    'attr': {
+        'id': 'contact-form',
+        'data-controller': 'contact-form',
+        'data-action': 'submit->contact-form#handleSubmit turbo:submit-end->contact-form#onPostSubmit'
+    }
+}) }}
+    <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-1">
+                {{ form_label(form.name, 'IDENTITÉ', {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted mb-1 uppercase'}}) }}
+                {{ form_widget(form.name, {'attr': {
+                    'class': 'w-full bg-black/50 border border-lab-border text-lab-terminal px-3 py-2 text-sm focus:border-lab-primary outline-none transition-all font-mono',
+                    'placeholder': 'VOTRE_NOM'
+                }}) }}
+                <div class="text-[10px] text-lab-danger font-mono mt-1">
+                    {{ form_errors(form.name) }}
+                </div>
+            </div>
+            <div class="space-y-1">
+                {{ form_label(form.email, 'ADRESSE_RÉSEAU', {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted mb-1 uppercase'}}) }}
+                {{ form_widget(form.email, {'attr': {
+                    'class': 'w-full bg-black/50 border border-lab-border text-lab-terminal px-3 py-2 text-sm focus:border-lab-primary outline-none transition-all font-mono',
+                    'placeholder': 'NOM@DOMAINE.COM'
+                }}) }}
+                <div class="text-[10px] text-lab-danger font-mono mt-1">
+                    {{ form_errors(form.email) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-1">
+            {{ form_label(form.subject, 'OBJET_REQUÊTE', {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted mb-1 uppercase'}}) }}
+            {{ form_widget(form.subject, {'attr': {
+                'class': 'w-full bg-black/50 border border-lab-border text-lab-terminal px-3 py-2 text-sm focus:border-lab-primary outline-none transition-all font-mono',
+                'placeholder': 'SUJET_DE_LA_DEMANDE'
+            }}) }}
+            <div class="text-[10px] text-lab-danger font-mono mt-1">
+                {{ form_errors(form.subject) }}
+            </div>
+        </div>
+
+        <div class="space-y-1">
+            {{ form_label(form.message, 'CORPS_DU_MESSAGE', {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted mb-1 uppercase'}}) }}
+            {{ form_widget(form.message, {'attr': {
+                'class': 'w-full bg-black/50 border border-lab-border text-lab-terminal px-3 py-2 text-sm focus:border-lab-primary outline-none transition-all font-mono h-32 resize-none',
+                'placeholder': 'ENTREZ_VOTRE_MESSAGE_ICI...'
+            }}) }}
+            <div class="text-[10px] text-lab-danger font-mono mt-1">
+                {{ form_errors(form.message) }}
+            </div>
+        </div>
+        
+        {% if form.turnstile is defined %}
+            <div class="flex justify-center">
+                {{ form_widget(form.turnstile) }}
+            </div>
+            <div class="text-[10px] text-lab-danger font-mono mt-1 text-center">
+                {{ form_errors(form.turnstile) }}
+            </div>
+        {% endif %}
+
+        <button type="submit" data-contact-form-target="submitButton" class="w-full py-4 bg-lab-primary/10 border border-lab-primary text-lab-primary font-mono text-xs tracking-widest hover:bg-lab-primary hover:text-black transition-all group flex items-center justify-center gap-3">
+            <span class="group-hover:translate-x-1 transition-transform">EXÉCUTER_ENVOI</span>
+            <i data-lucide="send" class="w-4 h-4"></i>
+        </button>
+        
+        <div class="flex items-center gap-3 opacity-50">
+            <div class="h-px flex-1 bg-lab-border"></div>
+            <div class="text-[9px] text-lab-muted font-mono uppercase tracking-tighter">SÉCURITÉ_CLOUDFLARE_ACTIVE</div>
+            <div class="h-px flex-1 bg-lab-border"></div>
+        </div>
+    </div>
+{{ form_end(form) }}

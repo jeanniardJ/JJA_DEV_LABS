@@ -27,6 +27,7 @@ class SitemapController extends AbstractController
                 'loc' => $this->generateUrl($route, [], UrlGeneratorInterface::ABSOLUTE_URL),
                 'changefreq' => 'weekly',
                 'priority' => ($route === 'app_home') ? '1.0' : '0.8',
+                'lastmod' => (new \DateTime())->format('Y-m-d'),
             ];
         }
 

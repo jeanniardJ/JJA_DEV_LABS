@@ -4,7 +4,6 @@ const OFFLINE_URL = '/offline';
 const ASSETS_TO_CACHE = [
     OFFLINE_URL,
     '/styles/app.css',
-    '/manifest.json',
     // Fonts and other critical assets will be added here or discovered dynamically
 ];
 

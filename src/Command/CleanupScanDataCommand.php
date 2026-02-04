@@ -29,19 +29,12 @@ class CleanupScanDataCommand extends Command
         
         $limitDate = new \DateTimeImmutable('-24 hours');
         
-        $oldScans = $this->scanResultRepository->createQueryBuilder('s')
+        $count = $this->scanResultRepository->createQueryBuilder('s')
+            ->delete()
             ->where('s.createdAt < :limit')
             ->setParameter('limit', $limitDate)
             ->getQuery()
-            ->getResult();
-
-        $count = count($oldScans);
-        
-        foreach ($oldScans as $scan) {
-            $this->entityManager->remove($scan);
-        }
-
-        $this->entityManager->flush();
+            ->execute();
 
         $io->success(sprintf('Suppression de %d rapports obsolètes terminée.', $count));
 

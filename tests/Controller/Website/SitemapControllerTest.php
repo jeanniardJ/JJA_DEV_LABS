@@ -13,8 +13,11 @@ final class SitemapControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertResponseHeaderSame('Content-Type', 'text/xml; charset=UTF-8');
-        $this->assertStringContainsString('<urlset', $client->getResponse()->getContent());
-        $this->assertStringContainsString('<loc>', $client->getResponse()->getContent());
+        
+        $content = $client->getResponse()->getContent();
+        $this->assertStringContainsString('<urlset', $content);
+        $this->assertStringContainsString('<loc>http://localhost/</loc>', $content);
+        $this->assertStringContainsString('<lastmod>', $content);
     }
 
     public function testRobotsTxt(): void

@@ -3,6 +3,8 @@
      data-scanner-status-url-value="{{ path('api_scanner_status', {scanId: 'PLACEHOLDER'}) }}"
      data-scanner-verify-url-value="{{ path('api_scanner_verify', {scanId: 'PLACEHOLDER'}) }}"
      data-scanner-download-url-value="{{ path('api_scanner_download', {scanId: 'PLACEHOLDER'}) }}"
+     data-scanner-conversion-url-value="{{ path('api_scanner_conversion', {scanId: 'PLACEHOLDER'}) }}"
+     data-scanner-csrf-token-value="{{ csrf_token('scanner_api') }}"
      class="scanner-container">
     
     <!-- IDLE STATE: FORM -->
@@ -122,10 +124,13 @@
                 <twig:Button type="primary" icon="file-text" data-action="click->scanner#download">
                     TÉLÉCHARGER_LE_RAPPORT
                 </twig:Button>
-                <twig:Button type="outline" icon="refresh-cw" data-action="click->scanner#reset">
-                    NOUVEAU_SCAN
-                </twig:Button>
-            </div>
-        </div>
-    </div>
-</div>
+                                <twig:Button type="outline" icon="refresh-cw" data-action="click->scanner#reset">
+                                    NOUVEAU_SCAN
+                                </twig:Button>
+                            </div>
+                
+                            <div data-scanner-target="conversion" class="mt-8"></div>
+                        </div>
+                    </div>
+                </div>
+                

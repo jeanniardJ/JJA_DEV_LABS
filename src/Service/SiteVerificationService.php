@@ -36,7 +36,22 @@ class SiteVerificationService
     public function verifyFile(string $url, string $token): bool
     {
         $parsedUrl = parse_url($url);
-        $baseUrl = ($parsedUrl['scheme'] ?? 'https') . '://' . $parsedUrl['host'];
+        if (!isset($parsedUrl['host'])) {
+            return false;
+        }
+
+        // SSRF Protection: Resolve Host and check for private IPs
+        $host = $parsedUrl['host'];
+        $ips = gethostbynamel($host);
+        if ($ips) {
+            foreach ($ips as $ip) {
+                if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                    return false; // Private IP detected
+                }
+            }
+        }
+
+        $baseUrl = ($parsedUrl['scheme'] ?? 'https') . '://' . $host;
         if (isset($parsedUrl['port'])) {
             $baseUrl .= ':' . $parsedUrl['port'];
         }
@@ -46,14 +61,18 @@ class SiteVerificationService
         try {
             $response = $this->httpClient->request('GET', $verificationUrl, [
                 'timeout' => 5,
+                'headers' => [
+                    'User-Agent' => 'JJA-Lab-Verifier/1.0',
+                ],
             ]);
 
             if (200 !== $response->getStatusCode()) {
                 return false;
             }
 
-            $content = $response->getContent();
-            return str_contains($content, $token);
+            $content = trim($response->getContent());
+            // Strict comparison: content must be EXACTLY the token
+            return $content === $token;
         } catch (\Exception $e) {
             return false;
         }

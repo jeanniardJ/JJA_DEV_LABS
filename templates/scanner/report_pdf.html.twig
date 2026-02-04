@@ -111,7 +111,19 @@
                 {{ vuln.info.description }}
             </div>
             <div class="fix">
-                RECOMMANDATION : Configurer les en-têtes appropriés ou mettre à jour les protocoles obsolètes.
+                {% if vuln['template-id'] == 'missing-secure-headers' %}
+                    RECOMMANDATION : Ajoutez les en-têtes suivants dans votre configuration serveur (Nginx/Apache) :
+                    <br><code>add_header Content-Security-Policy "default-src 'self';";</code>
+                    <br><code>add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";</code>
+                {% elseif vuln['template-id'] == 'ssl-obsolete-version' %}
+                    RECOMMANDATION : Désactivez TLS 1.0 et 1.1. Forcez TLS 1.2 minimum.
+                    <br><code>ssl_protocols TLSv1.2 TLSv1.3;</code>
+                {% elseif vuln['template-id'] == 'git-config-exposure' %}
+                    RECOMMANDATION CRITIQUE : Bloquez l'accès au dossier .git immédiatement !
+                    <br><code>location ~ /\.git { deny all; }</code>
+                {% else %}
+                    RECOMMANDATION : Consultez la documentation officielle pour corriger cette vulnérabilité spécifique.
+                {% endif %}
             </div>
         </div>
     {% else %}

@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Prendre rendez-vous | JJA DEV LAB{% endblock %}
+
+{% block body %}
+<section class="max-w-4xl mx-auto py-12">
+    <div class="mb-12">
+        <h1 class="text-3xl font-bold text-white mb-4">Prendre rendez-vous</h1>
+        <p class="text-lab-muted">Sélectionnez un créneau de 15 minutes pour discuter de votre projet.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Calendar Column -->
+        <div class="md:col-span-2">
+            <div class="glass-panel border border-lab-border p-6 rounded-sm min-h-[400px]" data-controller="calendar">
+                <div id="calendar" class="text-white"></div>
+                <div data-calendar-target="loader" class="flex items-center justify-center h-full">
+                    <span class="text-lab-primary font-mono animate-pulse">CHARGEMENT DU CALENDRIER...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Column (Initially hidden or for details) -->
+        <div class="space-y-6">
+            <div class="glass-panel border border-lab-border p-6 rounded-sm">
+                <h2 class="text-sm font-mono text-lab-primary uppercase tracking-widest mb-4">Réservation</h2>
+                
+                {{ form_start(form, {'attr': {'id': 'booking-form', 'data-controller': 'appointment-form', 'data-action': 'submit->appointment-form#submit'}}) }}
+                    
+                    {# Render hidden datetime field #}
+                    {{ form_widget(form.datetime, {'attr': {'data-appointment-form-target': 'datetime', 'class': 'hidden'}}) }}
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-mono text-lab-muted uppercase mb-1">Nom Complet</label>
+                            {{ form_widget(form.name, {'attr': {'class': 'w-full bg-black border border-lab-border px-3 py-2 text-white focus:border-lab-primary outline-none text-sm'}}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-mono text-lab-muted uppercase mb-1">Email</label>
+                            {{ form_widget(form.email, {'attr': {'class': 'w-full bg-black border border-lab-border px-3 py-2 text-white focus:border-lab-primary outline-none text-sm'}}) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-mono text-lab-muted uppercase mb-1">Sujet / Contexte</label>
+                            {{ form_widget(form.subject, {'attr': {'class': 'w-full bg-black border border-lab-border px-3 py-2 text-white focus:border-lab-primary outline-none text-sm'}}) }}
+                            {{ form_errors(form.subject) }}
+                        </div>
+                        
+                        <div id="selected-slot-info" class="p-3 bg-lab-primary/5 border border-lab-primary/20 hidden">
+                            <span class="text-[10px] font-mono text-lab-primary block mb-1">CRÉNEAU SÉLECTIONNÉ</span>
+                            <span id="display-datetime" class="text-xs text-white"></span>
+                        </div>
+
+                        {# This renders the CSRF token and any other hidden fields #}
+                        {{ form_rest(form) }}
+
+                        <button type="submit" class="w-full bg-lab-primary text-black font-bold py-2 text-sm hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed" data-appointment-form-target="submitBtn" disabled>
+                            CONFIRMER LE RDV
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+
+                <div id="success-message" class="hidden mt-4 p-3 bg-lab-terminal/10 border border-lab-terminal/50 text-lab-terminal text-xs font-mono">
+                    TERMINÉ : Rendez-vous confirmé. Un email vous a été envoyé.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

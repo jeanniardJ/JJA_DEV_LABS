@@ -29,6 +29,9 @@ class ScanResult
     #[ORM\Column(nullable: true)]
     private ?int $duration = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $errorMessage = null;
+
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -102,6 +105,18 @@ class ScanResult
         return $this;
     }
 
+    public function getErrorMessage(): ?string
+    {
+        return $this->errorMessage;
+    }
+
+    public function setErrorMessage(?string $errorMessage): static
+    {
+        $this->errorMessage = $errorMessage;
+
+        return $this;
+    }
+
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
@@ -112,5 +127,35 @@ class ScanResult
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    public function getMaxSeverity(): string
+    {
+        if (empty($this->rawOutput)) {
+            return 'none';
+        }
+
+        $levels = [
+            'critical' => 5,
+            'high' => 4,
+            'medium' => 3,
+            'low' => 2,
+            'info' => 1,
+        ];
+
+        $maxLevel = 0;
+        $maxSeverity = 'info';
+
+        foreach ($this->rawOutput as $finding) {
+            $severity = strtolower($finding['info']['severity'] ?? 'info');
+            $level = $levels[$severity] ?? 0;
+
+            if ($level > $maxLevel) {
+                $maxLevel = $level;
+                $maxSeverity = $severity;
+            }
+        }
+
+        return $maxLevel > 0 ? $maxSeverity : 'none';
     }
 }

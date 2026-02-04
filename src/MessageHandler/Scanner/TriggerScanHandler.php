@@ -19,7 +19,7 @@ class TriggerScanHandler
     ) {
     }
 
-    public function __invoke(TriggerScanMessage $message)
+    public function __invoke(TriggerScanMessage $message): void
     {
         $scanResult = $this->scanResultRepository->findOneBy(['scanId' => $message->getScanId()]);
 
@@ -31,6 +31,7 @@ class TriggerScanHandler
         }
 
         $scanResult->setStatus('processing');
+        $scanResult->setErrorMessage(null); // Reset previous errors if any
         $this->entityManager->flush();
 
         $startTime = microtime(true);
@@ -40,10 +41,14 @@ class TriggerScanHandler
             $scanResult->setStatus('completed');
         } catch (\Exception $e) {
             $scanResult->setStatus('failed');
+            $scanResult->setErrorMessage($e->getMessage());
         } finally {
             $duration = (int) (microtime(true) - $startTime);
             $scanResult->setDuration($duration);
             $this->entityManager->flush();
+            
+            // Clean up memory
+            $this->entityManager->clear();
         }
     }
 }

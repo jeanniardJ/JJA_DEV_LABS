@@ -17,7 +17,7 @@ class PdfGenerator
     {
         $options = new Options();
         $options->set('defaultFont', 'Courier');
-        $options->set('isRemoteEnabled', true);
+        $options->set('isRemoteEnabled', false);
 
         $dompdf = new Dompdf($options);
         $html = $this->twig->render($template, $data);

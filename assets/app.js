@@ -8,17 +8,17 @@ import './stimulus_bootstrap.js';
 import './styles/app.css';
 import * as lucide from 'lucide';
 
+// Expose lucide globally for Stimulus controllers
+window.lucide = lucide;
+
 lucide.createIcons({ icons: lucide.icons });
 
 // --- SERVICE WORKER REGISTRATION ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
+            .catch(error => {
+                // Silent fail in production or log to monitoring
             });
     });
 }

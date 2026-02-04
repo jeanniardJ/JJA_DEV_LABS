@@ -1,12 +1,14 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-    static targets = ["idle", "verifying", "scanning", "completed", "input", "error", "verifyError", "statusLabel", "percentage", "progressBar", "urlDisplay", "urlDisplayScanning", "tokenDisplay", "tokenDisplayDNS", "downloadBtn"];
+    static targets = ["idle", "verifying", "scanning", "completed", "input", "error", "verifyError", "statusLabel", "percentage", "progressBar", "urlDisplay", "urlDisplayScanning", "tokenDisplay", "tokenDisplayDNS", "downloadBtn", "conversion"];
     static values = {
         submitUrl: String,
         statusUrl: String,
         verifyUrl: String,
-        downloadUrl: String
+        downloadUrl: String,
+        conversionUrl: String,
+        csrfToken: String
     }
 
     start() {
@@ -24,7 +26,10 @@ export default class extends Controller {
         try {
             const response = await fetch(this.submitUrlValue, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': this.csrfTokenValue
+                },
                 body: JSON.stringify({ url: url })
             });
 
@@ -55,7 +60,10 @@ export default class extends Controller {
             const url = this.verifyUrlValue.replace('PLACEHOLDER', this.scanId);
             const response = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': this.csrfTokenValue
+                },
                 body: JSON.stringify({ method: 'file' })
             });
 
@@ -90,6 +98,7 @@ export default class extends Controller {
 
                 if (data.status === 'completed') {
                     this.stopPolling();
+                    await this.loadConversionCta();
                     setTimeout(() => this.showState("completed"), 1000);
                 }
             } catch (e) {
@@ -97,6 +106,19 @@ export default class extends Controller {
                 this.showError("Lien rompu avec le moteur de scan.");
             }
         }, 1000);
+    }
+
+    async loadConversionCta() {
+        try {
+            const url = this.conversionUrlValue.replace('PLACEHOLDER', this.scanId);
+            const response = await fetch(url);
+            if (response.ok && response.status !== 204) {
+                const html = await response.text();
+                this.conversionTarget.innerHTML = html;
+            }
+        } catch (e) {
+            console.error("Failed to load conversion CTA", e);
+        }
     }
 
     updateProgress(data) {

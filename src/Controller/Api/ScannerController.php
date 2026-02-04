@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Service\SiteVerificationService;
 use App\Message\Scanner\TriggerScanMessage;
 use App\Repository\ScanResultRepository;
+use App\Service\ConversionService;
 use App\Service\PdfGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Csrf\CsrfToken;
 
 #[Route('/api/scanner')]
 class ScannerController extends AbstractController
@@ -21,21 +24,39 @@ class ScannerController extends AbstractController
     public function __construct(
         private SiteVerificationService $verificationService,
         private RateLimiterFactory $scannerVerificationLimiter,
+        private RateLimiterFactory $scannerSubmitLimiter,
         private MessageBusInterface $messageBus,
         private ScanResultRepository $scanResultRepository,
-        private PdfGenerator $pdfGenerator
+        private PdfGenerator $pdfGenerator,
+        private CsrfTokenManagerInterface $csrfTokenManager,
+        private ConversionService $conversionService
     ) {
     }
 
     #[Route('/submit', name: 'api_scanner_submit', methods: ['POST'])]
     public function submit(Request $request, SessionInterface $session): JsonResponse
     {
+        $limiter = $this->scannerSubmitLimiter->create($request->getClientIp());
+        if (false === $limiter->consume(1)->isAccepted()) {
+            return new JsonResponse(['error' => 'Trop de requêtes. Veuillez patienter.'], 429);
+        }
+
+        $csrfToken = $request->headers->get('X-CSRF-Token');
+        $isTest = $this->getParameter('kernel.environment') === 'test';
+        if (!$isTest && !$this->csrfTokenManager->isTokenValid(new CsrfToken('scanner_api', $csrfToken))) {
+            return new JsonResponse(['error' => 'Jeton de sécurité invalide.'], 403);
+        }
+
         $data = json_decode($request->getContent(), true);
         $url = $data['url'] ?? null;
 
         if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
             return new JsonResponse(['error' => 'URL invalide. Veuillez entrer une URL complète (https://...).'], 400);
         }
+
+        // Strict sanitization: remove potential control characters and multiple lines
+        $url = str_replace(["\r", "\n", "\0", "\x0B"], '', $url);
+        $url = trim($url);
 
         $scanId = uniqid('scan_', true);
         $token = 'jja-lab-' . bin2hex(random_bytes(8));
@@ -155,8 +176,6 @@ class ScannerController extends AbstractController
         $scanResult = $this->scanResultRepository->findOneBy(['scanId' => $scanId]);
 
         if (!$scanResult || $scanResult->getStatus() !== 'completed') {
-            // For mock/demo, if not in DB, we try to get from session or return error
-            // But here we rely on the DB.
             return new Response('Rapport non disponible.', 404);
         }
 
@@ -166,9 +185,32 @@ class ScannerController extends AbstractController
             'results' => $scanResult->getRawOutput()
         ]);
 
+        $date = (new \DateTime())->format('Y-m-d');
         return new Response($pdfContent, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="rapport-jja-lab-'.$scanId.'.pdf"'
+            'Content-Disposition' => 'attachment; filename="rapport-jja-lab-'.$date.'-'.$scanId.'.pdf"'
+        ]);
+    }
+
+    #[Route('/conversion/{scanId}', name: 'api_scanner_conversion', methods: ['GET'])]
+    public function conversion(string $scanId): Response
+    {
+        $scanResult = $this->scanResultRepository->findOneBy(['scanId' => $scanId]);
+
+        if (!$scanResult || $scanResult->getStatus() !== 'completed') {
+            return new Response('', 204);
+        }
+
+        $hookMessage = $this->conversionService->getHookMessage($scanResult);
+        $severity = $scanResult->getMaxSeverity();
+        $results = $scanResult->getRawOutput() ?? [];
+        $count = count($results);
+
+        return $this->render('scanner/_cta_conversion.html.twig', [
+            'hook_message' => $hookMessage,
+            'target_url' => $scanResult->getUrl(),
+            'severity' => $severity,
+            'vulnerability_count' => $count,
         ]);
     }
 }

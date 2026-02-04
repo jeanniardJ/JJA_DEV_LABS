@@ -1154,6 +1154,28 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             cache_pool?: string|Param, // The cache pool to use for storing the limiter state // Default: "cache.rate_limiter"
  *             storage_service?: string|Param, // The service ID of a custom storage implementation, this precedes any configured "cache_pool" // Default: null
  *         },
+ *         two_factor?: array{
+ *             check_path?: scalar|Param|null, // Default: "/2fa_check"
+ *             post_only?: bool|Param, // Default: true
+ *             auth_form_path?: scalar|Param|null, // Default: "/2fa"
+ *             always_use_default_target_path?: bool|Param, // Default: false
+ *             default_target_path?: scalar|Param|null, // Default: "/"
+ *             success_handler?: scalar|Param|null, // Default: null
+ *             failure_handler?: scalar|Param|null, // Default: null
+ *             authentication_required_handler?: scalar|Param|null, // Default: null
+ *             auth_code_parameter_name?: scalar|Param|null, // Default: "_auth_code"
+ *             trusted_parameter_name?: scalar|Param|null, // Default: "_trusted"
+ *             remember_me_sets_trusted?: scalar|Param|null, // Default: false
+ *             multi_factor?: bool|Param, // Default: false
+ *             prepare_on_login?: bool|Param, // Default: false
+ *             prepare_on_access_denied?: bool|Param, // Default: false
+ *             enable_csrf?: scalar|Param|null, // Default: false
+ *             csrf_parameter?: scalar|Param|null, // Default: "_csrf_token"
+ *             csrf_token_id?: scalar|Param|null, // Default: "two_factor"
+ *             csrf_header?: scalar|Param|null, // Default: null
+ *             csrf_token_manager?: scalar|Param|null, // Default: "scheb_two_factor.csrf_token_manager"
+ *             provider?: scalar|Param|null, // Default: null
+ *         },
  *         x509?: array{
  *             provider?: scalar|Param|null,
  *             user?: scalar|Param|null, // Default: "SSL_CLIENT_S_DN_Email"
@@ -1532,6 +1554,42 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     controllers_json?: scalar|Param|null, // Deprecated: The "twig_component.controllers_json" config option is deprecated, and will be removed in 3.0. // Default: null
  * }
+ * @psalm-type PixelOpenCloudflareTurnstileConfig = array{
+ *     enable?: scalar|Param|null, // Default: true
+ *     key: scalar|Param|null,
+ *     secret: scalar|Param|null,
+ * }
+ * @psalm-type SchebTwoFactorConfig = array{
+ *     persister?: scalar|Param|null, // Default: "scheb_two_factor.persister.doctrine"
+ *     model_manager_name?: scalar|Param|null, // Default: null
+ *     security_tokens?: list<scalar|Param|null>,
+ *     ip_whitelist?: list<scalar|Param|null>,
+ *     ip_whitelist_provider?: scalar|Param|null, // Default: "scheb_two_factor.default_ip_whitelist_provider"
+ *     two_factor_token_factory?: scalar|Param|null, // Default: "scheb_two_factor.default_token_factory"
+ *     two_factor_provider_decider?: scalar|Param|null, // Default: "scheb_two_factor.default_provider_decider"
+ *     two_factor_condition?: scalar|Param|null, // Default: null
+ *     code_reuse_cache?: scalar|Param|null, // Default: null
+ *     code_reuse_cache_duration?: int|Param, // Default: 60
+ *     code_reuse_default_handler?: scalar|Param|null, // Default: null
+ *     google?: bool|array{
+ *         enabled?: scalar|Param|null, // Default: false
+ *         form_renderer?: scalar|Param|null, // Default: null
+ *         issuer?: scalar|Param|null, // Default: null
+ *         server_name?: scalar|Param|null, // Default: null
+ *         template?: scalar|Param|null, // Default: "@SchebTwoFactor/Authentication/form.html.twig"
+ *         digits?: int|Param, // Default: 6
+ *         leeway?: int|Param, // Default: 0
+ *     },
+ * }
+ * @psalm-type KnpuOauth2ClientConfig = array{
+ *     http_client?: scalar|Param|null, // Service id of HTTP client to use (must implement GuzzleHttp\ClientInterface) // Default: null
+ *     http_client_options?: array{
+ *         timeout?: int|Param,
+ *         proxy?: scalar|Param|null,
+ *         verify?: bool|Param, // Use only with proxy option set
+ *     },
+ *     clients?: array<string, array<string, mixed>>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1547,6 +1605,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     monolog?: MonologConfig,
  *     symfonycasts_tailwind?: SymfonycastsTailwindConfig,
  *     twig_component?: TwigComponentConfig,
+ *     pixel_open_cloudflare_turnstile?: PixelOpenCloudflareTurnstileConfig,
+ *     scheb_two_factor?: SchebTwoFactorConfig,
+ *     knpu_oauth2_client?: KnpuOauth2ClientConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1565,6 +1626,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         maker?: MakerConfig,
  *         symfonycasts_tailwind?: SymfonycastsTailwindConfig,
  *         twig_component?: TwigComponentConfig,
+ *         pixel_open_cloudflare_turnstile?: PixelOpenCloudflareTurnstileConfig,
+ *         scheb_two_factor?: SchebTwoFactorConfig,
+ *         knpu_oauth2_client?: KnpuOauth2ClientConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1581,6 +1645,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         monolog?: MonologConfig,
  *         symfonycasts_tailwind?: SymfonycastsTailwindConfig,
  *         twig_component?: TwigComponentConfig,
+ *         pixel_open_cloudflare_turnstile?: PixelOpenCloudflareTurnstileConfig,
+ *         scheb_two_factor?: SchebTwoFactorConfig,
+ *         knpu_oauth2_client?: KnpuOauth2ClientConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1598,6 +1665,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         monolog?: MonologConfig,
  *         symfonycasts_tailwind?: SymfonycastsTailwindConfig,
  *         twig_component?: TwigComponentConfig,
+ *         pixel_open_cloudflare_turnstile?: PixelOpenCloudflareTurnstileConfig,
+ *         scheb_two_factor?: SchebTwoFactorConfig,
+ *         knpu_oauth2_client?: KnpuOauth2ClientConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

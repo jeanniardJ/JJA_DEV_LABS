@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}JJA ACCESS TERMINAL{% endblock %}
+
+{% block body %}
+<div class="min-h-[60vh] flex items-center justify-center py-12">
+    <!-- Main Auth Card -->
+    <main class="glass-panel w-full max-w-[420px] rounded-sm p-8 relative overflow-hidden animate-float border border-lab-primary/20 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+        
+        <!-- Decorative corner highlight -->
+        <div class="absolute top-0 right-0 w-16 h-16 pointer-events-none opacity-20">
+            <div class="absolute top-0 right-0 w-full h-[2px] bg-lab-primary"></div>
+            <div class="absolute top-0 right-0 w-[2px] h-full bg-lab-primary"></div>
+        </div>
+
+        <!-- Header: Logo and Title -->
+        <div class="flex flex-col items-center mb-10">
+            <div class="w-12 h-12 bg-lab-primary/10 border border-lab-primary flex items-center justify-center mb-4">
+                <i data-lucide="shield-check" class="w-6 h-6 text-lab-primary"></i>
+            </div>
+            <h1 class="font-bold tracking-[0.2em] text-white text-lg uppercase">JJA ACCESS TERMINAL</h1>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="w-1.5 h-1.5 bg-lab-terminal rounded-full animate-pulse"></span>
+                <span class="text-[10px] font-mono text-lab-terminal uppercase tracking-widest">Security Protocol v4.0</span>
+            </div>
+        </div>
+
+        <div class="space-y-8">
+            <div class="text-center">
+                <p class="text-xs text-lab-muted font-mono leading-relaxed mb-6">
+                    Accès restreint au personnel autorisé uniquement. <br>
+                    Authentification via fournisseur d'identité externe requis.
+                </p>
+            </div>
+
+            <a href="{{ path('connect_google_start') }}" 
+               class="w-full py-4 bg-lab-primary text-black font-mono font-black uppercase text-xs tracking-[0.2em] hover:bg-lab-cyan transition-all shadow-lg shadow-lab-primary/20 flex items-center justify-center gap-3 group">
+                <i data-lucide="log-in" class="w-4 h-4 transition-transform group-hover:scale-110"></i> 
+                INITIALISER_SSO_GOOGLE
+            </a>
+
+            <div class="pt-4 border-t border-lab-border/30">
+                <div class="flex items-center justify-between text-[9px] font-mono text-lab-muted uppercase tracking-tighter">
+                    <span>STATUS: EN_ATTENTE</span>
+                    <span>ENCRYPTION: AES-256</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Message Overlay (Hidden by default) -->
+        <div id="status-overlay" class="absolute inset-0 bg-lab-bg/95 flex flex-col items-center justify-center z-[70] hidden font-mono">
+            <div class="w-12 h-12 border-2 border-lab-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+            <div id="status-text" class="text-xs text-lab-primary uppercase tracking-widest">Processing...</div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block javascripts_footer %}
+<script>
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('a[href="{{ path('connect_google_start') }}"]')) {
+            const overlay = document.getElementById('status-overlay');
+            const statusText = document.getElementById('status-text');
+            overlay.classList.remove('hidden');
+            statusText.innerText = 'REDIRECTION_VERS_GOOGLE...';
+        }
+    });
+</script>
+{% endblock %}

@@ -24,14 +24,10 @@ export default class extends Controller {
         // Remove boot screen
         setTimeout(() => {
             if (this.hasScreenTarget) {
-                this.screenTarget.style.opacity = '0';
-                this.screenTarget.style.pointerEvents = 'none';
+                this.screenTarget.classList.add('opacity-0', 'pointer-events-none');
                 
-                // Enable scroll on body
-                document.body.style.overflowY = 'auto';
-
-                // Optional: Trigger terminal typing if it exists globally or dispatch event
-                // window.dispatchEvent(new CustomEvent('boot:complete'));
+                // Optional: Trigger terminal typing
+                window.dispatchEvent(new CustomEvent('boot:complete'));
             }
         }, 2200);
     }

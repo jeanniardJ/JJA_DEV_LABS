@@ -36,9 +36,10 @@
         </div>
 
         <div class="mt-12">
-            <twig:Button href="/" icon="refresh-cw" type="primary">
+            <button onclick="window.location.reload()" class="inline-flex items-center gap-2 px-4 py-2 bg-lab-primary/10 border border-lab-primary text-lab-primary font-mono text-xs uppercase tracking-wider hover:bg-lab-primary hover:text-black transition-all group">
+                <i data-lucide="refresh-cw" class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500"></i>
                 RÉESSAYER_LA_LIAISON
-            </twig:Button>
+            </button>
         </div>
     </div>
 {% endblock %}

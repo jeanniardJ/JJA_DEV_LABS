@@ -5,16 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}JJA DEV LAB | SYSTÈME PRÊT{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}Laboratoire de développement Fullstack de Jonathan Jeanniard. Excellence technique, architecture logicielle et innovation.{% endblock %}">
+    <link rel="canonical" href="{{ app.request.uri }}">
 
     {% block og_tags %}
         <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ app.request.uri }}">
         <meta property="og:title" content="{{ block('title') }}">
         <meta property="og:description" content="{{ block('meta_description') }}">
+        <meta property="og:image" content="{{ asset('images/og-card.png') }}">
         <meta property="og:site_name" content="JJA DEV LAB">
     {% endblock %}
 
     {% block json_ld %}{% endblock %}
     
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#05070a">
     
@@ -29,7 +33,7 @@
 <body class="antialiased font-sans relative" data-controller="boot">
 
     <!-- BOOT SEQUENCE OVERLAY -->
-    <div id="boot-screen" data-boot-target="screen" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center font-mono text-xs text-lab-primary select-none cursor-wait">
+    <div id="boot-screen" data-boot-target="screen" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center font-mono text-xs text-lab-primary select-none cursor-wait transition-opacity duration-500">
         <div class="w-64 space-y-2">
             <div class="flex justify-between text-lab-muted">
                 <span>BIOS_CHECK</span>
@@ -82,7 +86,7 @@
             </nav>
 
             <!-- Mobile Menu Toggle -->
-            <button class="md:hidden text-lab-text hover:text-lab-primary" data-action="click->mobile-menu#toggle">
+            <button class="md:hidden text-lab-text hover:text-lab-primary" data-action="click->mobile-menu#toggle" aria-label="Ouvrir le menu de navigation">
                 <i data-lucide="menu" data-mobile-menu-target="icon" class="w-6 h-6"></i>
             </button>
 
@@ -144,6 +148,9 @@
             // TEMPS D'EXÉCUTION SYSTÈME : 0.045s // MEM : 2MB
         </div>
     </footer>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container" data-controller="toast" class="fixed bottom-6 right-6 z-[60] flex flex-col gap-3 pointer-events-none"></div>
 
     <!-- INTERACTION SCRIPTS -->
     {% block javascripts_footer %}{% endblock %}
