@@ -1,0 +1,46 @@
+name: Deploy to OVH
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl-icu
+          coverage: none
+
+      - name: Install Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Create .env.prod.local
+        run: |
+          echo "APP_ENV=prod" > .env.prod.local
+          echo "APP_SECRET=${{ secrets.APP_SECRET_JJADEVLAB }}" >> .env.prod.local
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL_JJADEVLAB }}" >> .env.prod.local
+          # Add other necessary secrets here
+
+      - name: Build Assets
+        run: |
+          php bin/console tailwind:build --minify
+          php bin/console asset-map:compile
+
+      - name: Deploy via SSH/Rsync
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_JJADEVLAB }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "."
+          REMOTE_HOST: ${{ secrets.SSH_HOST_JJADEVLAB }}
+          REMOTE_USER: ${{ secrets.SSH_USER_JJADEVLAB }}
+          TARGET: ${{ secrets.TARGET_DIR_JJADEVLAB }}
+          EXCLUDE: "/var/cache/, /var/log/, .git/, .github/, .env.dev, .env.test"

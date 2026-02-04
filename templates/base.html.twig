@@ -1,17 +1,151 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}JJA DEV LAB | SYSTÈME PRÊT{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Laboratoire de développement Fullstack de Jonathan Jeanniard. Excellence technique, architecture logicielle et innovation.{% endblock %}">
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
+    {% block og_tags %}
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="{{ block('title') }}">
+        <meta property="og:description" content="{{ block('meta_description') }}">
+        <meta property="og:site_name" content="JJA DEV LAB">
+    {% endblock %}
+
+    {% block json_ld %}{% endblock %}
+    
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#05070a">
+    
+    {% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+    {% endblock %}
+
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+</head>
+<body class="antialiased font-sans relative" data-controller="boot">
+
+    <!-- BOOT SEQUENCE OVERLAY -->
+    <div id="boot-screen" data-boot-target="screen" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center font-mono text-xs text-lab-primary select-none cursor-wait">
+        <div class="w-64 space-y-2">
+            <div class="flex justify-between text-lab-muted">
+                <span>BIOS_CHECK</span>
+                <span class="text-lab-terminal">OK</span>
+            </div>
+            <div class="flex justify-between text-lab-muted">
+                <span>MONTAGE_VOLUMES</span>
+                <span class="text-lab-terminal">OK</span>
+            </div>
+             <div class="flex justify-between text-lab-muted">
+                <span>CHARGEMENT_MODULES_UI</span>
+                <span id="loader-status" data-boot-target="status" class="text-lab-primary">CHARGEMENT...</span>
+            </div>
+            <div class="h-1 w-full bg-lab-border mt-4 overflow-hidden">
+                <div id="progress-bar" data-boot-target="bar" class="h-full bg-lab-primary w-0 transition-all duration-[2000ms] ease-out"></div>
+            </div>
+            <div class="text-center mt-2 text-lab-muted">NOYAU JJA_LAB v4.1.0</div>
+        </div>
+    </div>
+
+    <!-- VISUAL FX LAYERS -->
+    <div class="crt-overlay"></div>
+    <div class="fixed inset-0 grid-bg -z-10"></div>
+
+    <!-- HEADER -->
+    <header class="fixed top-0 w-full z-40 glass-panel border-b border-lab-border/50 h-16" data-controller="mobile-menu">
+        <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+            <!-- Logo Area -->
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-lab-primary/10 border border-lab-primary flex items-center justify-center">
+                    <i data-lucide="flask-conical" class="w-4 h-4 text-lab-primary"></i>
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="font-bold tracking-widest text-white text-sm">JJA DEV LAB</span>
+                    <span class="text-[10px] text-lab-muted font-mono uppercase tracking-[0.2em] mt-1">Bac à sable privé</span>
+                </div>
+            </div>
+
+            <!-- Main Nav (Desktop) -->
+            <nav class="hidden md:flex gap-8 text-[10px] font-mono text-lab-muted">
+                <a href="#stations" class="hover:text-lab-primary transition-colors flex items-center gap-2 group">
+                    <span class="text-lab-border group-hover:text-lab-cyan">01.</span> STATIONS
+                </a>
+                <a href="#stack" class="hover:text-lab-primary transition-colors flex items-center gap-2 group">
+                    <span class="text-lab-border group-hover:text-lab-cyan">02.</span> PILE
+                </a>
+                <a href="#scanner" class="hover:text-lab-primary transition-colors flex items-center gap-2 group">
+                    <span class="text-lab-border group-hover:text-lab-cyan">03.</span> SCANNER
+                </a>
+            </nav>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="md:hidden text-lab-text hover:text-lab-primary" data-action="click->mobile-menu#toggle">
+                <i data-lucide="menu" data-mobile-menu-target="icon" class="w-6 h-6"></i>
+            </button>
+
+            <!-- Status Badge (Desktop) -->
+            <div class="hidden md:flex items-center gap-3 px-3 py-1.5 border border-lab-border bg-lab-panel rounded-sm">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lab-terminal opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-lab-terminal"></span>
+                </span>
+                <span class="text-[10px] font-mono text-lab-terminal tracking-wider">SYSTÈME ACTIF</span>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Menu -->
+        <div class="hidden md:hidden absolute top-16 left-0 w-full bg-lab-panel border-b border-lab-border p-4" data-mobile-menu-target="menu">
+            <nav class="flex flex-col gap-4 text-sm font-mono text-lab-muted">
+                <a href="#stations" class="hover:text-lab-primary transition-colors flex items-center gap-2 group py-2 border-b border-lab-border/20" data-action="click->mobile-menu#toggle">
+                    <span class="text-lab-border group-hover:text-lab-cyan">01.</span> STATIONS
+                </a>
+                <a href="#stack" class="hover:text-lab-primary transition-colors flex items-center gap-2 group py-2 border-b border-lab-border/20" data-action="click->mobile-menu#toggle">
+                    <span class="text-lab-border group-hover:text-lab-cyan">02.</span> PILE
+                </a>
+                <a href="#scanner" class="hover:text-lab-primary transition-colors flex items-center gap-2 group py-2" data-action="click->mobile-menu#toggle">
+                    <span class="text-lab-border group-hover:text-lab-cyan">03.</span> SCANNER
+                </a>
+            </nav>
+            <div class="flex items-center gap-3 px-3 py-1.5 border border-lab-border bg-lab-panel rounded-sm mt-4 w-fit">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lab-terminal opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-lab-terminal"></span>
+                </span>
+                <span class="text-[10px] font-mono text-lab-terminal tracking-wider">SYSTÈME ACTIF</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24 pb-20 px-4 max-w-7xl mx-auto relative z-10">
         {% block body %}{% endblock %}
-    </body>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-lab-border bg-lab-panel py-8 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <div class="font-bold text-white tracking-widest text-sm">JJA DEV LAB</div>
+                <div class="text-[10px] text-lab-muted font-mono mt-1">ENVIRONNEMENT DE LABORATOIRE PERSONNEL // PAS DE PISTAGE</div>
+            </div>
+            
+            <div class="flex items-center gap-6 text-xs font-mono">
+                <a href="mailto:contact@jja-dev.fr" class="text-lab-muted hover:text-lab-primary transition-colors flex items-center gap-2">
+                    <i data-lucide="mail" class="w-3 h-3"></i> contact@jja-dev.fr
+                </a>
+                <a href="#" class="text-lab-muted hover:text-white transition-colors flex items-center gap-2">
+                    <i data-lucide="github" class="w-3 h-3"></i> GitHub
+                </a>
+            </div>
+        </div>
+        <div class="text-center mt-6 text-[10px] text-lab-border font-mono">
+            // TEMPS D'EXÉCUTION SYSTÈME : 0.045s // MEM : 2MB
+        </div>
+    </footer>
+
+    <!-- INTERACTION SCRIPTS -->
+    {% block javascripts_footer %}{% endblock %}
+</body>
 </html>

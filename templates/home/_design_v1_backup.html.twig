@@ -1,0 +1,275 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}JJA DEV LAB | ACCUEIL{% endblock %}
+
+{% block body %}
+    <!-- HERO SECTION -->
+    <section class="mb-24 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[60vh]">
+        <!-- Text Content -->
+        <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex items-center gap-2 px-2 py-1 bg-lab-primary/5 border border-lab-primary/20 text-lab-primary text-[10px] font-mono tracking-widest uppercase rounded-sm">
+                <i data-lucide="terminal" class="w-3 h-3"></i>
+                Utilisateur Session : Jonathan
+            </div>
+            
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1]">
+                Laboratoire de <span class="text-transparent bg-clip-text bg-gradient-to-r from-lab-primary to-lab-cyan">Développement</span><br>
+                Personnel
+            </h1>
+            
+            <p class="text-lab-text text-lg leading-relaxed max-w-xl border-l-2 border-lab-border pl-4 font-light">
+                Expérimentations, audits de sécurité et architecture de code en itération continue. <br>
+                <span class="text-lab-muted font-mono text-sm mt-2 block">// NOTE : Ceci n'est pas un portfolio. C'est un bac à sable privé.</span>
+            </p>
+
+            <div class="flex flex-wrap gap-4 pt-4">
+                <a href="{{ path('app_lab_stations') }}" class="px-6 py-3 bg-lab-primary text-black font-mono text-xs font-bold uppercase tracking-wide hover:bg-lab-cyan transition-colors flex items-center gap-2">
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                    Initialiser_Lab
+                </a>
+                <a href="mailto:contact@jja-dev.fr" class="px-6 py-3 border border-lab-border text-lab-text font-mono text-xs uppercase tracking-wide hover:border-lab-primary hover:text-white transition-colors flex items-center gap-2">
+                    <i data-lucide="mail" class="w-4 h-4"></i>
+                    Envoyer_Paquet
+                </a>
+            </div>
+        </div>
+
+        <!-- Terminal Window -->
+        <div class="lg:col-span-5 w-full">
+            <div class="relative bg-[#080a0f] border border-lab-border rounded-md shadow-2xl overflow-hidden font-mono text-sm h-72 flex flex-col group">
+                <!-- Terminal Header -->
+                <div class="bg-lab-panel px-4 py-2 border-b border-lab-border flex items-center justify-between select-none">
+                    <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-lab-border"></div>
+                        <div class="w-3 h-3 rounded-full bg-lab-border"></div>
+                    </div>
+                    <div class="text-[10px] text-lab-muted">root@jja-lab:~</div>
+                </div>
+                
+                <!-- Terminal Body -->
+                <div class="p-4 flex-1 overflow-y-auto space-y-2 text-xs md:text-sm">
+                    <div class="flex gap-2">
+                        <span class="text-lab-terminal">➜</span>
+                        <span class="text-lab-cyan">~</span>
+                        <span class="text-white">init_environment --mode=safe</span>
+                    </div>
+                    <div class="pl-4 text-lab-muted space-y-1">
+                        <div>> Chargement des modules noyau... <span class="text-lab-terminal">FAIT</span></div>
+                        <div>> Vérification version PHP... <span class="text-white">8.3.0</span></div>
+                        <div>> Montage volumes Docker... <span class="text-lab-terminal">FAIT</span></div>
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <span class="text-lab-terminal">➜</span>
+                        <span class="text-lab-cyan">~</span>
+                        <span id="typing-text" class="text-white"></span><span class="animate-blink inline-block w-2 h-4 align-middle bg-lab-primary"></span>
+                    </div>
+                </div>
+                
+                <!-- Decorative corner -->
+                <div class="absolute bottom-0 right-0 p-2 opacity-50">
+                    <i data-lucide="corner-right-down" class="w-4 h-4 text-lab-border"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LAB STATIONS SECTION -->
+    <section id="stations" class="mb-24 scroll-mt-24">
+        <div class="flex items-end justify-between mb-8 border-b border-lab-border pb-4">
+            <div>
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <i data-lucide="layout-grid" class="text-lab-primary w-6 h-6"></i>
+                    STATIONS DU LABO
+                </h2>
+                <p class="text-xs text-lab-muted font-mono mt-1">MODULES ACTIFS : 7 // STATUT : OPÉRATIONNEL</p>
+            </div>
+            <div class="hidden sm:block text-[10px] font-mono text-lab-muted uppercase border border-lab-border px-2 py-1 rounded">
+                Zone : Sécurisée
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            
+            <!-- Station Card: Symfony -->
+            <article class="station-card bg-lab-panel border border-lab-border p-5 rounded-sm relative group cursor-pointer h-48 flex flex-col">
+                <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i data-lucide="arrow-up-right" class="w-4 h-4 text-lab-primary"></i>
+                </div>
+                <div class="mb-4 text-lab-primary">
+                    <i data-lucide="flask-conical" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-bold text-white text-base mb-2 group-hover:text-lab-primary transition-colors">Banc d'Essai Symfony</h3>
+                <p class="text-xs text-lab-muted leading-relaxed mb-auto">Banc d'essai pour nouveaux composants, bundles et patterns architecturaux (Hexagonal/DDD).</p>
+                <div class="mt-4 pt-3 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted">
+                    <span>v7.0.2</span>
+                    <span class="text-lab-terminal">● Actif</span>
+                </div>
+            </article>
+
+            <!-- Station Card: Security -->
+            <article class="station-card bg-lab-panel border border-lab-border p-5 rounded-sm relative group cursor-pointer h-48 flex flex-col">
+                <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i data-lucide="arrow-up-right" class="w-4 h-4 text-lab-danger"></i>
+                </div>
+                <div class="mb-4 text-lab-danger">
+                    <i data-lucide="shield-alert" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-bold text-white text-base mb-2 group-hover:text-lab-danger transition-colors">Terrain de Jeu Sécurité</h3>
+                <p class="text-xs text-lab-muted leading-relaxed mb-auto">Terrain de test OWASP, validation JWT, logique RBAC et tests de stress chiffrement.</p>
+                <div class="mt-4 pt-3 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted">
+                    <span>SecOps</span>
+                    <span class="text-lab-danger">● Restreint</span>
+                </div>
+            </article>
+
+            <!-- Station Card: Docker -->
+            <article class="station-card bg-lab-panel border border-lab-border p-5 rounded-sm relative group cursor-pointer h-48 flex flex-col">
+                <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i data-lucide="arrow-up-right" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div class="mb-4 text-blue-400">
+                    <i data-lucide="container" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-bold text-white text-base mb-2 group-hover:text-blue-400 transition-colors">Docker / LXC</h3>
+                <p class="text-xs text-lab-muted leading-relaxed mb-auto">Configurations Devcontainer, builds multi-étapes et scripts d'orchestration.</p>
+                <div class="mt-4 pt-3 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted">
+                    <span>Compose</span>
+                    <span class="text-lab-muted">● Inactif</span>
+                </div>
+            </article>
+
+            <!-- Station Card: Automation -->
+            <article class="station-card bg-lab-panel border border-lab-border p-5 rounded-sm relative group cursor-pointer h-48 flex flex-col">
+                <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i data-lucide="arrow-up-right" class="w-4 h-4 text-yellow-400"></i>
+                </div>
+                <div class="mb-4 text-yellow-400">
+                    <i data-lucide="zap" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-bold text-white text-base mb-2 group-hover:text-yellow-400 transition-colors">Automatisation</h3>
+                <p class="text-xs text-lab-muted leading-relaxed mb-auto">Collection de Makefiles, scripts Bash et fragments de pipelines CI/CD.</p>
+                <div class="mt-4 pt-3 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted">
+                    <span>Bash/CI</span>
+                    <span class="text-lab-terminal">● En cours</span>
+                </div>
+            </article>
+            
+            <!-- Station Card: Notes -->
+            <article class="station-card bg-lab-panel border border-lab-border p-5 rounded-sm relative group cursor-pointer h-48 flex flex-col">
+                <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i data-lucide="arrow-up-right" class="w-4 h-4 text-purple-400"></i>
+                </div>
+                <div class="mb-4 text-purple-400">
+                    <i data-lucide="file-code" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-bold text-white text-base mb-2 group-hover:text-purple-400 transition-colors">Notes Techniques</h3>
+                <p class="text-xs text-lab-muted leading-relaxed mb-auto">Wiki personnel pour commandes, snippets et mémos "ne pas oublier".</p>
+                <div class="mt-4 pt-3 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted">
+                    <span>Wiki</span>
+                    <span class="text-lab-terminal">● Mis à jour</span>
+                </div>
+            </article>
+
+            <!-- Station Card: OSINT -->
+            <article class="station-card bg-lab-panel border border-lab-border p-5 rounded-sm relative group cursor-pointer h-48 flex flex-col">
+                <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i data-lucide="arrow-up-right" class="w-4 h-4 text-emerald-400"></i>
+                </div>
+                <div class="mb-4 text-emerald-400">
+                    <i data-lucide="globe" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-bold text-white text-base mb-2 group-hover:text-emerald-400 transition-colors">OSINT / Reconnaissance</h3>
+                <p class="text-xs text-lab-muted leading-relaxed mb-auto">Outils pour la collecte de renseignement open-source et l'analyse réseau.</p>
+                <div class="mt-4 pt-3 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted">
+                    <span>NetTools</span>
+                    <span class="text-lab-muted">● Inactif</span>
+                </div>
+            </article>
+
+            <!-- Placeholder for new module -->
+            <article class="station-card bg-lab-panel/30 border border-dashed border-lab-border p-5 rounded-sm relative group cursor-pointer h-48 flex flex-col items-center justify-center hover:bg-lab-panel/50">
+                <i data-lucide="plus" class="w-8 h-8 text-lab-border group-hover:text-lab-text transition-colors mb-2"></i>
+                <span class="text-xs font-mono text-lab-muted group-hover:text-lab-text">INIT_NOUVEAU_MODULE</span>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- TECH STACK CONSOLE DUMP -->
+    <section id="stack" class="mb-24 scroll-mt-24">
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="server" class="text-lab-primary w-5 h-5"></i>
+                PILE SYSTÈME
+            </h2>
+        </div>
+        
+        <div class="bg-[#080a0f] border-l-2 border-lab-primary p-6 rounded-r font-mono text-sm relative overflow-hidden shadow-2xl">
+            <!-- Watermark -->
+            <div class="absolute top-2 right-2 text-[10px] text-lab-border pointer-events-none select-none">LECTURE SEULE</div>
+            
+            <div class="overflow-x-auto">
+<pre class="whitespace-pre text-lab-text">
+<span class="text-lab-primary">root@jja-lab:~/config#</span> system.stack --show --full
+
+<span class="text-white font-bold">>> RUNTIME_COEUR</span>
+   <span class="cmd">PHP</span>            <span class="arg">8.3</span>          <span class="comment">// JIT activé, Types stricts</span>
+   <span class="cmd">Symfony</span>        <span class="arg">7.x</span>          <span class="comment">// Framework Full stack</span>
+   <span class="cmd">Composer</span>       <span class="arg">2.6</span>          <span class="comment">// Gestionnaire de Dépendances</span>
+
+<span class="text-white font-bold">>> INFRASTRUCTURE & CONTENEURISATION</span>
+   <span class="cmd">Docker</span>         <span class="keyword">Actif</span>        <span class="comment">// Runtime de conteneur</span>
+   <span class="cmd">Compose</span>        <span class="keyword">Orchestrateur</span> <span class="comment">// Définitions de service</span>
+   <span class="cmd">Devcontainers</span>  <span class="keyword">Activé</span>       <span class="comment">// Envs standardisés VSCode</span>
+
+<span class="text-white font-bold">>> PERSISTANCE DES DONNÉES</span>
+   <span class="cmd">MySQL</span>          <span class="arg">8.0</span>          <span class="comment">// BDD Relationnelle Primaire</span>
+   <span class="cmd">Redis</span>          <span class="arg">7.2</span>          <span class="comment">// Cache & Stockage Session</span>
+   <span class="cmd">RabbitMQ</span>       <span class="arg">3.12</span>         <span class="comment">// Courtier de Messages</span>
+
+<span class="text-white font-bold">>> OUTILLAGE & FRONTEND</span>
+   <span class="cmd">TailwindCSS</span>    <span class="arg">3.4</span>          <span class="comment">// Stylisation Utility-first</span>
+   <span class="cmd">Node.js</span>        <span class="arg">LTS</span>          <span class="comment">// Pipeline d'outils de build uniquement</span>
+   <span class="cmd">Git</span>            <span class="arg">2.43</span>         <span class="comment">// Contrôle de Version</span>
+</pre>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block javascripts_footer %}
+    <script>
+        // Typewriter Effect for Hero Terminal
+        function startTerminalTyping() {
+            const textElement = document.getElementById('typing-text');
+            const textToType = "cat enonce_de_mission.txt";
+            let index = 0;
+
+            function typeChar() {
+                if (index < textToType.length) {
+                    textElement.textContent += textToType.charAt(index);
+                    index++;
+                    setTimeout(typeChar, Math.random() * 50 + 50); // Random typing speed
+                } else {
+                    // Show result after typing finishes
+                    setTimeout(() => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = "text-lab-primary pl-4 mt-1 block";
+                        resultDiv.innerHTML = '"Ceci est un environnement sécurisé pour tester du code, expérimenter, casser des choses en toute sécurité et itérer."';
+                        textElement.parentElement.parentElement.appendChild(resultDiv);
+                        
+                        // Add new prompt line
+                        const newPrompt = document.createElement('div');
+                        newPrompt.className = "flex gap-2 pt-2";
+                        newPrompt.innerHTML = '<span class="text-lab-terminal">➜</span><span class="text-lab-cyan">~</span><span class="animate-blink inline-block w-2 h-4 align-middle bg-lab-primary"></span>';
+                        textElement.parentElement.parentElement.appendChild(newPrompt);
+                        
+                        // Hide original cursor
+                        textElement.nextElementSibling.style.display = 'none';
+                    }, 500);
+                }
+            }
+            typeChar();
+        }
+    </script>
+{% endblock %}

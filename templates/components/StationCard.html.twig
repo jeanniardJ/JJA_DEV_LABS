@@ -1,0 +1,21 @@
+{% props title, description, icon = 'box', version = null, status = 'Actif', status_type = 'terminal', href = '#' %}
+
+<article class="station-card bg-lab-panel border border-lab-border p-5 rounded-sm relative group cursor-pointer h-full flex flex-col">
+    <a href="{{ href }}" class="absolute inset-0 z-10"></a>
+    
+    <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        <i data-lucide="arrow-up-right" class="w-4 h-4 text-lab-primary"></i>
+    </div>
+    
+    <div class="mb-4 text-lab-primary group-hover:scale-110 transition-transform duration-300">
+        <i data-lucide="{{ icon }}" class="w-8 h-8"></i>
+    </div>
+    
+    <h3 class="font-bold text-white text-base mb-2 group-hover:text-lab-primary transition-colors">{{ title }}</h3>
+    <p class="text-xs text-lab-muted leading-relaxed mb-auto">{{ description }}</p>
+    
+    <div class="mt-4 pt-3 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted">
+        <span>{{ version|default('v1.0.0') }}</span>
+        <span class="{{ status_type == 'danger' ? 'text-lab-danger' : 'text-lab-terminal' }}">● {{ status }}</span>
+    </div>
+</article>
