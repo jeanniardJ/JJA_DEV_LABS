@@ -40,6 +40,44 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $googleAuthenticatorSecret = null;
 
+    #[ORM\OneToMany(mappedBy: 'admin', targetEntity: PushSubscription::class, orphanRemoval: true)]
+    private iterable $pushSubscriptions;
+
+    public function __construct()
+    {
+        $this->pushSubscriptions = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection<int, PushSubscription>
+     */
+    public function getPushSubscriptions(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->pushSubscriptions;
+    }
+
+    public function addPushSubscription(PushSubscription $pushSubscription): static
+    {
+        if (!$this->pushSubscriptions->contains($pushSubscription)) {
+            $this->pushSubscriptions->add($pushSubscription);
+            $pushSubscription->setAdmin($this);
+        }
+
+        return $this;
+    }
+
+    public function removePushSubscription(PushSubscription $pushSubscription): static
+    {
+        if ($this->pushSubscriptions->removeElement($pushSubscription)) {
+            // set the owning side to null (unless already changed)
+            if ($pushSubscription->getAdmin() === $this) {
+                $pushSubscription->setAdmin(null);
+            }
+        }
+
+        return $this;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

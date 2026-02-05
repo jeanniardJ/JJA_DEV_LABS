@@ -19,15 +19,19 @@ class AiAssistantController extends AbstractController
     #[Route('/generate/{id}', name: 'admin_ai_generate', methods: ['POST'])]
     public function generate(Lead $lead, GeminiAIService $geminiAIService): JsonResponse
     {
+        // Anonymize email for privacy (RGPD)
+        $emailParts = explode('@', $lead->getEmail());
+        $maskedEmail = substr($emailParts[0], 0, 2) . '***@' . $emailParts[1];
+
         // Construct rich context
         $prompt = sprintf(
             "Nom du lead : %s
-Email : %s
+Email : %s (masqué pour confidentialité)
 Sujet : %s
 Message : %s
 ",
             $lead->getName(),
-            $lead->getEmail(),
+            $maskedEmail,
             $lead->getSubject(),
             $lead->getMessage()
         );

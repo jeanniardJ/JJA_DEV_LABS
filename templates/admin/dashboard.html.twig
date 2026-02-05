@@ -40,6 +40,29 @@
         </div>
     </div>
 
+    <!-- PWA Notifications Settings -->
+    <div class="px-4 mb-6" 
+         data-controller="pwa-notification"
+         data-pwa-notification-public-key-value="{{ app.request.server.get('VAPID_PUBLIC_KEY') }}"
+         data-pwa-notification-subscribe-url-value="{{ path('api_admin_push_subscribe') }}">
+        <div class="bg-lab-panel/20 border border-lab-border/30 p-3 rounded-sm flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-lab-primary/10 rounded-full">
+                    <i data-lucide="bell" class="w-4 h-4 text-lab-primary"></i>
+                </div>
+                <div>
+                    <p class="text-[10px] font-mono font-bold text-white uppercase tracking-tight">Status Notifications Push</p>
+                    <p data-pwa-notification-target="status" class="text-[9px] font-mono text-lab-muted uppercase">Vérification...</p>
+                </div>
+            </div>
+            <button data-action="click->pwa-notification#toggle" 
+                    data-pwa-notification-target="button"
+                    class="text-[9px] font-mono font-bold text-lab-primary border border-lab-primary/50 px-4 py-1.5 hover:bg-lab-primary hover:text-black transition-all">
+                ACTIVER_NOTIFICATIONS
+            </button>
+        </div>
+    </div>
+
     <!-- Kanban Board -->
     <div class="flex gap-4 overflow-x-auto pb-8 px-4 min-h-[70vh]" 
          data-controller="kanban"

@@ -30,7 +30,7 @@ class GeminiAIServiceTest extends TestCase
         ]);
 
         $httpClient = new MockHttpClient($mockResponse);
-        $service = new GeminiAIService($httpClient, 'fake_key');
+        $service = new GeminiAIService($httpClient, 'fake_key', 'System Prompt Test');
 
         $result = $service->generateResponse('Prompt de test');
 
@@ -43,7 +43,7 @@ class GeminiAIServiceTest extends TestCase
     {
         $mockResponse = new MockResponse('Error', ['http_code' => 500]);
         $httpClient = new MockHttpClient($mockResponse);
-        $service = new GeminiAIService($httpClient, 'fake_key');
+        $service = new GeminiAIService($httpClient, 'fake_key', 'System Prompt Test');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Erreur lors de l\'appel à l\'API Gemini');

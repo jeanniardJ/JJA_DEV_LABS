@@ -7,11 +7,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class GeminiAIService
 {
     private const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
-    private const SYSTEM_PROMPT = "Tu es l'assistant IA de Jonas Jeanniard, expert en développement Symfony et cybersécurité. Ta mission est d'aider Jonas à répondre à ses leads de manière technique, professionnelle et concise. Réponds toujours en français, avec un ton empathique mais expert. Ne propose pas de code inutile, concentre-toi sur la valeur métier et la sécurité.";
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
-        private readonly string $geminiApiKey
+        private readonly string $geminiApiKey,
+        private readonly string $systemPrompt
     ) {
     }
 
@@ -24,7 +24,7 @@ class GeminiAIService
                         [
                             'role' => 'user',
                             'parts' => [
-                                ['text' => self::SYSTEM_PROMPT . "
+                                ['text' => $this->systemPrompt . "
 
 Contexte client :
 " . $prompt]

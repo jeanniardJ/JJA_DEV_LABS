@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Analytics | JJA DEV LAB{% endblock %}
+
+{% block body %}
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-10">
+        <div>
+            <h1 class="text-2xl font-bold text-white font-mono uppercase tracking-[0.2em]">ANALYTICS_MODULE</h1>
+            <p class="text-xs text-lab-muted font-mono mt-1">// PERFORMANCE_METRICS_DASHBOARD</p>
+        </div>
+        
+        <form action="{{ path('admin_analytics_index') }}" method="GET" data-turbo-frame="analytics_dashboard" class="flex items-center gap-2">
+            <span class="text-[9px] font-mono text-lab-muted uppercase mr-2">Période:</span>
+            <select name="period" onchange="this.form.requestSubmit()" class="bg-lab-panel border border-lab-border text-white text-[10px] font-mono py-1 px-3 focus:border-lab-primary outline-none">
+                <option value="7days" {{ current_period == '7days' ? 'selected' : '' }}>7 DERNIERS JOURS</option>
+                <option value="30days" {{ current_period == '30days' ? 'selected' : '' }}>30 DERNIERS JOURS</option>
+                <option value="this_month" {{ current_period == 'this_month' ? 'selected' : '' }}>MOIS EN COURS</option>
+            </select>
+        </form>
+    </div>
+
+    <turbo-frame id="analytics_dashboard">
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-lab-panel/30 border border-lab-border p-6 rounded-sm relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-30 transition-opacity">
+                    <i data-lucide="users" class="w-12 h-12 text-lab-terminal"></i>
+                </div>
+                <p class="text-[10px] font-mono font-bold text-lab-muted uppercase tracking-widest">TOTAL_LEADS</p>
+                <h3 class="text-3xl font-bold text-white mt-2 font-mono">{{ stats.kpis.total_leads }}</h3>
+                <div class="mt-4 h-1 w-full bg-lab-border/30">
+                    <div class="h-full bg-lab-terminal" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="bg-lab-panel/30 border border-lab-border p-6 rounded-sm relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-30 transition-opacity">
+                    <i data-lucide="shield-check" class="w-12 h-12 text-lab-primary"></i>
+                </div>
+                <p class="text-[10px] font-mono font-bold text-lab-muted uppercase tracking-widest">SCANS_EXECUTÉS</p>
+                <h3 class="text-3xl font-bold text-white mt-2 font-mono">{{ stats.kpis.total_scans }}</h3>
+                <div class="mt-4 h-1 w-full bg-lab-border/30">
+                    <div class="h-full bg-lab-primary" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="bg-lab-panel/30 border border-lab-border p-6 rounded-sm relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-30 transition-opacity">
+                    <i data-lucide="target" class="w-12 h-12 text-lab-cyan"></i>
+                </div>
+                <p class="text-[10px] font-mono font-bold text-lab-muted uppercase tracking-widest">TAUX_CONVERSION</p>
+                <h3 class="text-3xl font-bold text-white mt-2 font-mono">{{ stats.kpis.conversion_rate }}%</h3>
+                <div class="mt-4 h-1 w-full bg-lab-border/30">
+                    <div class="h-full bg-lab-cyan" style="width: {{ stats.kpis.conversion_rate }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Activity Chart -->
+            <div class="lg:col-span-2 bg-lab-panel/30 border border-lab-border p-6 rounded-sm">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-[10px] font-mono font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                        <i data-lucide="line-chart" class="w-3 h-3 text-lab-terminal"></i>
+                        FLUX_DE_LEADS_TEMPOREL
+                    </h3>
+                </div>
+                <div class="h-[300px]">
+                    {{ render_chart(activity_chart) }}
+                </div>
+            </div>
+
+            <!-- Severity Stats -->
+            <div class="bg-lab-panel/30 border border-lab-border p-6 rounded-sm">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-[10px] font-mono font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-3 h-3 text-lab-primary"></i>
+                        PROFIL_DE_VULNERABILITES
+                    </h3>
+                </div>
+                <div class="h-[200px] mb-6">
+                    {{ render_chart(severity_chart) }}
+                </div>
+                
+                <div class="space-y-3 mt-4">
+                    {% for item in stats.severity_stats %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full severity-dot-{{ item.severity|lower }}"></div>
+                                <span class="text-[9px] font-mono text-lab-muted uppercase">{{ item.severity }}</span>
+                            </div>
+                            <span class="text-[10px] font-mono font-bold text-white">{{ item.count }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </turbo-frame>
+</div>
+
+<style>
+    .severity-dot-critical { background-color: #FF003C; }
+    .severity-dot-high { background-color: #FF8A00; }
+    .severity-dot-medium { background-color: #FFD600; }
+    .severity-dot-low { background-color: #00FF41; }
+    .severity-dot-info { background-color: #00E0FF; }
+</style>
+{% endblock %}
