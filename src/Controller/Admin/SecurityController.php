@@ -2,23 +2,30 @@
 
 namespace App\Controller\Admin;
 
-use KnpUniversity\OAuth2ClientBundle\Client\ClientRegistry;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class SecurityController extends AbstractController
 {
-    #[Route('/admin/login', name: 'admin_login')]
+    private ClientRegistry $clientRegistry;
+
+    public function __construct(ClientRegistry $clientRegistry)
+    {
+        $this->clientRegistry = $clientRegistry;
+    }
+
+    #[Route('/login', name: 'admin_login')]
     public function login(): Response
     {
         return $this->render('admin/security/login.html.twig');
     }
 
     #[Route('/admin/connect/google', name: 'connect_google_start')]
-    public function connectGoogleStart(ClientRegistry $clientRegistry): Response
+    public function connectGoogleStart(): Response
     {
-        return $clientRegistry
+        return $this->clientRegistry
             ->getClient('google')
             ->redirect([
                 'email', 'profile'

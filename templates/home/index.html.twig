@@ -30,6 +30,9 @@
 {% endblock %}
 
 {% block body %}
+    <div data-controller="homepage-loader">
+        {% include 'components/_homepage_loader.html.twig' %}
+
     <!-- HERO SECTION -->
     <section class="mb-32 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[70vh]">
         <!-- Text Content -->
@@ -214,4 +217,5 @@
             </div>
         </div>
     </section>
+    </div>
 {% endblock %}
