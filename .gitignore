@@ -24,3 +24,4 @@ phpstan.neon
 ###< phpstan/phpstan ###
 
 *.lock
+/.gemini
