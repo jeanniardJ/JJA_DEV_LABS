@@ -15,24 +15,6 @@ export default class extends Controller {
             }
             return;
         }
-
-        if (typeof FullCalendar.timeGridPlugin === 'undefined') {
-            console.error("FullCalendar timeGridPlugin not loaded. Check CDN script.");
-            if (this.hasLoaderTarget) {
-                this.loaderTarget.classList.remove('hidden');
-                this.loaderTarget.innerHTML = '<span class="text-lab-danger font-mono">ERREUR : PLUGIN FullCalendar timeGridPlugin MANQUANT</span>';
-            }
-            return;
-        }
-
-        if (typeof FullCalendar.interactionPlugin === 'undefined') {
-            console.error("FullCalendar interactionPlugin not loaded. Check CDN script.");
-            if (this.hasLoaderTarget) {
-                this.loaderTarget.classList.remove('hidden');
-                this.loaderTarget.innerHTML = '<span class="text-lab-danger font-mono">ERREUR : PLUGIN FullCalendar interactionPlugin MANQUANT</span>';
-            }
-            return;
-        }
         this.initCalendar();
     }
 
@@ -50,7 +32,6 @@ export default class extends Controller {
             .trim() || '#00ffc3';
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: [ FullCalendar.timeGridPlugin, FullCalendar.interactionPlugin ],
             initialView: 'timeGridWeek',
             headerToolbar: {
                 left: 'prev,next today',
