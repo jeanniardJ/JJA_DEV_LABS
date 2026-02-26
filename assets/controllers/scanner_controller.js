@@ -169,9 +169,39 @@ export default class extends Controller {
         this.verifyErrorTarget.classList.add('hidden');
     }
 
-    copyToken() {
+    copyToken(event) {
+        if (!this.token) return;
+
         navigator.clipboard.writeText(this.token).then(() => {
-            // Success feedback could be added here
+            const btn = event.currentTarget;
+            const originalIcon = btn.innerHTML;
+            
+            // Disable button during feedback
+            btn.disabled = true;
+            
+            // Global toast notification (Priority)
+            window.dispatchEvent(new CustomEvent('toast', {
+                detail: {
+                    message: "TOKEN COPIÉ",
+                    type: "success"
+                }
+            }));
+
+            // Temporary visual feedback on button
+            btn.innerHTML = '<i data-lucide="check" class="w-3 h-3 text-lab-terminal"></i>';
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+            
+            setTimeout(() => {
+                btn.innerHTML = originalIcon;
+                btn.disabled = false;
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons();
+                }
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy token: ', err);
         });
     }
 
