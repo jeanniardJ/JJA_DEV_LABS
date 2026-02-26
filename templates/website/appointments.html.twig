@@ -2,6 +2,17 @@
 
 {% block title %}Prendre rendez-vous | JJA DEV LAB{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/fr.global.min.js"></script>
+{% endblock %}
+
 {% block body %}
 <section class="max-w-4xl mx-auto py-12">
     <div class="mb-12">
@@ -10,11 +21,10 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- Calendar Column -->
         <div class="md:col-span-2">
-            <div class="glass-panel border border-lab-border p-6 rounded-sm min-h-[400px]" data-controller="calendar">
-                <div id="calendar" class="text-white"></div>
-                <div data-calendar-target="loader" class="flex items-center justify-center h-full">
+            <div class="glass-panel border border-lab-border p-6 rounded-sm min-h-[600px] flex flex-col" data-controller="calendar">
+                <div id="calendar" class="text-white flex-1 min-h-[500px]"></div>
+                <div data-calendar-target="loader" class="flex items-center justify-center h-full absolute inset-0 bg-black/50 z-10">
                     <span class="text-lab-primary font-mono animate-pulse">CHARGEMENT DU CALENDRIER...</span>
                 </div>
             </div>

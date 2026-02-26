@@ -1,26 +1,56 @@
 import { Controller } from '@hotwired/stimulus';
-import { Calendar } from '@fullcalendar/core';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
 
 export default class extends Controller {
     static targets = ["loader"];
 
     connect() {
+        console.log("Calendar controller connected");
+        // Vérifie si FullCalendar est disponible globalement
+        if (typeof FullCalendar === 'undefined' || typeof FullCalendar.Calendar === 'undefined') {
+            console.error("FullCalendar not loaded globally. Check CDN script.");
+            // Tenter de rendre le loader visible ou afficher un message d'erreur
+            if (this.hasLoaderTarget) {
+                this.loaderTarget.classList.remove('hidden'); // S'assurer qu'il est visible
+                this.loaderTarget.innerHTML = '<span class="text-lab-danger font-mono">ERREUR : CALENDRIER NON CHARGÉ</span>';
+            }
+            return;
+        }
+
+        if (typeof FullCalendar.timeGridPlugin === 'undefined') {
+            console.error("FullCalendar timeGridPlugin not loaded. Check CDN script.");
+            if (this.hasLoaderTarget) {
+                this.loaderTarget.classList.remove('hidden');
+                this.loaderTarget.innerHTML = '<span class="text-lab-danger font-mono">ERREUR : PLUGIN FullCalendar timeGridPlugin MANQUANT</span>';
+            }
+            return;
+        }
+
+        if (typeof FullCalendar.interactionPlugin === 'undefined') {
+            console.error("FullCalendar interactionPlugin not loaded. Check CDN script.");
+            if (this.hasLoaderTarget) {
+                this.loaderTarget.classList.remove('hidden');
+                this.loaderTarget.innerHTML = '<span class="text-lab-danger font-mono">ERREUR : PLUGIN FullCalendar interactionPlugin MANQUANT</span>';
+            }
+            return;
+        }
         this.initCalendar();
     }
 
     initCalendar() {
         const calendarEl = document.getElementById('calendar');
-        if (!calendarEl) return;
+        if (!calendarEl) {
+            console.error("Element #calendar not found");
+            return;
+        }
+        console.log("Initializing calendar on element:", calendarEl);
 
         // Get color from CSS variable for consistency
         const primaryColor = getComputedStyle(document.documentElement)
             .getPropertyValue('--color-lab-primary')
             .trim() || '#00ffc3';
 
-        const calendar = new Calendar(calendarEl, {
-            plugins: [ timeGridPlugin, interactionPlugin ],
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: [ FullCalendar.timeGridPlugin, FullCalendar.interactionPlugin ],
             initialView: 'timeGridWeek',
             headerToolbar: {
                 left: 'prev,next today',
