@@ -4,13 +4,14 @@ namespace App\Tests\Unit\Service;
 
 use App\Entity\ScanResult;
 use App\Service\ConversionService;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ConversionServiceTest extends TestCase
 {
     private ConversionService $conversionService;
-    private TranslatorInterface $translator;
+    private MockObject&TranslatorInterface $translator;
 
     protected function setUp(): void
     {
