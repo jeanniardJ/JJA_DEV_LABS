@@ -1,0 +1,91 @@
+#!/bin/bash
+# =============================================================================
+# JJA DEV LAB - PREMIER DÉPLOIEMENT sur OVH
+# À exécuter UNE SEULE FOIS sur le serveur OVH
+# =============================================================================
+#
+# USAGE:
+#   1. Se connecter en SSH au serveur OVH
+#   2. Cloner le repo :
+#      git clone git@github.com:JJADEV/JJA_DEV_LABS.git /chemin/vers/site
+#   3. Copier et remplir le .env.prod.local :
+#      cp .env.prod.local.example .env.prod.local
+#      nano .env.prod.local
+#   4. Lancer ce script :
+#      chmod +x scripts/first-deploy.sh
+#      bash scripts/first-deploy.sh
+#
+# =============================================================================
+
+set -euo pipefail
+
+APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+PHP_BIN=$(which php)
+COMPOSER_BIN=$(which composer 2>/dev/null || echo "")
+
+echo "============================================"
+echo "  JJA DEV LAB - Premier déploiement"
+echo "============================================"
+echo ""
+
+cd "$APP_DIR"
+
+# Vérifier le .env.prod.local
+if [ ! -f ".env.prod.local" ]; then
+    echo "ERREUR: .env.prod.local introuvable !"
+    echo "Copiez .env.prod.local.example vers .env.prod.local et remplissez les valeurs."
+    exit 1
+fi
+
+echo "[OK] .env.prod.local trouvé"
+
+# Installer Composer si absent
+if [ -z "$COMPOSER_BIN" ]; then
+    echo "[INFO] Composer non trouvé, téléchargement..."
+    curl -sS https://getcomposer.org/installer | $PHP_BIN -- --install-dir="$APP_DIR" --filename=composer.phar
+    COMPOSER_BIN="$APP_DIR/composer.phar"
+fi
+
+# 1. Dépendances
+echo "[1/7] Installation des dépendances..."
+$COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction
+
+# 2. Créer la base de données si elle n'existe pas
+echo "[2/7] Vérification de la base de données..."
+$PHP_BIN bin/console doctrine:database:create --if-not-exists --env=prod
+
+# 3. Migrations
+echo "[3/7] Exécution des migrations..."
+$PHP_BIN bin/console doctrine:migrations:migrate --no-interaction --env=prod
+
+# 4. Cache
+echo "[4/7] Construction du cache prod..."
+$PHP_BIN bin/console cache:clear --env=prod --no-debug
+$PHP_BIN bin/console cache:warmup --env=prod --no-debug
+
+# 5. Tailwind
+echo "[5/7] Build Tailwind CSS..."
+$PHP_BIN bin/console tailwind:build --minify
+
+# 6. Assets
+echo "[6/7] Compilation des assets..."
+$PHP_BIN bin/console asset-map:compile
+
+# 7. Permissions
+echo "[7/7] Permissions des répertoires..."
+chmod -R 775 var/
+chmod +x scripts/deploy.sh
+
+echo ""
+echo "============================================"
+echo "  PREMIER DÉPLOIEMENT TERMINÉ !"
+echo "============================================"
+echo ""
+echo "Prochaines étapes :"
+echo "  1. Configurer le vhost Apache/Nginx vers public/"
+echo "  2. Configurer le webhook GitHub :"
+echo "     URL: https://votre-domaine.com/webhook.php"
+echo "     Secret: (celui défini dans WEBHOOK_SECRET de .env.prod.local)"
+echo "     Events: push"
+echo "  3. Les prochains push sur master déclencheront le déploiement automatique"
+echo ""

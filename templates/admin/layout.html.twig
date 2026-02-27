@@ -77,21 +77,21 @@
             <a href="{{ path('admin_analytics_index') }}" class="sidebar-item {{ app.request.attributes.get('_route') == 'admin_analytics_index' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
                 <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Analytics
             </a>
-            <a href="#" class="sidebar-item flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter opacity-50 cursor-not-allowed">
+            <a href="{{ path('admin_user_index') }}" class="sidebar-item {{ app.request.attributes.get('_route') starts with 'admin_user_' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
                 <i data-lucide="users" class="w-4 h-4"></i> Utilisateurs
             </a>
-            <a href="#" class="sidebar-item flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter opacity-50 cursor-not-allowed">
+            <a href="{{ path('admin_security_logs') }}" class="sidebar-item {{ app.request.attributes.get('_route') == 'admin_security_logs' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
                 <i data-lucide="shield-check" class="w-4 h-4"></i> Sécurité & Logs
             </a>
 
             <div class="px-4 mt-8 mb-4 text-[10px] font-mono text-lab-muted uppercase tracking-[0.2em]">Configuration Lab</div>
-            <a href="{{ path('app_lab_stations') }}" class="sidebar-item {{ app.request.attributes.get('_route') == 'app_lab_stations' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
+            <a href="{{ path('app_lab_station_index') }}" class="sidebar-item {{ app.request.attributes.get('_route') starts with 'app_lab_station_' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
                 <i data-lucide="binary" class="w-4 h-4"></i> Skill Nodes
             </a>
-            <a href="{{ path('app_website_appointments') }}" class="sidebar-item {{ app.request.attributes.get('_route') == 'app_website_appointments' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
+            <a href="{{ path('admin_appointment_index') }}" class="sidebar-item {{ app.request.attributes.get('_route') starts with 'admin_appointment_' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
                 <i data-lucide="calendar" class="w-4 h-4"></i> Rendez-vous
             </a>
-            <a href="#" class="sidebar-item flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter opacity-50 cursor-not-allowed">
+            <a href="{{ path('admin_settings') }}" class="sidebar-item {{ app.request.attributes.get('_route') == 'admin_settings' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
                 <i data-lucide="settings" class="w-4 h-4"></i> Paramètres Système
             </a>
         </nav>

@@ -1,0 +1,137 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}JJA DEV LAB | {{ is_new|default(false) ? 'Nouvelle Station' : 'Éditer ' ~ station.name }}{% endblock %}
+
+{% block admin_breadcrumb %}
+    <a href="{{ path('app_lab_station_index') }}" class="text-lab-muted hover:text-lab-primary transition-colors">Skill Nodes</a>
+    &gt; {{ is_new|default(false) ? 'Nouvelle Station' : station.name }}
+{% endblock %}
+
+{% block admin_body %}
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-none">
+                {{ is_new|default(false) ? 'Déployer une Station' : 'Reconfigurer : ' ~ station.name }}
+            </h1>
+            <p class="text-lab-muted font-mono text-xs mt-2 uppercase tracking-widest">
+                {{ is_new|default(false) ? 'Initialisation d\'un nouveau noeud' : 'Modification des paramètres du noeud #' ~ station.id }}
+            </p>
+        </div>
+        <a href="{{ path('app_lab_station_index') }}" class="px-4 py-2 bg-lab-border/20 border border-lab-border text-lab-muted font-mono text-[10px] uppercase hover:border-lab-primary hover:text-lab-primary transition-all inline-flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-3 h-3"></i> Retour aux Stations
+        </a>
+    </div>
+
+    {% for flash in app.flashes('success') %}
+        <div class="admin-card p-4 border-lab-terminal/30 bg-lab-terminal/5">
+            <div class="flex items-center gap-3 text-[10px] font-mono text-lab-terminal uppercase tracking-widest">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> {{ flash }}
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {{ form_start(form, {'attr': {'class': 'contents'}}) }}
+
+        {# COLONNE PRINCIPALE #}
+        <div class="lg:col-span-2 space-y-6">
+            <div class="admin-card p-6">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3 mb-6">
+                    <i data-lucide="terminal" class="w-4 h-4 text-lab-primary"></i> Identité de la Station
+                </h2>
+                <div class="space-y-5">
+                    <div>
+                        {{ form_label(form.name, null, {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted uppercase tracking-widest mb-2'}}) }}
+                        {{ form_widget(form.name, {'attr': {'class': 'w-full bg-black/40 border border-lab-border text-white font-mono text-sm px-4 py-3 focus:border-lab-primary focus:outline-none transition-colors placeholder:text-lab-border'}}) }}
+                        {{ form_errors(form.name, {'attr': {'class': 'text-lab-danger text-[10px] font-mono mt-1'}}) }}
+                    </div>
+                    <div>
+                        {{ form_label(form.description, null, {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted uppercase tracking-widest mb-2'}}) }}
+                        {{ form_widget(form.description, {'attr': {'class': 'w-full bg-black/40 border border-lab-border text-white font-mono text-sm px-4 py-3 focus:border-lab-primary focus:outline-none transition-colors placeholder:text-lab-border resize-none'}}) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            {{ form_label(form.icon, null, {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted uppercase tracking-widest mb-2'}}) }}
+                            {{ form_widget(form.icon, {'attr': {'class': 'w-full bg-black/40 border border-lab-border text-white font-mono text-sm px-4 py-3 focus:border-lab-primary focus:outline-none transition-colors placeholder:text-lab-border'}}) }}
+                            {% if form.icon.vars.help is defined and form.icon.vars.help %}
+                                <p class="text-[9px] font-mono text-lab-muted mt-1">{{ form.icon.vars.help }}</p>
+                            {% endif %}
+                            {{ form_errors(form.icon) }}
+                        </div>
+                        <div>
+                            {{ form_label(form.status, null, {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted uppercase tracking-widest mb-2'}}) }}
+                            {{ form_widget(form.status, {'attr': {'class': 'w-full bg-black/40 border border-lab-border text-white font-mono text-sm px-4 py-3 focus:border-lab-primary focus:outline-none transition-colors'}}) }}
+                            {{ form_errors(form.status) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card p-6">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3 mb-6">
+                    <i data-lucide="gauge" class="w-4 h-4 text-lab-cyan"></i> Métriques & Monitoring
+                </h2>
+                <div class="space-y-5">
+                    <div>
+                        {{ form_label(form.uptime, null, {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted uppercase tracking-widest mb-2'}}) }}
+                        {{ form_widget(form.uptime, {'attr': {'class': 'w-full bg-black/40 border border-lab-border text-white font-mono text-sm px-4 py-3 focus:border-lab-primary focus:outline-none transition-colors placeholder:text-lab-border'}}) }}
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            {{ form_label(form.metricLabel, null, {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted uppercase tracking-widest mb-2'}}) }}
+                            {{ form_widget(form.metricLabel, {'attr': {'class': 'w-full bg-black/40 border border-lab-border text-white font-mono text-sm px-4 py-3 focus:border-lab-primary focus:outline-none transition-colors placeholder:text-lab-border'}}) }}
+                        </div>
+                        <div>
+                            {{ form_label(form.metricValue, null, {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted uppercase tracking-widest mb-2'}}) }}
+                            {{ form_widget(form.metricValue, {'attr': {'class': 'w-full bg-black/40 border border-lab-border text-white font-mono text-sm px-4 py-3 focus:border-lab-primary focus:outline-none transition-colors placeholder:text-lab-border'}}) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# SIDEBAR #}
+        <div class="space-y-6">
+            <div class="admin-card p-6">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3 mb-6">
+                    <i data-lucide="palette" class="w-4 h-4 text-lab-warning"></i> Apparence
+                </h2>
+                <div class="space-y-5">
+                    <div>
+                        {{ form_label(form.borderColor, null, {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted uppercase tracking-widest mb-2'}}) }}
+                        <div class="flex items-center gap-3">
+                            {{ form_widget(form.borderColor, {'attr': {'class': 'w-12 h-10 bg-black/40 border border-lab-border cursor-pointer'}}) }}
+                            <span class="text-[10px] font-mono text-lab-muted">{{ station.borderColor|default('#00c6ff') }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        {{ form_label(form.position, null, {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted uppercase tracking-widest mb-2'}}) }}
+                        {{ form_widget(form.position, {'attr': {'class': 'w-full bg-black/40 border border-lab-border text-white font-mono text-sm px-4 py-3 focus:border-lab-primary focus:outline-none transition-colors'}}) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card p-6 space-y-3">
+                <button type="submit" class="w-full px-4 py-3 bg-lab-primary/10 border border-lab-primary text-lab-primary font-mono text-[10px] uppercase tracking-widest hover:bg-lab-primary hover:text-black transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="save" class="w-3 h-3"></i>
+                    {{ is_new|default(false) ? 'Déployer la Station' : 'Appliquer les Modifications' }}
+                </button>
+
+                {% if not is_new|default(false) and station.id %}
+                    <div class="pt-3 border-t border-lab-border/30">
+                        <p class="text-[9px] font-mono text-lab-danger/50 uppercase tracking-widest mb-2">Zone Dangereuse</p>
+                        <form method="post" action="{{ path('app_lab_station_delete', {'id': station.id}) }}" onsubmit="return confirm('Confirmer la suppression de cette station ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ station.id) }}">
+                            <button type="submit" class="w-full px-4 py-2 bg-lab-danger/5 border border-lab-danger/30 text-lab-danger font-mono text-[10px] uppercase tracking-widest hover:bg-lab-danger hover:text-white transition-all flex items-center justify-center gap-2">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i> Supprimer la Station
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

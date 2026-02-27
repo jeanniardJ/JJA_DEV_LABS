@@ -1,0 +1,149 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}JJA DEV LAB | Rendez-vous{% endblock %}
+
+{% block admin_breadcrumb %}Rendez-vous{% endblock %}
+
+{% block admin_body %}
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-none">Scheduler Module</h1>
+            <p class="text-lab-muted font-mono text-xs mt-2 uppercase tracking-widest">Gestion des créneaux et sessions planifiées</p>
+        </div>
+        <div class="flex items-center gap-4 text-[10px] font-mono text-lab-muted uppercase">
+            <span>Total : <span class="text-white">{{ total }}</span></span>
+            <span>À venir : <span class="text-lab-terminal">{{ upcoming|length }}</span></span>
+            <span>Passés : <span class="text-lab-muted">{{ past|length }}</span></span>
+        </div>
+    </div>
+
+    {% for flash in app.flashes('success') %}
+        <div class="admin-card p-4 border-lab-terminal/30 bg-lab-terminal/5">
+            <div class="flex items-center gap-3 text-[10px] font-mono text-lab-terminal uppercase tracking-widest">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> {{ flash }}
+            </div>
+        </div>
+    {% endfor %}
+
+    {# RENDEZ-VOUS À VENIR #}
+    <div class="admin-card">
+        <div class="p-6 border-b border-lab-border flex items-center justify-between">
+            <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                <i data-lucide="calendar-clock" class="w-4 h-4 text-lab-terminal"></i> Sessions à Venir
+            </h2>
+            <span class="text-[10px] font-mono text-lab-terminal uppercase">{{ upcoming|length }} planifiée{{ upcoming|length > 1 ? 's' : '' }}</span>
+        </div>
+
+        {% if upcoming|length > 0 %}
+            <div class="divide-y divide-lab-border/30">
+                {% for appointment in upcoming %}
+                    <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors">
+                        <div class="flex items-center gap-6">
+                            <div class="w-14 h-14 bg-lab-terminal/10 border border-lab-terminal/30 flex flex-col items-center justify-center flex-shrink-0">
+                                <span class="text-lg font-black text-lab-terminal leading-none">{{ appointment.startsAt|date('d') }}</span>
+                                <span class="text-[8px] font-mono text-lab-terminal uppercase">{{ appointment.startsAt|date('M') }}</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm font-bold text-white font-mono uppercase">
+                                        {{ appointment.startsAt|date('H:i') }} - {{ appointment.endsAt|date('H:i') }}
+                                    </span>
+                                    <span class="px-2 py-0.5 text-[8px] font-mono uppercase tracking-widest
+                                        {% if appointment.status == 'confirmed' %}bg-lab-terminal/10 text-lab-terminal border border-lab-terminal/30
+                                        {% elseif appointment.status == 'cancelled' %}bg-lab-danger/10 text-lab-danger border border-lab-danger/30
+                                        {% elseif appointment.status == 'completed' %}bg-lab-primary/10 text-lab-primary border border-lab-primary/30
+                                        {% else %}bg-lab-warning/10 text-lab-warning border border-lab-warning/30
+                                        {% endif %}">
+                                        {{ appointment.status|default('pending') }}
+                                    </span>
+                                </div>
+                                {% if appointment.lead %}
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <i data-lucide="user" class="w-3 h-3 text-lab-muted"></i>
+                                        <span class="text-[10px] font-mono text-lab-muted">{{ appointment.lead.name }} &mdash; {{ appointment.lead.email }}</span>
+                                    </div>
+                                    {% if appointment.lead.subject %}
+                                        <p class="text-[10px] font-mono text-lab-muted/60 mt-1">{{ appointment.lead.subject }}</p>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-[10px] font-mono text-lab-muted/40 mt-1">Aucun lead associé</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            {% if appointment.status != 'confirmed' %}
+                                <form method="post" action="{{ path('admin_appointment_status', {id: appointment.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('status' ~ appointment.id) }}">
+                                    <input type="hidden" name="status" value="confirmed">
+                                    <button type="submit" class="px-3 py-1.5 border border-lab-terminal/30 text-lab-terminal text-[9px] font-mono uppercase hover:bg-lab-terminal/10 transition-all" title="Confirmer">
+                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                            {% if appointment.status != 'cancelled' %}
+                                <form method="post" action="{{ path('admin_appointment_status', {id: appointment.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('status' ~ appointment.id) }}">
+                                    <input type="hidden" name="status" value="cancelled">
+                                    <button type="submit" class="px-3 py-1.5 border border-lab-warning/30 text-lab-warning text-[9px] font-mono uppercase hover:bg-lab-warning/10 transition-all" title="Annuler">
+                                        <i data-lucide="x" class="w-3 h-3"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                            <form method="post" action="{{ path('admin_appointment_delete', {id: appointment.id}) }}" onsubmit="return confirm('Supprimer ce rendez-vous ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ appointment.id) }}">
+                                <button type="submit" class="px-3 py-1.5 border border-lab-danger/30 text-lab-danger text-[9px] font-mono uppercase hover:bg-lab-danger/10 transition-all" title="Supprimer">
+                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-12 text-center">
+                <i data-lucide="calendar-off" class="w-8 h-8 text-lab-border mx-auto mb-4"></i>
+                <p class="text-lab-muted font-mono text-xs uppercase tracking-widest">Aucun rendez-vous à venir</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {# RENDEZ-VOUS PASSÉS #}
+    {% if past|length > 0 %}
+        <div class="admin-card">
+            <div class="p-6 border-b border-lab-border flex items-center justify-between">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                    <i data-lucide="history" class="w-4 h-4 text-lab-muted"></i> Historique des Sessions
+                </h2>
+                <span class="text-[10px] font-mono text-lab-muted uppercase">{{ past|length }} terminée{{ past|length > 1 ? 's' : '' }}</span>
+            </div>
+
+            <div class="divide-y divide-lab-border/30 opacity-60">
+                {% for appointment in past %}
+                    <div class="p-4 px-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div class="flex items-center gap-4">
+                            <div class="text-[10px] font-mono text-lab-muted w-20">{{ appointment.startsAt|date('d/m/Y') }}</div>
+                            <span class="text-[10px] font-mono text-white">{{ appointment.startsAt|date('H:i') }} - {{ appointment.endsAt|date('H:i') }}</span>
+                            {% if appointment.lead %}
+                                <span class="text-[10px] font-mono text-lab-muted">{{ appointment.lead.name }}</span>
+                            {% endif %}
+                            <span class="px-2 py-0.5 text-[8px] font-mono uppercase tracking-widest
+                                {% if appointment.status == 'completed' %}text-lab-primary
+                                {% elseif appointment.status == 'cancelled' %}text-lab-danger
+                                {% else %}text-lab-muted
+                                {% endif %}">
+                                {{ appointment.status|default('pending') }}
+                            </span>
+                        </div>
+                        <form method="post" action="{{ path('admin_appointment_delete', {id: appointment.id}) }}" onsubmit="return confirm('Supprimer ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ appointment.id) }}">
+                            <button type="submit" class="text-lab-muted hover:text-lab-danger transition-colors">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}JJA DEV LAB | Sécurité & Logs{% endblock %}
+
+{% block admin_breadcrumb %}Sécurité & Logs{% endblock %}
+
+{% block admin_body %}
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-none">Security Audit Trail</h1>
+            <p class="text-lab-muted font-mono text-xs mt-2 uppercase tracking-widest">Journal des événements système et authentification</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ path('admin_security_logs', {filter: 'all'}) }}" class="px-3 py-1.5 text-[9px] font-mono uppercase {{ current_filter == 'all' ? 'bg-lab-primary/10 border-lab-primary text-lab-primary' : 'border-lab-border text-lab-muted hover:text-white' }} border transition-all">Tous</a>
+            <a href="{{ path('admin_security_logs', {filter: 'security'}) }}" class="px-3 py-1.5 text-[9px] font-mono uppercase {{ current_filter == 'security' ? 'bg-lab-terminal/10 border-lab-terminal text-lab-terminal' : 'border-lab-border text-lab-muted hover:text-white' }} border transition-all">Sécurité</a>
+            <a href="{{ path('admin_security_logs', {filter: 'auth'}) }}" class="px-3 py-1.5 text-[9px] font-mono uppercase {{ current_filter == 'auth' ? 'bg-lab-cyan/10 border-lab-cyan text-lab-cyan' : 'border-lab-border text-lab-muted hover:text-white' }} border transition-all">Auth</a>
+            <a href="{{ path('admin_security_logs', {filter: 'error'}) }}" class="px-3 py-1.5 text-[9px] font-mono uppercase {{ current_filter == 'error' ? 'bg-lab-danger/10 border-lab-danger text-lab-danger' : 'border-lab-border text-lab-muted hover:text-white' }} border transition-all">Erreurs</a>
+        </div>
+    </div>
+
+    {% if not log_exists %}
+        <div class="admin-card p-12 text-center">
+            <i data-lucide="file-x" class="w-8 h-8 text-lab-border mx-auto mb-4"></i>
+            <p class="text-lab-muted font-mono text-xs uppercase tracking-widest">Aucun fichier de log trouvé</p>
+        </div>
+    {% elseif entries|length == 0 %}
+        <div class="admin-card p-12 text-center">
+            <i data-lucide="search-x" class="w-8 h-8 text-lab-border mx-auto mb-4"></i>
+            <p class="text-lab-muted font-mono text-xs uppercase tracking-widest">Aucun événement correspondant au filtre "{{ current_filter }}"</p>
+        </div>
+    {% else %}
+        <div class="admin-card">
+            <div class="p-6 border-b border-lab-border flex items-center justify-between">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                    <i data-lucide="scroll-text" class="w-4 h-4 text-lab-primary"></i> Event Stream
+                </h2>
+                <span class="text-[10px] font-mono text-lab-muted uppercase">{{ entries|length }} événement{{ entries|length > 1 ? 's' : '' }}</span>
+            </div>
+
+            <div class="divide-y divide-lab-border/20 font-mono text-[11px] max-h-[600px] overflow-y-auto custom-scrollbar">
+                {% for entry in entries %}
+                    <div class="px-6 py-3 flex items-start gap-4 hover:bg-white/[0.02] transition-colors">
+                        {# Timestamp #}
+                        <span class="text-lab-muted/50 flex-shrink-0 w-44 text-[10px]">{{ entry.datetime }}</span>
+
+                        {# Level Badge #}
+                        <span class="flex-shrink-0 w-16 text-center px-1 py-0.5 text-[8px] uppercase tracking-widest
+                            {% if entry.level == 'ERROR' or entry.level == 'CRITICAL' or entry.level == 'EMERGENCY' %}
+                                text-lab-danger bg-lab-danger/10
+                            {% elseif entry.level == 'WARNING' %}
+                                text-lab-warning bg-lab-warning/10
+                            {% elseif entry.level == 'INFO' %}
+                                text-lab-terminal bg-lab-terminal/10
+                            {% else %}
+                                text-lab-muted bg-lab-border/20
+                            {% endif %}">
+                            {{ entry.level }}
+                        </span>
+
+                        {# Channel #}
+                        <span class="flex-shrink-0 w-20 text-[9px] text-lab-primary/60 uppercase">{{ entry.channel }}</span>
+
+                        {# Message #}
+                        <span class="text-lab-text break-all leading-relaxed">{{ entry.message|length > 200 ? entry.message|slice(0, 200) ~ '...' : entry.message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

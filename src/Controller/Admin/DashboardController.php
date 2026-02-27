@@ -15,7 +15,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 #[Route('/admin')]
-// #[IsGranted('ROLE_ADMIN')] // BYPASS DÉVELOPPEMENT
+#[IsGranted('ROLE_ADMIN')]
 class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'admin_dashboard')]

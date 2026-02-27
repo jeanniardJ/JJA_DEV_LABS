@@ -1,0 +1,121 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}JJA DEV LAB | Paramètres Système{% endblock %}
+
+{% block admin_breadcrumb %}Paramètres Système{% endblock %}
+
+{% block admin_body %}
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-none">System Configuration</h1>
+            <p class="text-lab-muted font-mono text-xs mt-2 uppercase tracking-widest">Diagnostic des services et paramètres de l'environnement</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        {# STATUT DES SERVICES #}
+        <div class="admin-card lg:col-span-2">
+            <div class="p-6 border-b border-lab-border">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                    <i data-lucide="activity" class="w-4 h-4 text-lab-primary"></i> Statut des Services
+                </h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-lab-border/30">
+                {% for service in services %}
+                    <div class="p-6 flex items-center gap-4">
+                        <div class="w-10 h-10 flex items-center justify-center border {{ service.status ? 'border-lab-terminal/30 bg-lab-terminal/5' : 'border-lab-danger/30 bg-lab-danger/5' }}">
+                            <i data-lucide="{{ service.icon }}" class="w-4 h-4 {{ service.status ? 'text-lab-terminal' : 'text-lab-danger' }}"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-mono text-white uppercase tracking-tight">{{ service.name }}</p>
+                            <p class="text-[9px] font-mono uppercase tracking-widest {{ service.status ? 'text-lab-terminal' : 'text-lab-danger' }}">
+                                {{ service.status ? 'OPERATIONAL' : 'OFFLINE / NON CONFIGURÉ' }}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# PHP INFO #}
+        <div class="admin-card">
+            <div class="p-6 border-b border-lab-border">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                    <i data-lucide="cpu" class="w-4 h-4 text-lab-cyan"></i> Environnement PHP
+                </h2>
+            </div>
+            <div class="p-6 space-y-4 font-mono text-[11px]">
+                <div class="flex justify-between">
+                    <span class="text-lab-muted uppercase">Version</span>
+                    <span class="text-lab-terminal">{{ php_info.version }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-lab-muted uppercase">OS</span>
+                    <span class="text-white">{{ php_info.os }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-lab-muted uppercase">SAPI</span>
+                    <span class="text-white">{{ php_info.sapi }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-lab-muted uppercase">Memory Limit</span>
+                    <span class="text-white">{{ php_info.memory_limit }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-lab-muted uppercase">Max Exec Time</span>
+                    <span class="text-white">{{ php_info.max_execution_time }}s</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-lab-muted uppercase">Upload Max</span>
+                    <span class="text-white">{{ php_info.upload_max_filesize }}</span>
+                </div>
+                <div class="pt-4 border-t border-lab-border/30">
+                    <p class="text-lab-muted uppercase mb-2">Extensions ({{ php_info.extensions|length }})</p>
+                    <div class="flex flex-wrap gap-1">
+                        {% for ext in php_info.extensions %}
+                            <span class="px-1.5 py-0.5 text-[8px] bg-lab-border/20 text-lab-muted">{{ ext }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# SYMFONY INFO #}
+        <div class="admin-card">
+            <div class="p-6 border-b border-lab-border">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                    <i data-lucide="boxes" class="w-4 h-4 text-lab-warning"></i> Symfony Runtime
+                </h2>
+            </div>
+            <div class="p-6 space-y-4 font-mono text-[11px]">
+                <div class="flex justify-between">
+                    <span class="text-lab-muted uppercase">Version</span>
+                    <span class="text-lab-warning">{{ symfony_info.version }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-lab-muted uppercase">Environment</span>
+                    <span class="text-white">{{ symfony_info.environment }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-lab-muted uppercase">Debug Mode</span>
+                    <span class="{{ symfony_info.debug ? 'text-lab-warning' : 'text-lab-terminal' }}">{{ symfony_info.debug ? 'ON' : 'OFF' }}</span>
+                </div>
+                <div class="pt-4 border-t border-lab-border/30 space-y-3">
+                    <div>
+                        <p class="text-lab-muted uppercase mb-1">Project Dir</p>
+                        <p class="text-white text-[10px] break-all">{{ symfony_info.project_dir }}</p>
+                    </div>
+                    <div>
+                        <p class="text-lab-muted uppercase mb-1">Cache Dir</p>
+                        <p class="text-white text-[10px] break-all">{{ symfony_info.cache_dir }}</p>
+                    </div>
+                    <div>
+                        <p class="text-lab-muted uppercase mb-1">Log Dir</p>
+                        <p class="text-white text-[10px] break-all">{{ symfony_info.log_dir }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

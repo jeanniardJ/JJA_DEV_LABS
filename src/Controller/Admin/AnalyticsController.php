@@ -12,7 +12,7 @@ use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
 use Symfony\UX\Chartjs\Model\Chart;
 
 #[Route('/admin/analytics')]
-// #[IsGranted('ROLE_ADMIN')] // BYPASS DÉVELOPPEMENT
+#[IsGranted('ROLE_ADMIN')]
 class AnalyticsController extends AbstractController
 {
     #[Route('', name: 'admin_analytics_index')]
