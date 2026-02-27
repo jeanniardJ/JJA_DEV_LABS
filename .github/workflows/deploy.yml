@@ -77,13 +77,13 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer install --no-dev --prefer-dist --no-progress --ignore-platform-req=ext-redis
+        run: APP_ENV=prod composer install --no-dev --prefer-dist --no-progress --ignore-platform-req=ext-redis
 
       - name: Build Tailwind CSS
-        run: php bin/console tailwind:build --minify
+        run: APP_ENV=prod php bin/console tailwind:build --minify
 
       - name: Compile assets
-        run: php bin/console asset-map:compile
+        run: APP_ENV=prod php bin/console asset-map:compile
 
       - name: Upload assets to OVH via SCP
         uses: appleboy/scp-action@v0.1.7
