@@ -30,14 +30,19 @@ echo ""
 
 cd "$APP_DIR"
 
-# Vérifier le .env.prod.local
-if [ ! -f ".env.prod.local" ]; then
-    echo "ERREUR: .env.prod.local introuvable !"
-    echo "Copiez .env.prod.local.example vers .env.prod.local et remplissez les valeurs."
-    exit 1
+# Vérifier le .env.local (config prod)
+if [ ! -f ".env.local" ]; then
+    if [ -f ".env.prod.local" ]; then
+        echo "[INFO] Renommage .env.prod.local → .env.local"
+        mv .env.prod.local .env.local
+    else
+        echo "ERREUR: .env.local introuvable !"
+        echo "Copiez .env.prod.local.example vers .env.local et remplissez les valeurs."
+        exit 1
+    fi
 fi
 
-echo "[OK] .env.prod.local trouvé"
+echo "[OK] .env.local trouvé"
 
 # Installer Composer si absent
 if [ -z "$COMPOSER_BIN" ]; then
@@ -50,25 +55,29 @@ fi
 # ne chargent pas les bundles dev (DebugBundle, WebProfilerBundle, etc.)
 export APP_ENV=prod
 
-# 1. Dépendances
-echo "[1/7] Installation des dépendances..."
+# 1. Nettoyage des fichiers inutiles en production
+echo "[1/7] Nettoyage fichiers dev/test..."
+rm -rf tests/ mockup/ phpstan.dist.neon phpunit.dist.xml
+
+# 2. Dépendances
+echo "[2/7] Installation des dépendances..."
 $COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=ext-redis
 
-# 2. Créer la base de données si elle n'existe pas
-echo "[2/7] Vérification de la base de données..."
+# 3. Créer la base de données si elle n'existe pas
+echo "[3/7] Vérification de la base de données..."
 $PHP_BIN bin/console doctrine:database:create --if-not-exists --env=prod
 
-# 3. Migrations
-echo "[3/7] Exécution des migrations..."
+# 4. Migrations
+echo "[4/7] Exécution des migrations..."
 $PHP_BIN bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
-# 4. Cache
-echo "[4/7] Construction du cache prod..."
+# 5. Cache
+echo "[5/7] Construction du cache prod..."
 $PHP_BIN bin/console cache:clear --env=prod --no-debug
 $PHP_BIN bin/console cache:warmup --env=prod --no-debug
 
-# 5. Permissions
-echo "[5/5] Permissions des répertoires..."
+# 6. Permissions
+echo "[6/7] Permissions des répertoires..."
 chmod -R 775 var/
 chmod +x scripts/deploy.sh
 

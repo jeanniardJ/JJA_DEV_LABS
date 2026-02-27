@@ -19,6 +19,7 @@
         "pixelopen/cloudflare-turnstile-bundle": "^0.4.1",
         "scheb/2fa-bundle": "^7.13",
         "scheb/2fa-google-authenticator": "^7.13",
+        "symfony/apache-pack": "*",
         "symfony/asset": "7.4.*",
         "symfony/asset-mapper": "7.4.*",
         "symfony/console": "7.4.*",
