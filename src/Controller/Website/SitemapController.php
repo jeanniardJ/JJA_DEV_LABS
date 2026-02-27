@@ -18,7 +18,7 @@ class SitemapController extends AbstractController
         // Pages statiques principales
         $routes = [
             'app_home',
-            'app_lab_stations',
+            'app_lab_station_index',
             'app_technical_notes',
         ];
 
