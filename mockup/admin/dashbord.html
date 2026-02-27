@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JJA DEV LAB | ADMIN MAINFRAME</title>
+    
+    <!-- Polices de caractères -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lab: {
+                            bg: '#05070a',
+                            panel: '#0b0f14',
+                            border: '#1a2332',
+                            primary: '#00c6ff',
+                            cyan: '#4df4ff',
+                            terminal: '#00ff88',
+                            danger: '#ff3366',
+                            warning: '#ffb700',
+                            text: '#cbd5e1',
+                            muted: '#64748b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    animation: {
+                        'blink': 'blink 1s step-end infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blink: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Icônes : Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            background-color: #05070a;
+            color: #cbd5e1;
+        }
+
+        /* Effet CRT */
+        .crt-overlay {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            opacity: 0.15;
+        }
+
+        /* Grille technique */
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(30, 41, 59, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .admin-card {
+            background: rgba(11, 15, 20, 0.9);
+            border: 1px solid #1a2332;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .admin-card:hover {
+            border-color: rgba(0, 198, 255, 0.3);
+        }
+
+        .sidebar-item {
+            transition: all 0.2s;
+            border-left: 2px solid transparent;
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background: rgba(0, 198, 255, 0.05);
+            border-left-color: #00c6ff;
+            color: #fff;
+        }
+
+        /* Barre de défilement stylisée */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #05070a; }
+        ::-webkit-scrollbar-thumb { background: #1a2332; }
+        ::-webkit-scrollbar-thumb:hover { background: #00c6ff; }
+    </style>
+</head>
+<body class="antialiased font-sans min-h-screen flex">
+
+    <div class="crt-overlay"></div>
+    <div class="fixed inset-0 grid-bg -z-10"></div>
+
+    <!-- SIDEBAR DE NAVIGATION -->
+    <aside class="w-64 border-r border-lab-border bg-lab-panel hidden lg:flex flex-col z-50">
+        <div class="p-6 border-b border-lab-border">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-lab-primary/10 border border-lab-primary flex items-center justify-center">
+                    <i data-lucide="layout-grid" class="w-4 h-4 text-lab-primary"></i>
+                </div>
+                <span class="font-bold tracking-widest text-white text-sm uppercase">ADMIN PANEL</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 py-6 space-y-1 overflow-y-auto">
+            <div class="px-6 mb-4 text-[10px] font-mono text-lab-muted uppercase tracking-[0.2em]">Navigation Principal</div>
+            <a href="#" class="sidebar-item active flex items-center gap-4 px-6 py-3 text-sm font-mono tracking-tighter">
+                <i data-lucide="monitor" class="w-4 h-4"></i> Mainframe
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-6 py-3 text-sm font-mono tracking-tighter text-lab-muted">
+                <i data-lucide="users" class="w-4 h-4"></i> Utilisateurs
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-6 py-3 text-sm font-mono tracking-tighter text-lab-muted">
+                <i data-lucide="database" class="w-4 h-4"></i> Bases de Données
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-6 py-3 text-sm font-mono tracking-tighter text-lab-muted">
+                <i data-lucide="shield-check" class="w-4 h-4"></i> Sécurité & Logs
+            </a>
+
+            <div class="px-6 mt-8 mb-4 text-[10px] font-mono text-lab-muted uppercase tracking-[0.2em]">Configuration Lab</div>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-6 py-3 text-sm font-mono tracking-tighter text-lab-muted">
+                <i data-lucide="binary" class="w-4 h-4"></i> Skill Nodes
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-6 py-3 text-sm font-mono tracking-tighter text-lab-muted">
+                <i data-lucide="calendar" class="w-4 h-4"></i> Rendez-vous
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-6 py-3 text-sm font-mono tracking-tighter text-lab-muted">
+                <i data-lucide="settings" class="w-4 h-4"></i> Paramètres Système
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-lab-border bg-black/20">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full border border-lab-terminal bg-lab-terminal/10 flex items-center justify-center overflow-hidden">
+                    <i data-lucide="user" class="w-4 h-4 text-lab-terminal"></i>
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="text-xs font-bold text-white uppercase tracking-tighter">Opérateur JJA</span>
+                    <span class="text-[9px] text-lab-terminal font-mono uppercase mt-1">Super_Admin</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTENU PRINCIPAL -->
+    <main class="flex-1 flex flex-col min-w-0">
+        
+        <!-- TOP BAR -->
+        <header class="h-16 border-b border-lab-border bg-lab-panel/50 backdrop-blur flex items-center justify-between px-8 z-40">
+            <div class="flex items-center gap-4 text-xs font-mono">
+                <span class="text-lab-muted uppercase tracking-widest">Localisation :</span>
+                <span class="text-white">Mainframe > Vue d'ensemble</span>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div class="hidden md:flex items-center gap-3 text-[10px] font-mono text-lab-muted uppercase">
+                    <span class="w-1.5 h-1.5 bg-lab-terminal rounded-full animate-pulse"></span>
+                    Serveur : Actif
+                </div>
+                <button class="p-2 text-lab-muted hover:text-white transition-colors relative">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-lab-danger rounded-full"></span>
+                </button>
+                <button class="p-2 text-lab-muted hover:text-lab-danger transition-colors">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- DASHBOARD CONTAINER -->
+        <div class="p-8 space-y-8 overflow-y-auto">
+            
+            <!-- SECTION TITRE -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-none">Mainframe Kernel</h1>
+                    <p class="text-lab-muted font-mono text-xs mt-2 uppercase tracking-widest">Séquence de monitoring temps réel initialisée</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="px-4 py-2 bg-lab-primary/10 border border-lab-primary/40 text-lab-primary font-mono text-[10px] uppercase hover:bg-lab-primary hover:text-black transition-all">
+                        Exporter Rapport
+                    </button>
+                    <button class="px-4 py-2 bg-lab-danger/10 border border-lab-danger/40 text-lab-danger font-mono text-[10px] uppercase hover:bg-lab-danger hover:text-white transition-all">
+                        Panic_Mode
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATS GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 font-mono">
+                <div class="admin-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">DATA_FETCH_01</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs text-lab-muted uppercase tracking-widest">Utilisateurs Total</span>
+                        <i data-lucide="users" class="w-4 h-4 text-lab-primary"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-white">1,248</div>
+                    <div class="mt-2 text-[10px] text-lab-terminal">+12% vs last sync</div>
+                </div>
+
+                <div class="admin-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">DATA_FETCH_02</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs text-lab-muted uppercase tracking-widest">Sessions Actives</span>
+                        <i data-lucide="activity" class="w-4 h-4 text-lab-cyan"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-white">42</div>
+                    <div class="mt-2 text-[10px] text-lab-cyan tracking-widest">Séquence Stable</div>
+                </div>
+
+                <div class="admin-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">DATA_FETCH_03</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs text-lab-muted uppercase tracking-widest">Skill Nodes Sync</span>
+                        <i data-lucide="git-branch" class="w-4 h-4 text-lab-terminal"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-white">18/18</div>
+                    <div class="mt-2 text-[10px] text-lab-terminal uppercase tracking-widest">All Online</div>
+                </div>
+
+                <div class="admin-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">DATA_FETCH_04</div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs text-lab-muted uppercase tracking-widest">Requêtes / Min</span>
+                        <i data-lucide="zap" class="w-4 h-4 text-lab-warning"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-white">852</div>
+                    <div class="mt-2 text-[10px] text-lab-warning tracking-widest">Peak Detected</div>
+                </div>
+            </div>
+
+            <!-- MAIN GRID CONTENT -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- JOURNAL D'ACTIVITÉ -->
+                <div class="lg:col-span-2 admin-card flex flex-col">
+                    <div class="p-6 border-b border-lab-border flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                            <i data-lucide="list" class="w-4 h-4 text-lab-primary"></i> Journal du Kernel
+                        </h2>
+                        <button class="text-[10px] font-mono text-lab-muted hover:text-lab-primary transition-colors uppercase">Effacer les logs</button>
+                    </div>
+                    <div class="p-6 overflow-y-auto max-h-[400px] font-mono text-[11px] space-y-4">
+                        <div class="flex gap-4 group">
+                            <span class="text-lab-muted shrink-0">[08:45:21]</span>
+                            <span class="text-lab-terminal uppercase">SUCCESS</span>
+                            <span class="text-lab-text">Nouvel identifiant créé : <span class="text-lab-primary">admin_test@jja-lab.net</span></span>
+                        </div>
+                        <div class="flex gap-4 group">
+                            <span class="text-lab-muted shrink-0">[08:42:10]</span>
+                            <span class="text-lab-warning uppercase">WARNING</span>
+                            <span class="text-lab-text">Tentative d'accès non autorisée détectée sur le module : <span class="text-lab-warning">HW_LOGIC</span></span>
+                        </div>
+                        <div class="flex gap-4 group">
+                            <span class="text-lab-muted shrink-0">[08:30:05]</span>
+                            <span class="text-lab-primary uppercase">SYSTEM</span>
+                            <span class="text-lab-text">Synchronisation globale des Skill Nodes complétée (v7.2)</span>
+                        </div>
+                        <div class="flex gap-4 group">
+                            <span class="text-lab-muted shrink-0">[08:28:00]</span>
+                            <span class="text-lab-terminal uppercase">SUCCESS</span>
+                            <span class="text-lab-text">Session opérateur authentifiée : <span class="text-lab-primary underline">Jonathan_Admin</span></span>
+                        </div>
+                        <div class="flex gap-4 group italic opacity-50">
+                            <span class="text-lab-muted shrink-0">[08:25:59]</span>
+                            <span class="text-lab-muted uppercase">INFO</span>
+                            <span class="text-lab-text">Initialisation des services de monitoring... <span class="animate-blink">_</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SYSTEM STATUS / SIDE -->
+                <div class="space-y-6">
+                    <div class="admin-card p-6">
+                        <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3 mb-6">
+                            <i data-lucide="cpu" class="w-4 h-4 text-lab-danger"></i> État du Noyau
+                        </h2>
+                        
+                        <div class="space-y-6 font-mono">
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-[10px] uppercase tracking-widest">
+                                    <span class="text-lab-muted">Charge CPU</span>
+                                    <span class="text-lab-terminal">24%</span>
+                                </div>
+                                <div class="h-1 bg-lab-border rounded-full overflow-hidden">
+                                    <div class="h-full bg-lab-terminal w-[24%]"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-[10px] uppercase tracking-widest">
+                                    <span class="text-lab-muted">Utilisation RAM</span>
+                                    <span class="text-lab-warning">68%</span>
+                                </div>
+                                <div class="h-1 bg-lab-border rounded-full overflow-hidden">
+                                    <div class="h-full bg-lab-warning w-[68%]"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-[10px] uppercase tracking-widest">
+                                    <span class="text-lab-muted">Storage I/O</span>
+                                    <span class="text-lab-primary">12%</span>
+                                </div>
+                                <div class="h-1 bg-lab-border rounded-full overflow-hidden">
+                                    <div class="h-full bg-lab-primary w-[12%]"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 p-4 bg-lab-danger/5 border border-lab-danger/20 rounded-sm">
+                            <div class="flex items-center gap-2 text-[10px] text-lab-danger font-bold uppercase tracking-widest">
+                                <i data-lucide="alert-circle" class="w-3 h-3"></i> Alerte Sécurité
+                            </div>
+                            <p class="text-[9px] text-lab-muted font-mono mt-2 leading-relaxed uppercase">
+                                IP suspecte bloquée par le firewall à 08:42:10. Secteur mémoire protégé.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- RECENT USERS -->
+                    <div class="admin-card p-6">
+                        <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3 mb-6">
+                            <i data-lucide="user-check" class="w-4 h-4 text-lab-cyan"></i> Sessions Récentes
+                        </h2>
+                        <div class="space-y-4 font-mono">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-lab-border flex items-center justify-center text-[10px] text-white">M_L</div>
+                                <div class="flex flex-col">
+                                    <span class="text-xs text-white uppercase tracking-tighter">Marie.L</span>
+                                    <span class="text-[9px] text-lab-terminal uppercase">Online</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-lab-border flex items-center justify-center text-[10px] text-white">T_K</div>
+                                <div class="flex flex-col">
+                                    <span class="text-xs text-white uppercase tracking-tighter">Thomas.K</span>
+                                    <span class="text-[9px] text-lab-muted uppercase">Dernière vue : 2h</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- UI Overlay Footer Info (Float) -->
+    <footer class="fixed bottom-6 left-64 right-0 flex flex-col items-center pointer-events-none z-30 opacity-40">
+        <div class="font-mono text-[9px] uppercase tracking-[0.4em] text-lab-muted">
+            JJA_MAINFRAME_OS // V4.5 // OPERATIONAL // SYNC_OK
+        </div>
+    </footer>
+
+    <script>
+        // Initialisation des icônes Lucide
+        lucide.createIcons();
+
+        // Simulation de mise à jour des stats (optionnel)
+        setInterval(() => {
+            console.log("[ADMIN] Système rafraîchi.");
+        }, 10000);
+    </script>
+</body>
+</html>

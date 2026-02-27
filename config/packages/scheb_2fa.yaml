@@ -7,6 +7,6 @@ scheb_two_factor:
 
     google:
         enabled: true
-        server_name: JJA DEV LAB
+        server_name: jja-dev.fr
         issuer: JJA_DEV_LAB
         template: admin/security/2fa_login.html.twig

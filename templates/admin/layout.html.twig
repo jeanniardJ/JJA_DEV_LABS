@@ -1,0 +1,163 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}JJA DEV LAB | ADMIN MAINFRAME{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .admin-card {
+            background: rgba(11, 15, 20, 0.9);
+            border: 1px solid var(--color-lab-border);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .admin-card:hover {
+            border-color: rgba(0, 198, 255, 0.3);
+        }
+
+        .sidebar-item {
+            transition: all 0.2s;
+            border-left: 2px solid transparent;
+            color: var(--color-lab-muted);
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background: rgba(0, 198, 255, 0.05);
+            border-left-color: var(--color-lab-primary);
+            color: #fff;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: var(--color-lab-bg); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-lab-border); }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--color-lab-primary); }
+        
+        /* Force side-by-side layout on desktop without relying on fixed */
+        @media (min-width: 768px) {
+            .admin-sidebar {
+                position: relative !important;
+                transform: none !important;
+                display: flex !important;
+            }
+            .admin-main {
+                flex: 1 !important;
+                min-width: 0 !important;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block page_contents %}
+<div class="h-screen w-full flex bg-lab-bg overflow-hidden" data-controller="mobile-menu">
+    
+    <!-- SIDEBAR DE NAVIGATION -->
+    <aside class="admin-sidebar w-64 border-r border-lab-border bg-lab-panel flex-col flex-shrink-0 z-50 
+                fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out
+                md:translate-x-0" 
+           data-mobile-menu-target="menu">
+        
+        <div class="p-6 border-b border-lab-border flex justify-between items-center flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-lab-primary/10 border border-lab-primary flex items-center justify-center">
+                    <i data-lucide="layout-grid" class="w-4 h-4 text-lab-primary"></i>
+                </div>
+                <span class="font-bold tracking-widest text-white text-sm uppercase">ADMIN PANEL</span>
+            </div>
+            <!-- Mobile Close -->
+            <button class="md:hidden text-lab-muted" data-action="click->mobile-menu#toggle">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 py-6 space-y-1 overflow-y-auto custom-scrollbar px-2">
+            <div class="px-4 mb-4 text-[10px] font-mono text-lab-muted uppercase tracking-[0.2em]">Navigation Principal</div>
+            <a href="{{ path('admin_dashboard') }}" class="sidebar-item {{ app.request.attributes.get('_route') == 'admin_dashboard' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
+                <i data-lucide="monitor" class="w-4 h-4"></i> Mainframe
+            </a>
+            <a href="{{ path('admin_analytics_index') }}" class="sidebar-item {{ app.request.attributes.get('_route') == 'admin_analytics_index' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Analytics
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter opacity-50 cursor-not-allowed">
+                <i data-lucide="users" class="w-4 h-4"></i> Utilisateurs
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter opacity-50 cursor-not-allowed">
+                <i data-lucide="shield-check" class="w-4 h-4"></i> Sécurité & Logs
+            </a>
+
+            <div class="px-4 mt-8 mb-4 text-[10px] font-mono text-lab-muted uppercase tracking-[0.2em]">Configuration Lab</div>
+            <a href="{{ path('app_lab_stations') }}" class="sidebar-item {{ app.request.attributes.get('_route') == 'app_lab_stations' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
+                <i data-lucide="binary" class="w-4 h-4"></i> Skill Nodes
+            </a>
+            <a href="{{ path('app_website_appointments') }}" class="sidebar-item {{ app.request.attributes.get('_route') == 'app_website_appointments' ? 'active' : '' }} flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter">
+                <i data-lucide="calendar" class="w-4 h-4"></i> Rendez-vous
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-4 px-4 py-3 text-sm font-mono tracking-tighter opacity-50 cursor-not-allowed">
+                <i data-lucide="settings" class="w-4 h-4"></i> Paramètres Système
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-lab-border bg-black/20 flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full border border-lab-terminal bg-lab-terminal/10 flex items-center justify-center overflow-hidden">
+                    <i data-lucide="user" class="w-4 h-4 text-lab-terminal"></i>
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="text-xs font-bold text-white uppercase tracking-tighter">{{ app.user ? 'Opérateur JJA' : 'Mode Débogage' }}</span>
+                    <span class="text-[9px] text-lab-terminal font-mono uppercase mt-1">{{ app.user ? app.user.userIdentifier : 'ACCÈS_PUBLIC' }}</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTENU PRINCIPAL -->
+    <main class="admin-main flex-1 flex flex-col min-w-0 h-full relative overflow-hidden">
+        
+        <!-- TOP BAR -->
+        <header class="h-16 border-b border-lab-border bg-lab-panel/50 backdrop-blur flex items-center justify-between px-8 z-40 flex-shrink-0">
+            <div class="flex items-center gap-4 text-xs font-mono">
+                <button class="md:hidden p-2 -ml-2 text-lab-muted" data-action="click->mobile-menu#toggle">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <span class="text-lab-muted uppercase tracking-widest hidden sm:inline">Localisation :</span>
+                <span class="text-white">Mainframe > {% block admin_breadcrumb %}Vue d'ensemble{% endblock %}</span>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div class="hidden md:flex items-center gap-3 text-[10px] font-mono text-lab-muted uppercase">
+                    <span class="w-1.5 h-1.5 bg-lab-terminal rounded-full animate-pulse"></span>
+                    Serveur : Actif
+                </div>
+                <button class="p-2 text-lab-muted hover:text-white transition-colors relative">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-lab-danger rounded-full"></span>
+                </button>
+                <a href="{{ path('admin_logout') }}" class="p-2 text-lab-muted hover:text-lab-danger transition-colors" title="Déconnexion">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- DASHBOARD CONTAINER SCROLLABLE -->
+        <div class="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar relative">
+            {% block admin_body %}{% endblock %}
+            
+            <div class="mt-12 pt-8 border-t border-lab-border/30 flex justify-center opacity-30">
+                <div class="font-mono text-[9px] uppercase tracking-[0.4em] text-lab-muted">
+                    JJA_MAINFRAME_OS // V4.5 // OPERATIONAL // SYNC_OK
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block javascripts_footer %}
+    {{ parent() }}
+    <script>
+        // Correction de l'initialisation Lucide pour éviter l'erreur "icons object missing"
+        // On vérifie si lucide est disponible et si l'objet icons existe
+        if (typeof lucide !== 'undefined' && lucide.icons) {
+            lucide.createIcons({ icons: lucide.icons });
+        }
+    </script>
+{% endblock %}

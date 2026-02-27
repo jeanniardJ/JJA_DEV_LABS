@@ -14,7 +14,7 @@
                 {{ hook_message }}
             </h4>
             <p class="text-[10px] text-lab-muted font-mono">
-                Discutons de ces {{ vulnerability_count }} vulnérabilité(s) identifiée(s) sur {{ target_url }}
+                Discutons de ces {{ vulnerability_count }} vulnérabilité{{ vulnerability_count > 1 ? 's' : '' }} identifiée{{ vulnerability_count > 1 ? 's' : '' }} sur {{ target_url }}
             </p>
         </div>
     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Enum\LeadStatus;
 use App\Entity\Lead;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -14,6 +15,58 @@ class LeadRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Lead::class);
+    }
+
+    public function countTotal(\DateTimeInterface $start, \DateTimeInterface $end): int
+    {
+        return $this->createQueryBuilder('l')
+            ->select('count(l.id)')
+            ->andWhere('l.createdAt >= :start')
+            ->andWhere('l.createdAt <= :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countConverted(\DateTimeInterface $start, \DateTimeInterface $end): int
+    {
+        return $this->createQueryBuilder('l')
+            ->select('count(l.id)')
+            ->andWhere('l.status = :status')
+            ->andWhere('l.createdAt >= :start')
+            ->andWhere('l.createdAt <= :end')
+            ->setParameter('status', LeadStatus::WON)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countByDay(\DateTimeInterface $start, \DateTimeInterface $end): array
+    {
+        $leads = $this->createQueryBuilder('l')
+            ->select('l.createdAt')
+            ->andWhere('l.createdAt >= :start')
+            ->andWhere('l.createdAt <= :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->orderBy('l.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $counts = [];
+        foreach ($leads as $lead) {
+            $date = $lead['createdAt']->format('Y-m-d');
+            $counts[$date] = ($counts[$date] ?? 0) + 1;
+        }
+
+        $formatted = [];
+        foreach ($counts as $date => $count) {
+            $formatted[] = ['date' => $date, 'count' => $count];
+        }
+
+        return $formatted;
     }
 
     /**

@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserPassportBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
@@ -49,7 +49,7 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
         $accessToken = $this->fetchAccessToken($client);
 
         return new SelfValidatingPassport(
-            new UserPassportBadge($accessToken->getToken(), function () use ($accessToken, $client) {
+            new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
                 /** @var \League\OAuth2\Client\Provider\GoogleUser $googleUser */
                 $googleUser = $client->fetchUserFromToken($accessToken);
 
@@ -67,7 +67,13 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
                     // Create a new user if not found
                     $user = new User();
                     $user->setEmail($email);
-                    $user->setRoles(['ROLE_ADMIN']);
+                    
+                    // Sécurité : Seul l'email de Jonas Jeanniard devient ADMIN automatiquement
+                    if ($email === 'jonathanjeanniard@gmail.com') {
+                        $user->setRoles(['ROLE_ADMIN']);
+                    } else {
+                        $user->setRoles(['ROLE_USER']);
+                    }
                 }
 
                 $user->setGoogleId($googleUser->getId());
@@ -97,7 +103,7 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $message = str_tr($exception->getMessageKey(), $exception->getMessageData());
+        $message = strtr($exception->getMessageKey(), $exception->getMessageData());
 
         return new Response($message, Response::HTTP_FORBIDDEN);
     }

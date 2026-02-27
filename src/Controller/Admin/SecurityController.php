@@ -22,7 +22,7 @@ class SecurityController extends AbstractController
         return $this->render('admin/security/login.html.twig');
     }
 
-    #[Route('/admin/connect/google', name: 'connect_google_start')]
+    #[Route('/connect/google', name: 'connect_google_start')]
     public function connectGoogleStart(): Response
     {
         return $this->clientRegistry
@@ -32,7 +32,7 @@ class SecurityController extends AbstractController
             ]);
     }
 
-    #[Route('/admin/connect/google/check', name: 'connect_google_check')]
+    #[Route('/connect/google/check', name: 'connect_google_check')]
     public function connectGoogleCheck(): void
     {
         // This code is never executed!

@@ -56,6 +56,8 @@ export default class extends Controller {
 
     async verify() {
         this.hideVerifyError();
+        console.log("Démarrage de la vérification pour ID:", this.scanId);
+        
         try {
             const url = this.verifyUrlValue.replace('PLACEHOLDER', this.scanId);
             const response = await fetch(url, {
@@ -68,15 +70,18 @@ export default class extends Controller {
             });
 
             const data = await response.json();
+            console.log("Réponse vérification:", data);
 
             if (!response.ok) {
                 this.showVerifyError(data.error || "La vérification a échoué.");
                 return;
             }
 
+            console.log("Passage à l'état : scanning");
             this.showState("scanning");
             this.pollStatus();
         } catch (e) {
+            console.error("Erreur lors de la vérification JS:", e);
             this.showVerifyError("Erreur lors de la vérification.");
         }
     }
@@ -146,8 +151,8 @@ export default class extends Controller {
 
         this[state + 'Target'].classList.remove('hidden');
         
-        if (window.lucide) {
-            window.lucide.createIcons();
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons({ icons: window.lucideIcons });
         }
     }
 
@@ -169,38 +174,42 @@ export default class extends Controller {
         this.verifyErrorTarget.classList.add('hidden');
     }
 
-    copyToken(event) {
-        if (!this.token) return;
-
-        navigator.clipboard.writeText(this.token).then(() => {
+        copyToken(event) {
+            if (!this.token) return;
+    
             const btn = event.currentTarget;
-            const originalIcon = btn.innerHTML;
-            
-            // Disable button during feedback
-            btn.disabled = true;
-            
-            // Global toast notification (Priority)
-            window.dispatchEvent(new CustomEvent('toast', {
-                detail: {
-                    message: "TOKEN COPIÉ",
-                    type: "success"
-                }
-            }));
-
-            // Temporary visual feedback on button
-            btn.innerHTML = '<i data-lucide="check" class="w-3 h-3 text-lab-terminal"></i>';
-            if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                window.lucide.createIcons();
-            }
-            
-            setTimeout(() => {
-                btn.innerHTML = originalIcon;
-                btn.disabled = false;
-                if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                    window.lucide.createIcons();
-                }
-            }, 2000);
-        }).catch(err => {
+            if (!btn) return;
+    
+            navigator.clipboard.writeText(this.token).then(() => {
+                const originalIcon = btn.innerHTML;
+                
+                // Disable button during feedback
+                btn.disabled = true;
+                
+                // Global toast notification (Priority)
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: {
+                        message: "TOKEN COPIÉ",
+                        type: "success"
+                    }
+                }));
+    
+                            // Temporary visual feedback on button
+                            btn.innerHTML = '<i data-lucide="check" class="w-3 h-3 text-lab-terminal"></i>';
+                            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                                window.lucide.createIcons({ icons: window.lucideIcons });
+                            }
+                            
+                            setTimeout(() => {
+                                btn.innerHTML = originalIcon;
+                                btn.disabled = false;
+                                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                                    window.lucide.createIcons({ icons: window.lucideIcons });
+                                }
+                            }, 2000);
+                
+            })
+    .catch(err => {
             console.error('Failed to copy token: ', err);
         });
     }

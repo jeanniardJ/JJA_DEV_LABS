@@ -1,10 +1,9 @@
-const CACHE_NAME = 'jja-lab-v1';
+const CACHE_NAME = 'jja-lab-v2'; // Version update
 const OFFLINE_URL = '/offline';
 
 const ASSETS_TO_CACHE = [
     OFFLINE_URL,
-    '/styles/app.css',
-    // Fonts and other critical assets will be added here or discovered dynamically
+    // Static assets only. Hashed assets will be cached dynamically on fetch.
 ];
 
 self.addEventListener('install', (event) => {
@@ -32,18 +31,27 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // Only handle GET requests
     if (event.request.method !== 'GET') return;
 
-    // Standard navigation or asset request
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
                 return cachedResponse;
             }
 
-            return fetch(event.request).catch(() => {
-                // If the fetch fails (offline) and it's a navigation request, show offline page
+            return fetch(event.request).then((response) => {
+                // Cache successful responses for assets
+                if (response && response.status === 200 && response.type === 'basic') {
+                    const url = new URL(event.request.url);
+                    if (url.pathname.startsWith('/assets/')) {
+                        const responseToCache = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseToCache);
+                        });
+                    }
+                }
+                return response;
+            }).catch(() => {
                 if (event.request.mode === 'navigate') {
                     return caches.match(OFFLINE_URL);
                 }

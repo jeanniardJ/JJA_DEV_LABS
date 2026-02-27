@@ -2,6 +2,31 @@
 
 {% block title %}JJA DEV LAB | HOME_STATION{% endblock %}
 
+{% block body_controller %}data-controller="boot"{% endblock %}
+
+{% block boot_screen %}
+    <div id="boot-screen" data-boot-target="screen" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center font-mono text-xs text-lab-primary select-none cursor-wait transition-opacity duration-500">
+        <div class="w-64 space-y-2">
+            <div class="flex justify-between text-lab-muted">
+                <span>BIOS_CHECK</span>
+                <span class="text-lab-terminal">OK</span>
+            </div>
+            <div class="flex justify-between text-lab-muted">
+                <span>MONTAGE_VOLUMES</span>
+                <span class="text-lab-terminal">OK</span>
+            </div>
+             <div class="flex justify-between text-lab-muted">
+                <span>CHARGEMENT_MODULES_UI</span>
+                <span id="loader-status" data-boot-target="status" class="text-lab-primary">CHARGEMENT...</span>
+            </div>
+            <div class="h-1 w-full bg-lab-border mt-4 overflow-hidden">
+                <div id="progress-bar" data-boot-target="bar" class="h-full bg-lab-primary w-0 transition-all duration-[2000ms] ease-out"></div>
+            </div>
+            <div class="text-center mt-2 text-lab-muted">NOYAU JJA_LAB v4.1.0</div>
+        </div>
+    </div>
+{% endblock %}
+
 {% block meta_description %}Bienvenue dans le laboratoire de développement de Jonathan Jeanniard. Explorez mes projets Fullstack, mes outils de sécurité et mes expérimentations techniques.{% endblock %}
 
 {% block json_ld %}
@@ -30,9 +55,7 @@
 {% endblock %}
 
 {% block body %}
-    <div data-controller="homepage-loader">
-        {% include 'components/_homepage_loader.html.twig' %}
-
+    <div>
     <!-- HERO SECTION -->
     <section class="mb-32 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[70vh]">
         <!-- Text Content -->

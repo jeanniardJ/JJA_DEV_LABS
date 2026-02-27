@@ -35,8 +35,8 @@ export default class extends Controller {
 
         this.container.appendChild(toast);
         
-        if (window.lucide) {
-            window.lucide.createIcons();
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons({ icons: window.lucideIcons });
         }
 
         // Auto remove

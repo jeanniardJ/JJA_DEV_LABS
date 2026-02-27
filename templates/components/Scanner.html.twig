@@ -10,11 +10,13 @@
     <!-- IDLE STATE: FORM -->
     <div data-scanner-target="idle" class="space-y-4">
         <div class="bg-black/50 border border-lab-border p-6 rounded-md shadow-inner">
-            <label class="block text-[10px] font-mono text-lab-muted uppercase mb-3 tracking-widest">Entrez l'URL cible pour analyse</label>
+            <label for="scanner-url-input" class="block text-[10px] font-mono text-lab-muted uppercase mb-3 tracking-widest">Entrez l'URL cible pour analyse</label>
             <div class="flex flex-col sm:flex-row gap-3">
                 <div class="relative flex-1">
                     <i data-lucide="globe" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lab-muted"></i>
                     <input type="text" 
+                           id="scanner-url-input"
+                           name="url"
                            data-scanner-target="input"
                            placeholder="https://votre-site.fr" 
                            class="w-full bg-lab-panel border border-lab-border rounded-sm py-3 pl-10 pr-4 text-sm font-mono focus:border-lab-primary focus:outline-none transition-colors text-white">

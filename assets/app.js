@@ -8,10 +8,19 @@ import './stimulus_bootstrap.js';
 import './styles/app.css';
 import * as lucide from 'lucide';
 
-// Expose lucide globally for Stimulus controllers
+// Expose lucide and icons globally for Stimulus controllers
 window.lucide = lucide;
+window.lucideIcons = lucide.icons;
 
-lucide.createIcons({ icons: lucide.icons });
+const refreshIcons = () => {
+    lucide.createIcons({ icons: lucide.icons });
+};
+
+// Initial load
+refreshIcons();
+
+// Re-run on Turbo navigation
+document.addEventListener('turbo:load', refreshIcons);
 
 // --- SERVICE WORKER REGISTRATION ---
 if ('serviceWorker' in navigator) {

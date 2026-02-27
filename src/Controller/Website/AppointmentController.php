@@ -16,11 +16,22 @@ class AppointmentController extends AbstractController
     {
         $data = [];
         if ($request->query->get('context') === 'scan') {
-            $site = htmlspecialchars($request->query->get('site', ''), ENT_QUOTES, 'UTF-8');
-            $severity = htmlspecialchars($request->query->get('severity', ''), ENT_QUOTES, 'UTF-8');
+            $site = $request->query->get('site', '');
+            $severity = $request->query->get('severity', 'low');
             $count = (int) $request->query->get('count', 0);
             
-            $data['subject'] = sprintf('Analyse de %s (%s vulnérabilités, max: %s)', $site, $count, $severity);
+            // Strict Validation
+            if (filter_var($site, FILTER_VALIDATE_URL)) {
+                $allowedSeverities = ['low', 'medium', 'high', 'critical'];
+                $safeSeverity = in_array($severity, $allowedSeverities) ? $severity : 'low';
+                
+                $data['subject'] = sprintf('Analyse de %s (%d vulnérabilité%s, max: %s)', 
+                    htmlspecialchars($site, ENT_QUOTES, 'UTF-8'), 
+                    $count, 
+                    $count > 1 ? 's' : '',
+                    $safeSeverity
+                );
+            }
         }
 
         $form = $this->createForm(\App\Form\AppointmentBookingType::class, $data);
