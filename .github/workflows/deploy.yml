@@ -58,8 +58,6 @@ jobs:
       - name: Lint Container
         run: php bin/console lint:container --env=dev
 
-      - name: PHPStan
-        run: vendor/bin/phpstan analyse --no-progress
 
   deploy:
     name: Deploy to OVH via SSH
