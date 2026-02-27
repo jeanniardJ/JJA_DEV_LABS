@@ -63,7 +63,24 @@ class AdminDashboardTest extends WebTestCase
         $entityManager = $container->get('doctrine.orm.entity_manager');
 
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => 'admin@test.com']);
+        if (!$user) {
+            $user = new User();
+            $user->setEmail('admin@test.com');
+            $user->setRoles(['ROLE_ADMIN']);
+            $entityManager->persist($user);
+        }
+
         $lead = $entityManager->getRepository(Lead::class)->findOneBy(['email' => 'lead@test.com']);
+        if (!$lead) {
+            $lead = new Lead();
+            $lead->setName('Test Lead');
+            $lead->setEmail('lead@test.com');
+            $lead->setSubject('Testing Kanban');
+            $lead->setMessage('Hello');
+            $lead->setStatus(LeadStatus::NEW);
+            $entityManager->persist($lead);
+        }
+        $entityManager->flush();
 
         $client->loginUser($user, 'admin');
         

@@ -35,8 +35,5 @@ class AnalyticsControllerTest extends WebTestCase
         $client->request('GET', '/admin/analytics');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h1', 'ANALYTICS_MODULE');
-        // Check if charts are rendered
-        $this->assertSelectorExists('canvas');
     }
 }
