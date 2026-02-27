@@ -54,7 +54,7 @@ $COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction --no-progr
 
 # 5. Migrations Doctrine
 log "[5/8] Migrations Doctrine"
-$PHP_BIN bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 | tee -a "$LOG_FILE"
+$PHP_BIN bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --env=prod 2>&1 | tee -a "$LOG_FILE" || log "[WARN] Migrations échouées (non bloquant)"
 
 # 6. Clear + Warmup cache
 log "[6/8] Cache clear + warmup"
