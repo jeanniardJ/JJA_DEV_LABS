@@ -10,7 +10,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ConversionServiceTest extends TestCase
 {
     private ConversionService $conversionService;
-    private $translator;
+    private TranslatorInterface $translator;
 
     protected function setUp(): void
     {

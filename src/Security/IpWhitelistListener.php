@@ -10,6 +10,7 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 #[AsEventListener(event: 'kernel.request', priority: 10)]
 class IpWhitelistListener
 {
+    /** @param list<string> $allowedIps */
     public function __construct(
         #[Autowire('%env(csv:ADMIN_ALLOWED_IPS)%')]
         private array $allowedIps
