@@ -67,16 +67,8 @@ echo "[4/7] Construction du cache prod..."
 $PHP_BIN bin/console cache:clear --env=prod --no-debug
 $PHP_BIN bin/console cache:warmup --env=prod --no-debug
 
-# 5. Tailwind
-echo "[5/7] Build Tailwind CSS..."
-$PHP_BIN bin/console tailwind:build --minify
-
-# 6. Assets
-echo "[6/7] Compilation des assets..."
-$PHP_BIN bin/console asset-map:compile
-
-# 7. Permissions
-echo "[7/7] Permissions des répertoires..."
+# 5. Permissions
+echo "[5/5] Permissions des répertoires..."
 chmod -R 775 var/
 chmod +x scripts/deploy.sh
 

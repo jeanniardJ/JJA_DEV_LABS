@@ -2,14 +2,14 @@ name: Deploy to OVH
 
 # Flux complet :
 #   1. Push sur master
-#   2. GitHub Actions lance les validations (lint, PHPStan)
-#   3. Si tout passe → connexion SSH au serveur OVH
-#   4. Exécution de scripts/deploy.sh sur le serveur
+#   2. GitHub Actions : validation + build des assets (Tailwind, asset-map)
+#   3. Envoi des assets compilés via SCP au serveur OVH
+#   4. Exécution de scripts/deploy.sh sur le serveur (sans build assets)
 #
 # Secrets GitHub requis :
-#   OVH_SSH_HOST  — adresse SSH du serveur OVH
-#   OVH_SSH_USER  — utilisateur SSH
-#   OVH_SSH_KEY   — clé privée SSH (ed25519 ou RSA)
+#   OVH_SSH_HOST    — adresse SSH du serveur OVH
+#   OVH_SSH_USER    — utilisateur SSH
+#   OVH_SSH_KEY     — clé privée SSH (ed25519 ou RSA)
 #   OVH_DEPLOY_PATH — chemin absolu du projet sur le serveur
 
 on:
@@ -67,7 +67,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl-icu
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-dev --prefer-dist --no-progress --ignore-platform-req=ext-redis
+
+      - name: Build Tailwind CSS
+        run: php bin/console tailwind:build --minify
+
+      - name: Compile assets
+        run: php bin/console asset-map:compile
+
+      - name: Upload assets to OVH via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.OVH_SSH_HOST }}
+          username: ${{ secrets.OVH_SSH_USER }}
+          key: ${{ secrets.OVH_SSH_KEY }}
+          source: "public/assets/*"
+          target: ${{ secrets.OVH_DEPLOY_PATH }}
+
+      - name: Run deploy script via SSH
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.OVH_SSH_HOST }}

@@ -53,20 +53,15 @@ log "[4/8] Migrations Doctrine"
 $PHP_BIN bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 | tee -a "$LOG_FILE"
 
 # 5. Clear + Warmup cache
-log "[5/8] Cache clear + warmup"
+log "[5/6] Cache clear + warmup"
 $PHP_BIN bin/console cache:clear --env=prod --no-debug 2>&1 | tee -a "$LOG_FILE"
 $PHP_BIN bin/console cache:warmup --env=prod --no-debug 2>&1 | tee -a "$LOG_FILE"
 
-# 6. Build Tailwind CSS
-log "[6/8] Tailwind build"
-$PHP_BIN bin/console tailwind:build --minify 2>&1 | tail -3 | tee -a "$LOG_FILE"
+# Note : Tailwind build + asset-map compile sont faits dans GitHub Actions
+# Les assets compilés sont envoyés via SCP avant l'exécution de ce script
 
-# 7. Compile assets
-log "[7/8] Asset-map compile"
-$PHP_BIN bin/console asset-map:compile 2>&1 | tee -a "$LOG_FILE"
-
-# 8. Désactiver le mode maintenance
-log "[8/8] Désactivation du mode maintenance"
+# 6. Désactiver le mode maintenance
+log "[6/6] Désactivation du mode maintenance"
 rm -f public/maintenance.html
 
 log "=========================================="
