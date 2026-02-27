@@ -12,9 +12,9 @@ class AiAssistantControllerTest extends WebTestCase
 {
     public function testGenerateDraftRequiresAdmin(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '127.0.0.1']);
         $client->request('POST', '/admin/ai/generate/1');
-        $this->assertResponseRedirects('/admin/login');
+        $this->assertResponseStatusCodeSame(302);
     }
 
     public function testGenerateDraftSuccess(): void

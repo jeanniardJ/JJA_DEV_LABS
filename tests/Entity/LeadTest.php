@@ -3,6 +3,7 @@
 namespace App\Tests\Entity;
 
 use App\Entity\Lead;
+use App\Enum\LeadStatus;
 use PHPUnit\Framework\TestCase;
 
 class LeadTest extends TestCase
@@ -20,7 +21,7 @@ class LeadTest extends TestCase
         $this->assertEquals('jonas@example.com', $lead->getEmail());
         $this->assertEquals('Demande de devis', $lead->getSubject());
         $this->assertEquals('Bonjour, je souhaite un devis.', $lead->getMessage());
-        $this->assertEquals('Nouveau', $lead->getStatus());
+        $this->assertEquals(LeadStatus::NEW, $lead->getStatus());
         $this->assertInstanceOf(\DateTimeImmutable::class, $lead->getCreatedAt());
     }
 }

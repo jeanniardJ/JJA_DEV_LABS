@@ -24,6 +24,6 @@ class AdminSecurityTest extends WebTestCase
 
         // It should redirect to login (302) or be 401 if it's an API, 
         // but here it's a web route so redirect to /admin/login is expected
-        $this->assertResponseRedirects('/admin/login');
+        $this->assertResponseRedirects('/login');
     }
 }

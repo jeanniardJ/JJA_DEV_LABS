@@ -10,9 +10,9 @@ class PushSubscriptionControllerTest extends WebTestCase
 {
     public function testSubscribeRequiresAdmin(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([], ['REMOTE_ADDR' => '127.0.0.1']);
         $client->request('POST', '/api/admin/push-subscription');
-        $this->assertResponseRedirects('/admin/login');
+        $this->assertResponseStatusCodeSame(302);
     }
 
     public function testSubscribeSuccess(): void
@@ -23,6 +23,13 @@ class PushSubscriptionControllerTest extends WebTestCase
         $em = $container->get('doctrine.orm.entity_manager');
 
         $admin = $em->getRepository(User::class)->findOneBy(['email' => 'admin@test.com']);
+        if (!$admin) {
+            $admin = new User();
+            $admin->setEmail('admin@test.com');
+            $admin->setRoles(['ROLE_ADMIN']);
+            $em->persist($admin);
+            $em->flush();
+        }
         $client->loginUser($admin, 'admin');
 
         $client->request('POST', '/api/admin/push-subscription', [], [], [

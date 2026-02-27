@@ -40,6 +40,6 @@ class ContactControllerTest extends WebTestCase
         
         $this->assertNotNull($lead);
         $this->assertEquals('Jonas', $lead->getName());
-        $this->assertEquals('Nouveau', $lead->getStatus());
+        $this->assertEquals(\App\Enum\LeadStatus::NEW, $lead->getStatus());
     }
 }
