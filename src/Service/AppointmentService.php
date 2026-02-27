@@ -10,6 +10,7 @@ class AppointmentService
         private AppointmentRepository $appointmentRepository
     ) {}
 
+    /** @return list<array{start: string, end: string, datetime: string}> */
     public function getAvailableSlots(\DateTimeImmutable $day): array
     {
         $existingAppointments = $this->appointmentRepository->findByDay($day);

@@ -28,7 +28,7 @@ class LabStation
     private StationStatus $status = StationStatus::NOMINAL;
 
     #[ORM\Column(length: 7)]
-    private ?string $borderColor = '#00c6ff'; // Hex color
+    private string $borderColor = '#00c6ff'; // Hex color
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $uptime = null;
@@ -91,7 +91,7 @@ class LabStation
         return $this;
     }
 
-    public function getBorderColor(): ?string
+    public function getBorderColor(): string
     {
         return $this->borderColor;
     }

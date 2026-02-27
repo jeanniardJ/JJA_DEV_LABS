@@ -6,3 +6,12 @@ parameters:
         - public/
         - src/
         - tests/
+    ignoreErrors:
+        # Doctrine entity IDs are assigned by the ORM, not by PHP code
+        -
+            message: '#Property App\\Entity\\\w+::\$id \(int\|null\) is never assigned int so it can be removed from the property type#'
+            path: src/Entity/
+        # KnpU OAuth2ClientBundle redirect() signature varies by version
+        -
+            message: '#Method KnpU\\OAuth2ClientBundle\\Client\\OAuth2ClientInterface::redirect\(\) invoked with 1 parameter#'
+            path: src/Controller/Admin/SecurityController.php

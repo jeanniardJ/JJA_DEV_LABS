@@ -46,7 +46,7 @@ class NotificationService
             );
         }
 
-        foreach ($webPush->flushReports() as $report) {
+        foreach ($webPush->flush() as $report) {
             if (!$report->isSuccess()) {
                 // TODO: Handle expired subscriptions (delete from DB)
                 // $endpoint = $report->getEndpoint();

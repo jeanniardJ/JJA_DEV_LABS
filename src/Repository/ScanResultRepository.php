@@ -28,6 +28,7 @@ class ScanResultRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    /** @return list<array{severity: string, count: int}> */
     public function getSeverityStats(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $results = $this->createQueryBuilder('s')

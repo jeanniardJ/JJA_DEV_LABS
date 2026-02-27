@@ -16,6 +16,7 @@ class AnalyticsService
     ) {
     }
 
+    /** @return array<string, mixed> */
     public function getDashboardStats(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $cacheKey = sprintf('dashboard_stats_%s_%s', $start->format('Ymd'), $end->format('Ymd'));

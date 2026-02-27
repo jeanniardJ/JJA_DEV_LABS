@@ -43,6 +43,7 @@ class LeadRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    /** @return list<array{date: string, count: int}> */
     public function countByDay(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $leads = $this->createQueryBuilder('l')
@@ -77,6 +78,7 @@ class LeadRepository extends ServiceEntityRepository
      * 
      * Best approach for Kanban: fetch all data needed.
      */
+    /** @return list<Lead> */
     public function findAllWithAppointmentsCount(string $sort = 'createdAt', string $direction = 'DESC'): array
     {
         $qb = $this->createQueryBuilder('l')

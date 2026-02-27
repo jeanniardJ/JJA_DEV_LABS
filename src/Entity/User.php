@@ -40,8 +40,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $googleAuthenticatorSecret = null;
 
+    /** @var \Doctrine\Common\Collections\Collection<int, PushSubscription> */
     #[ORM\OneToMany(mappedBy: 'admin', targetEntity: PushSubscription::class, orphanRemoval: true)]
-    private iterable $pushSubscriptions;
+    private \Doctrine\Common\Collections\Collection $pushSubscriptions;
 
     public function __construct()
     {

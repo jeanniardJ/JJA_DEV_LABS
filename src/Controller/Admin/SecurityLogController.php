@@ -58,6 +58,7 @@ class SecurityLogController extends AbstractController
         ]);
     }
 
+    /** @return array{datetime: string, channel: string, level: string, message: string, is_security: bool}|null */
     private function parseLogLine(string $line): ?array
     {
         // Format Symfony: [2026-02-27T10:00:00+00:00] security.INFO: Login successful ...
@@ -78,6 +79,7 @@ class SecurityLogController extends AbstractController
         ];
     }
 
+    /** @return list<string> */
     private function tailFile(string $filepath, int $lines): array
     {
         $handle = fopen($filepath, 'r');

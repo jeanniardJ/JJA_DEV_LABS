@@ -3,7 +3,6 @@
 namespace App\Command;
 
 use App\Repository\ScanResultRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,7 +17,6 @@ class CleanupScanDataCommand extends Command
 {
     public function __construct(
         private ScanResultRepository $scanResultRepository,
-        private EntityManagerInterface $entityManager
     ) {
         parent::__construct();
     }

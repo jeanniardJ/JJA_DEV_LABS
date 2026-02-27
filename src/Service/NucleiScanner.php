@@ -9,6 +9,7 @@ class NucleiScanner
 {
     private const SIMULATION_SLEEP = 5;
 
+    /** @return list<array<string, mixed>> */
     public function scan(string $url): array
     {
         // Security: Ensure URL is strictly validated before passing to any shell process

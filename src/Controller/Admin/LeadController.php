@@ -53,7 +53,7 @@ class LeadController extends AbstractController
         foreach ($lead->getAppointments() as $appointment) {
             $events[] = [
                 'type' => 'appointment',
-                'date' => $appointment->getCreatedAt(), // Or the actual date? 
+                'date' => $appointment->getStartsAt(),
                 'label' => 'Rendez-vous planifié pour le ' . $appointment->getStartsAt()->format('d/m/Y H:i'),
                 'icon' => 'calendar',
                 'color' => 'lab-cyan'
@@ -61,7 +61,8 @@ class LeadController extends AbstractController
         }
 
         // Sort events by date DESC
-        usort($events, fn($a, $b) => $b['date'] <=> $a['date']);
+        /** @var array<array{type: string, date: ?\DateTimeImmutable, label: string, icon: string, color: string}> $events */
+        usort($events, fn(array $a, array $b) => $b['date'] <=> $a['date']);
 
         return $this->render('admin/leads/show.html.twig', [
             'lead' => $lead,

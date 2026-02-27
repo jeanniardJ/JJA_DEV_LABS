@@ -21,8 +21,9 @@ class ScanResult
     private ?string $url = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $status = 'pending';
+    private string $status = 'pending';
 
+    /** @var array<int, array<string, mixed>>|null */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $rawOutput = null;
 
@@ -69,7 +70,7 @@ class ScanResult
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -81,11 +82,13 @@ class ScanResult
         return $this;
     }
 
+    /** @return array<int, array<string, mixed>>|null */
     public function getRawOutput(): ?array
     {
         return $this->rawOutput;
     }
 
+    /** @param array<int, array<string, mixed>>|null $rawOutput */
     public function setRawOutput(?array $rawOutput): static
     {
         $this->rawOutput = $rawOutput;

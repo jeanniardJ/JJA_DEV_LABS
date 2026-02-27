@@ -13,6 +13,7 @@ class PdfGenerator
     ) {
     }
 
+    /** @param array<string, mixed> $data */
     public function generate(string $template, array $data): string
     {
         $options = new Options();
