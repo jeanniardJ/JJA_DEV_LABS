@@ -46,9 +46,13 @@ if [ -z "$COMPOSER_BIN" ]; then
     COMPOSER_BIN="$APP_DIR/composer.phar"
 fi
 
+# Forcer l'environnement prod pour que les auto-scripts Composer
+# ne chargent pas les bundles dev (DebugBundle, WebProfilerBundle, etc.)
+export APP_ENV=prod
+
 # 1. Dépendances
 echo "[1/7] Installation des dépendances..."
-$COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction
+$COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=ext-redis
 
 # 2. Créer la base de données si elle n'existe pas
 echo "[2/7] Vérification de la base de données..."
@@ -83,9 +87,7 @@ echo "============================================"
 echo ""
 echo "Prochaines étapes :"
 echo "  1. Configurer le vhost Apache/Nginx vers public/"
-echo "  2. Configurer le webhook GitHub :"
-echo "     URL: https://votre-domaine.com/webhook.php"
-echo "     Secret: (celui défini dans WEBHOOK_SECRET de .env.prod.local)"
-echo "     Events: push"
-echo "  3. Les prochains push sur master déclencheront le déploiement automatique"
+echo "  2. Configurer les secrets GitHub Actions (Settings > Secrets) :"
+echo "     OVH_SSH_HOST, OVH_SSH_USER, OVH_SSH_KEY, OVH_DEPLOY_PATH"
+echo "  3. Les prochains push sur master déclencheront le déploiement via SSH"
 echo ""

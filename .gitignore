@@ -23,4 +23,8 @@
 phpstan.neon
 ###< phpstan/phpstan ###
 
-/.gemini
+/.gemini/
+.geminiignore
+/.vscode/
+/.claude/
+symfony.lock
