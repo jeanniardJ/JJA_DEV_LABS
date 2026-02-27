@@ -21,6 +21,7 @@ log "DÉPLOIEMENT DÉMARRÉ"
 log "=========================================="
 
 cd "$APP_DIR"
+export APP_ENV=prod
 
 # 1. Activer le mode maintenance
 if [ -f "public/maintenance.html" ]; then
@@ -45,7 +46,7 @@ git reset --hard origin/master
 
 # 3. Install des dépendances (prod only)
 log "[3/8] composer install --no-dev"
-$COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction --no-progress 2>&1 | tail -5 | tee -a "$LOG_FILE"
+$COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction --no-progress --ignore-platform-req=ext-redis 2>&1 | tail -5 | tee -a "$LOG_FILE"
 
 # 4. Migrations Doctrine
 log "[4/8] Migrations Doctrine"
