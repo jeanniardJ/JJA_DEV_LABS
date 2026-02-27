@@ -44,24 +44,28 @@ log "[2/8] git pull origin master"
 git fetch origin master
 git reset --hard origin/master
 
-# 3. Install des dépendances (prod only)
-log "[3/8] composer install --no-dev"
+# 3. Nettoyage des fichiers inutiles en production
+log "[3/8] Nettoyage fichiers dev/test"
+rm -rf tests/ mockup/ phpstan.dist.neon phpunit.dist.xml
+
+# 4. Install des dépendances (prod only)
+log "[4/8] composer install --no-dev"
 $COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction --no-progress --ignore-platform-req=ext-redis 2>&1 | tail -5 | tee -a "$LOG_FILE"
 
-# 4. Migrations Doctrine
-log "[4/8] Migrations Doctrine"
+# 5. Migrations Doctrine
+log "[5/8] Migrations Doctrine"
 $PHP_BIN bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1 | tee -a "$LOG_FILE"
 
-# 5. Clear + Warmup cache
-log "[5/6] Cache clear + warmup"
+# 6. Clear + Warmup cache
+log "[6/8] Cache clear + warmup"
 $PHP_BIN bin/console cache:clear --env=prod --no-debug 2>&1 | tee -a "$LOG_FILE"
 $PHP_BIN bin/console cache:warmup --env=prod --no-debug 2>&1 | tee -a "$LOG_FILE"
 
 # Note : Tailwind build + asset-map compile sont faits dans GitHub Actions
 # Les assets compilés sont envoyés via SCP avant l'exécution de ce script
 
-# 6. Désactiver le mode maintenance
-log "[6/6] Désactivation du mode maintenance"
+# 7. Désactiver le mode maintenance
+log "[7/8] Désactivation du mode maintenance"
 rm -f public/maintenance.html
 
 log "=========================================="
