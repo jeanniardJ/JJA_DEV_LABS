@@ -21,7 +21,7 @@ final class Version20260204173334 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE TABLE appointment (id INT AUTO_INCREMENT NOT NULL, starts_at DATETIME NOT NULL, ends_at DATETIME NOT NULL, status VARCHAR(50) NOT NULL, lead_id INT DEFAULT NULL, INDEX IDX_FE38F84455458D (lead_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('ALTER TABLE appointment ADD CONSTRAINT FK_FE38F84455458D FOREIGN KEY (lead_id) REFERENCES lead (id)');
+        $this->addSql('ALTER TABLE appointment ADD CONSTRAINT FK_FE38F84455458D FOREIGN KEY (lead_id) REFERENCES `lead` (id)');
     }
 
     public function down(Schema $schema): void
