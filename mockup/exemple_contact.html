@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JJA DEV LAB | TRANSMISSION DE DONNÉES</title>
+    
+    <!-- Polices de caractères : Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lab: {
+                            bg: '#05070a',      // Fond ultra-sombre
+                            panel: '#0b0f14',   // Fond des panneaux
+                            border: '#1a2332',  // Bordures techniques
+                            primary: '#00c6ff', // Bleu Cyber
+                            cyan: '#4df4ff',    // Accent lumineux
+                            terminal: '#00ff88',// Vert Succès
+                            danger: '#ff3366',  // Rouge Alerte
+                            text: '#cbd5e1',    // Texte principal
+                            muted: '#64748b'    // Texte secondaire
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    animation: {
+                        'blink': 'blink 1s step-end infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blink: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0' } },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Icônes : Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Styles globaux pour l'esthétique du laboratoire */
+        body {
+            background-color: #05070a;
+            color: #cbd5e1;
+            overflow-x: hidden;
+        }
+
+        /* Effet d'incrustation CRT (scanlines) */
+        .crt-overlay {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            opacity: 0.2;
+        }
+
+        /* Grille technique de fond */
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(30, 41, 59, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        /* Panneau en verre dépoli */
+        .contact-card {
+            background: rgba(11, 15, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 198, 255, 0.15);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-lab {
+            background: rgba(5, 7, 10, 0.8);
+            border: 1px solid #1a2332;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .input-lab:focus {
+            border-color: #00c6ff;
+            box-shadow: 0 0 15px rgba(0, 198, 255, 0.1);
+            outline: none;
+        }
+
+        /* Barre de défilement personnalisée */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #05070a; }
+        ::-webkit-scrollbar-thumb { background: #1a2332; }
+        ::-webkit-scrollbar-thumb:hover { background: #00c6ff; }
+    </style>
+</head>
+<body class="antialiased font-sans min-h-screen relative pb-20">
+
+    <!-- Couches d'effets visuels -->
+    <div class="crt-overlay"></div>
+    <div class="fixed inset-0 grid-bg -z-10"></div>
+
+    <!-- HEADER -->
+    <header class="fixed top-0 w-full z-40 bg-lab-panel/90 backdrop-blur-md border-b border-lab-border h-16">
+        <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-lab-primary/10 border border-lab-primary flex items-center justify-center">
+                    <i data-lucide="send" class="w-4 h-4 text-lab-primary"></i>
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="font-bold tracking-widest text-white text-sm uppercase">JJA LAB</span>
+                    <span class="text-[10px] text-lab-muted font-mono uppercase tracking-[0.2em] mt-1">Communications Hub</span>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center gap-6 text-[10px] font-mono text-lab-muted uppercase tracking-widest">
+                <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-lab-terminal rounded-full animate-pulse"></span>
+                    Canal : Sécurisé
+                </div>
+                <div class="flex items-center gap-2 border-l border-lab-border pl-6">
+                    Latence : 24ms
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 px-4 max-w-4xl mx-auto relative z-10 flex flex-col md:flex-row gap-12">
+        
+        <!-- SECTION INFO / GAUCHE -->
+        <section class="flex-1 space-y-8 animate-in fade-in slide-in-from-left duration-700">
+            <div class="inline-flex items-center gap-2 px-2 py-1 bg-lab-primary/5 border border-lab-primary/20 text-lab-primary text-[10px] font-mono tracking-widest uppercase rounded-sm">
+                <i data-lucide="info" class="w-3 h-3"></i> Protocole : Contact_v2.1
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none uppercase">
+                Établir une <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-lab-primary to-lab-cyan">Connexion</span>
+            </h1>
+
+            <p class="text-lab-muted font-mono text-sm leading-relaxed border-l-2 border-lab-border pl-6 italic">
+                // Utilisez ce terminal pour toute demande technique, collaboration sur un projet ou audit d'infrastructure. Les paquets sont chiffrés de bout en bout.
+            </p>
+
+            <div class="space-y-4 pt-4">
+                <div class="flex items-center gap-4 group">
+                    <div class="w-10 h-10 border border-lab-border bg-lab-panel flex items-center justify-center group-hover:border-lab-primary transition-colors">
+                        <i data-lucide="mail" class="w-4 h-4 text-lab-muted group-hover:text-lab-primary"></i>
+                    </div>
+                    <div>
+                        <div class="text-[9px] font-mono text-lab-muted uppercase tracking-widest">Adresse Réseau</div>
+                        <div class="text-sm font-bold text-white uppercase tracking-tighter">contact@jja-dev.fr</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 group">
+                    <div class="w-10 h-10 border border-lab-border bg-lab-panel flex items-center justify-center group-hover:border-lab-primary transition-colors">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-lab-muted group-hover:text-lab-primary"></i>
+                    </div>
+                    <div>
+                        <div class="text-[9px] font-mono text-lab-muted uppercase tracking-widest">Localisation Noeud</div>
+                        <div class="text-sm font-bold text-white uppercase tracking-tighter">Bourgogne-Franche-Comté, FR</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FORMULAIRE / DROITE -->
+        <section class="flex-1 w-full max-w-md mx-auto">
+            <form id="contact-form" class="contact-card p-8 rounded-sm relative overflow-hidden animate-float" onsubmit="event.preventDefault(); transmitPacket();">
+                
+                <!-- Ornement d'angle -->
+                <div class="absolute top-0 right-0 w-12 h-12 pointer-events-none opacity-20">
+                    <div class="absolute top-0 right-0 w-full h-[2px] bg-lab-primary"></div>
+                    <div class="absolute top-0 right-0 w-[2px] h-full bg-lab-primary"></div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="font-mono text-[10px] text-lab-muted uppercase tracking-widest ml-1">Identifiant Expéditeur (Nom)</label>
+                        <input type="text" placeholder="Utilisateur" class="input-lab w-full px-4 py-3 text-sm font-mono text-lab-terminal placeholder:opacity-20" required>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="font-mono text-[10px] text-lab-muted uppercase tracking-widest ml-1">Canal de retour (Email)</label>
+                        <input type="email" placeholder="identite@reseau.net" class="input-lab w-full px-4 py-3 text-sm font-mono text-lab-terminal placeholder:opacity-20" required>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="font-mono text-[10px] text-lab-muted uppercase tracking-widest ml-1">Secteur de la requête (Sujet)</label>
+                        <select class="input-lab w-full px-4 py-3 text-sm font-mono text-lab-terminal cursor-pointer appearance-none">
+                            <option>DÉVELOPPEMENT_BACKEND</option>
+                            <option>AUDIT_SÉCURITÉ</option>
+                            <option>ARCHITECTURE_SYSTÈME</option>
+                            <option>DEMANDE_D_INFORMATION</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="font-mono text-[10px] text-lab-muted uppercase tracking-widest ml-1">Payload des données (Message)</label>
+                        <textarea rows="4" placeholder="Saisissez votre message ici..." class="input-lab w-full px-4 py-3 text-sm font-mono text-lab-terminal placeholder:opacity-20 resize-none" required></textarea>
+                    </div>
+
+                    <button type="submit" class="group w-full py-4 bg-lab-primary text-black font-mono font-black uppercase text-xs tracking-[0.2em] hover:bg-lab-cyan transition-all shadow-lg shadow-lab-primary/20 flex items-center justify-center gap-3">
+                        <i data-lucide="zap" class="w-4 h-4 fill-black group-hover:animate-pulse"></i> TRANSMETTRE_LE_PAQUET
+                    </button>
+                </div>
+
+                <!-- Overlay de succès (Masqué) -->
+                <div id="success-overlay" class="absolute inset-0 bg-lab-bg/95 z-[70] flex flex-col items-center justify-center hidden font-mono animate-in fade-in duration-300">
+                    <div class="w-16 h-16 bg-lab-terminal/10 border border-lab-terminal flex items-center justify-center rounded-full mb-6">
+                        <i data-lucide="check" class="w-8 h-8 text-lab-terminal"></i>
+                    </div>
+                    <div class="text-xs text-lab-terminal uppercase tracking-widest text-center px-8 leading-relaxed">
+                        Transmission réussie.<br>Le paquet a été injecté dans le kernel.
+                    </div>
+                    <button onclick="resetForm()" class="mt-10 text-[9px] text-lab-primary hover:text-white uppercase tracking-[0.3em] underline underline-offset-4">Nouvelle Transmission</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <!-- UI Overlay Footer -->
+    <footer class="fixed bottom-6 left-0 w-full flex flex-col items-center gap-4 pointer-events-none z-30">
+        <div class="flex gap-10 opacity-30 text-lab-muted font-mono text-[10px] uppercase tracking-[0.4em]">
+            <span>Chiffrement : RSA-4096</span>
+            <span class="hidden md:block">Coordonnées : 47.2805° N, 5.0116° E</span>
+            <span>Uptime : 99.9%</span>
+        </div>
+    </footer>
+
+    <!-- Logique d'interaction -->
+    <script>
+        // Initialisation des icônes Lucide
+        lucide.createIcons();
+
+        /**
+         * Simule l'envoi d'un paquet de données
+         */
+        function transmitPacket() {
+            const btn = document.querySelector('button[type="submit"]');
+            const overlay = document.getElementById('success-overlay');
+            
+            // État de chargement
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> TRANSMISSION_EN_COURS...';
+            lucide.createIcons();
+            btn.disabled = true;
+
+            // Simulation d'injection de données
+            setTimeout(() => {
+                overlay.classList.remove('hidden');
+                document.getElementById('contact-form').reset();
+            }, 2500);
+        }
+
+        /**
+         * Réinitialise la vue du formulaire
+         */
+        function resetForm() {
+            const btn = document.querySelector('button[type="submit"]');
+            const overlay = document.getElementById('success-overlay');
+            
+            overlay.classList.add('hidden');
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="zap" class="w-4 h-4"></i> TRANSMETTRE_LE_PAQUET';
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<div data-controller="scanner" 
+     data-scanner-submit-url-value="{{ path('api_scanner_submit') }}"
+     data-scanner-status-url-value="{{ path('api_scanner_status', {scanId: 'PLACEHOLDER'}) }}"
+     data-scanner-verify-url-value="{{ path('api_scanner_verify', {scanId: 'PLACEHOLDER'}) }}"
+     data-scanner-download-url-value="{{ path('api_scanner_download', {scanId: 'PLACEHOLDER'}) }}"
+     data-scanner-conversion-url-value="{{ path('api_scanner_conversion', {scanId: 'PLACEHOLDER'}) }}"
+     data-scanner-csrf-token-value="{{ csrf_token('scanner_api') }}"
+     class="scanner-container">
+    
+    <!-- IDLE STATE: FORM -->
+    <div data-scanner-target="idle" class="space-y-4">
+        <div class="bg-black/50 border border-lab-border p-6 rounded-md shadow-inner">
+            <label for="scanner-url-input" class="block text-[10px] font-mono text-lab-muted uppercase mb-3 tracking-widest">Entrez l'URL cible pour analyse</label>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1">
+                    <i data-lucide="globe" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lab-muted"></i>
+                    <input type="text" 
+                           id="scanner-url-input"
+                           name="url"
+                           data-scanner-target="input"
+                           placeholder="https://votre-site.fr" 
+                           class="w-full bg-lab-panel border border-lab-border rounded-sm py-3 pl-10 pr-4 text-sm font-mono focus:border-lab-primary focus:outline-none transition-colors text-white">
+                </div>
+                <twig:Button type="primary" icon="zap" data-action="click->scanner#start">
+                    SCANNER
+                </twig:Button>
+            </div>
+            <p data-scanner-target="error" class="text-[10px] text-lab-danger mt-3 font-mono hidden"></p>
+            <p class="text-[9px] text-lab-muted mt-4 font-mono leading-relaxed">
+                <i data-lucide="info" class="w-3 h-3 inline mr-1"></i> 
+                En lançant un scan, vous confirmez être propriétaire de la cible. Token de vérification requis à l'étape suivante.
+            </p>
+        </div>
+    </div>
+
+    <!-- VERIFYING STATE: INSTRUCTIONS -->
+    <div data-scanner-target="verifying" class="hidden space-y-6">
+        <div class="bg-black/50 border border-lab-primary/30 p-8 rounded-md">
+            <h3 class="text-sm font-bold text-white font-mono mb-4 flex items-center gap-2">
+                <i data-lucide="shield-check" class="text-lab-primary w-4 h-4"></i>
+                VÉRIFICATION_DE_PROPRIÉTÉ
+            </h3>
+            
+            <p class="text-xs text-lab-text mb-6 font-mono">
+                Veuillez prouver que vous contrôlez <span data-scanner-target="urlDisplay" class="text-lab-cyan"></span> en utilisant l'une des méthodes ci-dessous :
+            </p>
+
+            <div class="space-y-6">
+                <!-- Option File -->
+                <div class="border-l-2 border-lab-border pl-4 space-y-3">
+                    <p class="text-[10px] font-bold text-white font-mono uppercase">Option A : Fichier .well-known</p>
+                    <p class="text-[10px] text-lab-muted">Créez un fichier sur votre serveur :</p>
+                    <div class="bg-lab-bg p-3 rounded font-mono text-[10px] text-lab-terminal break-all">
+                        /.well-known/jja-lab-token.txt
+                    </div>
+                    <p class="text-[10px] text-lab-muted">Contenu du fichier :</p>
+                    <div class="bg-lab-bg p-3 rounded font-mono text-[10px] text-white flex justify-between items-center">
+                        <code data-scanner-target="tokenDisplay"></code>
+                        <button class="text-lab-primary hover:text-white" data-action="click->scanner#copyToken"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                    </div>
+                </div>
+
+                <!-- Option DNS -->
+                <div class="border-l-2 border-lab-border pl-4 space-y-3">
+                    <p class="text-[10px] font-bold text-white font-mono uppercase">Option B : DNS TXT</p>
+                    <p class="text-[10px] text-lab-muted">Ajoutez un enregistrement TXT à votre domaine :</p>
+                    <div class="bg-lab-bg p-3 rounded font-mono text-[10px] text-white">
+                        <span class="text-lab-muted">Type:</span> TXT <br>
+                        <span class="text-lab-muted">Value:</span> <code data-scanner-target="tokenDisplayDNS"></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                <twig:Button type="primary" icon="shield-check" data-action="click->scanner#verify" class="flex-1">
+                    VÉRIFIER_MAINTENANT
+                </twig:Button>
+                <twig:Button type="outline" icon="x" data-action="click->scanner#reset" class="flex-1">
+                    ANNULER
+                </twig:Button>
+            </div>
+            
+            <p data-scanner-target="verifyError" class="text-[10px] text-lab-danger mt-4 font-mono hidden text-center"></p>
+        </div>
+    </div>
+
+    <!-- SCANNING STATE: PROGRESS -->
+    <div data-scanner-target="scanning" class="hidden space-y-6">
+        <div class="bg-black/50 border border-lab-primary/30 p-8 rounded-md shadow-[0_0_20px_rgba(0,198,255,0.05)]">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <i data-lucide="shield" class="w-6 h-6 text-lab-primary animate-pulse"></i>
+                        <span class="absolute inset-0 bg-lab-primary/20 blur-md rounded-full animate-ping"></span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white font-mono tracking-tight">AUDIT_EN_COURS</h3>
+                        <p data-scanner-target="statusLabel" class="text-[10px] text-lab-primary font-mono uppercase tracking-widest">Initialisation...</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span data-scanner-target="percentage" class="text-xl font-bold text-white font-mono">0%</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="h-1.5 w-full bg-lab-border rounded-full overflow-hidden mb-4">
+                <div data-scanner-target="progressBar" class="h-full bg-gradient-to-r from-lab-primary to-lab-cyan w-0 transition-all duration-500 ease-out shadow-[0_0_10px_rgba(0,198,255,0.5)]"></div>
+            </div>
+
+            <div class="flex justify-between text-[9px] font-mono text-lab-muted uppercase">
+                <span>Moteur : Nuclei Engine v3.0</span>
+                <span data-scanner-target="urlDisplayScanning" class="text-lab-cyan"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPLETED STATE: CTA -->
+    <div data-scanner-target="completed" class="hidden space-y-4">
+        <div class="bg-lab-primary/5 border border-lab-terminal/30 p-8 rounded-md text-center">
+            <i data-lucide="check-circle" class="w-12 h-12 text-lab-terminal mx-auto mb-4"></i>
+            <h3 class="text-lg font-bold text-white mb-2">ANALYSE TERMINÉE</h3>
+            <p class="text-sm text-lab-text mb-6">Le rapport préliminaire est prêt. Toutes les vulnérabilités identifiées ont été compilées.</p>
+            
+            <div class="flex flex-wrap justify-center gap-4">
+                <twig:Button type="primary" icon="file-text" data-action="click->scanner#download">
+                    TÉLÉCHARGER_LE_RAPPORT
+                </twig:Button>
+                                <twig:Button type="outline" icon="refresh-cw" data-action="click->scanner#reset">
+                                    NOUVEAU_SCAN
+                                </twig:Button>
+                            </div>
+                
+                            <div data-scanner-target="conversion" class="mt-8"></div>
+                        </div>
+                    </div>
+                </div>
+                

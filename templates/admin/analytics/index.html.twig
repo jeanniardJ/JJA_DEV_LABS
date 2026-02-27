@@ -1,0 +1,124 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Analytics | JJA DEV LAB{% endblock %}
+
+{% block admin_breadcrumb %}Analytics{% endblock %}
+
+{% block admin_body %}
+    <!-- SECTION TITRE & FILTRES -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
+        <div>
+            <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-none">Analytics Module</h1>
+            <p class="text-lab-muted font-mono text-xs mt-2 uppercase tracking-widest">Performance Metrics Dashboard</p>
+        </div>
+        
+        <form action="{{ path('admin_analytics_index') }}" method="GET" data-turbo-frame="analytics_dashboard" class="flex items-center gap-2">
+            <span class="text-[10px] font-mono text-lab-muted uppercase mr-2">Période:</span>
+            <select name="period" onchange="this.form.requestSubmit()" class="bg-lab-panel border border-lab-border text-white text-[10px] font-mono py-2 px-3 focus:border-lab-primary outline-none transition-colors">
+                <option value="7days" {{ current_period == '7days' ? 'selected' : '' }}>7 DERNIERS JOURS</option>
+                <option value="30days" {{ current_period == '30days' ? 'selected' : '' }}>30 DERNIERS JOURS</option>
+                <option value="this_month" {{ current_period == 'this_month' ? 'selected' : '' }}>MOIS EN COURS</option>
+            </select>
+        </form>
+    </div>
+
+    <turbo-frame id="analytics_dashboard">
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 font-mono">
+            <div class="admin-card p-6 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">KPI_01</div>
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs text-lab-muted uppercase tracking-widest">Total Leads</span>
+                    <i data-lucide="users" class="w-4 h-4 text-lab-terminal"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-white">{{ stats.kpis.total_leads }}</h3>
+                <div class="mt-4 h-1 w-full bg-lab-border rounded-full overflow-hidden">
+                    <div class="h-full bg-lab-terminal" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="admin-card p-6 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">KPI_02</div>
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs text-lab-muted uppercase tracking-widest">Scans Exécutés</span>
+                    <i data-lucide="shield-check" class="w-4 h-4 text-lab-primary"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-white">{{ stats.kpis.total_scans }}</h3>
+                <div class="mt-4 h-1 w-full bg-lab-border rounded-full overflow-hidden">
+                    <div class="h-full bg-lab-primary" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="admin-card p-6 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">KPI_03</div>
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-xs text-lab-muted uppercase tracking-widest">Taux Conversion</span>
+                    <i data-lucide="target" class="w-4 h-4 text-lab-cyan"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-white">{{ stats.kpis.conversion_rate }}%</h3>
+                <div class="mt-4 h-1 w-full bg-lab-border rounded-full overflow-hidden">
+                    <div class="h-full bg-lab-cyan" style="width: {{ stats.kpis.conversion_rate }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHARTS GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Activity Chart -->
+            <div class="lg:col-span-2 admin-card flex flex-col">
+                <div class="p-6 border-b border-lab-border flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                        <i data-lucide="line-chart" class="w-4 h-4 text-lab-terminal"></i>
+                        Flux de Leads Temporel
+                    </h3>
+                </div>
+                <div class="p-6 h-[350px]">
+                    {{ render_chart(activity_chart) }}
+                </div>
+            </div>
+
+            <!-- Severity Stats -->
+            <div class="admin-card flex flex-col">
+                <div class="p-6 border-b border-lab-border flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-lab-danger"></i>
+                        Profil de Vulnérabilités
+                    </h3>
+                </div>
+                <div class="p-6 flex-1 flex flex-col">
+                    <div class="h-[200px] mb-8">
+                        {{ render_chart(severity_chart) }}
+                    </div>
+                    
+                    <div class="space-y-3 mt-auto border-t border-lab-border/50 pt-4">
+                        {% for item in stats.severity_stats %}
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full severity-dot-{{ item.severity|lower }}"></div>
+                                    <span class="text-[10px] font-mono text-lab-muted uppercase tracking-widest">{{ item.severity }}</span>
+                                </div>
+                                <span class="text-[10px] font-mono font-bold text-white">{{ item.count }}</span>
+                            </div>
+                        {% else %}
+                            <div class="text-center text-[10px] font-mono text-lab-muted uppercase py-4">
+                                AUCUNE DONNÉE DE SCAN POUR CETTE PÉRIODE
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </turbo-frame>
+
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .severity-dot-critical { background-color: #ff3366; } /* lab-danger */
+        .severity-dot-high { background-color: #ffb700; }    /* lab-warning */
+        .severity-dot-medium { background-color: #00c6ff; }  /* lab-primary */
+        .severity-dot-low { background-color: #00ff88; }     /* lab-terminal */
+        .severity-dot-info { background-color: #4df4ff; }    /* lab-cyan */
+    </style>
+{% endblock %}

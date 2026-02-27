@@ -1,0 +1,10 @@
+framework:
+    rate_limiter:
+        scanner_verification:
+            policy: 'fixed_window'
+            limit: 5
+            interval: '1 minute'
+        scanner_submit:
+            policy: 'fixed_window'
+            limit: 10
+            interval: '1 minute'

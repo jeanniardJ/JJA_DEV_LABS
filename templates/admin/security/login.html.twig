@@ -1,0 +1,143 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}JJA ACCESS TERMINAL | LOGIN{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .auth-card {
+            background: rgba(11, 15, 20, 0.85) !important;
+            backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(0, 198, 255, 0.2) !important;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        @keyframes float-login {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-float-login {
+            animation: float-login 6s ease-in-out infinite !important;
+        }
+    </style>
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block boot_screen %}{% endblock %}
+{% block body_controller %}{% endblock %}
+
+{% block body %}
+<div class="min-h-[100vh] flex flex-col items-center justify-center p-4">
+    <!-- CARTE D'AUTHENTIFICATION (Fidèle au mockup login.html) -->
+    <main class="auth-card w-full max-w-[420px] rounded-sm p-8 relative overflow-hidden animate-float-login shadow-2xl">
+        
+        <!-- Ornement d'angle décoratif -->
+        <div class="absolute top-0 right-0 w-16 h-16 pointer-events-none opacity-20">
+            <div class="absolute top-0 right-0 w-full h-[2px] bg-lab-primary"></div>
+            <div class="absolute top-0 right-0 w-[2px] h-full bg-lab-primary"></div>
+        </div>
+
+        <!-- En-tête : Logo et Titre -->
+        <div class="flex flex-col items-center mb-10">
+            <div class="w-12 h-12 bg-lab-primary/10 border border-lab-primary flex items-center justify-center mb-4">
+                <i data-lucide="shield-check" class="w-6 h-6 text-lab-primary"></i>
+            </div>
+            <h1 class="font-bold tracking-[0.2em] text-white text-lg uppercase text-center">TERMINAL JJA ACCESS</h1>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="w-1.5 h-1.5 bg-lab-terminal rounded-full animate-pulse"></span>
+                <span class="text-[10px] font-mono text-lab-terminal uppercase tracking-widest">Protocole de Sécurité v4.2</span>
+            </div>
+        </div>
+
+        <!-- Sélecteur d'onglets (Statique pour le style) -->
+        <div class="flex border-b border-lab-border mb-8 font-mono text-[10px] uppercase tracking-widest text-center">
+            <div class="flex-1 py-3 text-lab-primary border-b-2 border-lab-primary">Authentification</div>
+        </div>
+
+        <!-- Conteneur SSO -->
+        <div class="space-y-8">
+            <div class="text-center">
+                <p class="text-xs text-lab-muted font-mono leading-relaxed mb-6">
+                    Accès restreint. Veuillez initialiser la liaison avec votre noyau d'identité pour déverrouiller le terminal.
+                </p>
+            </div>
+
+            <a href="{{ path('connect_google_start') }}" 
+               id="login-btn"
+               class="w-full py-4 bg-lab-primary text-black font-mono font-black uppercase text-xs tracking-[0.2em] hover:bg-lab-cyan transition-all shadow-lg shadow-lab-primary/20 flex items-center justify-center gap-3 group">
+                <i data-lucide="log-in" class="w-4 h-4 transition-transform group-hover:scale-110"></i> 
+                INITIALISER_SSO_GOOGLE
+            </a>
+
+            <div class="pt-6 border-t border-lab-border/30">
+                <div class="flex items-center justify-between text-[8px] font-mono text-lab-muted uppercase tracking-tighter">
+                    <span>STATUS: EN_ATTENTE</span>
+                    <span>ENCRYPTION: AES-256</span>
+                </div>
+            </div>
+            
+            <div class="p-4 border-l-2 border-lab-danger bg-lab-danger/5 font-mono text-[9px] uppercase tracking-wider leading-relaxed opacity-60">
+                <span class="text-lab-danger font-bold">Alert:</span> Unauthorized access attempts are logged at IP level.
+            </div>
+        </div>
+
+        <!-- Overlay de statut (Chargement) -->
+        <div id="status-overlay" class="absolute inset-0 bg-lab-bg/95 flex flex-col items-center justify-center z-[70] hidden font-mono">
+            <div class="w-10 h-10 border-2 border-lab-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+            <div id="status-text" class="text-[10px] text-lab-primary uppercase tracking-[0.2em]">Traitement...</div>
+        </div>
+    </main>
+
+    <!-- BOUTON RETOUR ACCUEIL -->
+    <div class="mt-12 animate-fade-in-up" style="animation-delay: 300ms;">
+        <a href="{{ path('app_home') }}" class="flex items-center gap-3 text-lab-muted hover:text-lab-primary font-mono text-[10px] uppercase tracking-[0.3em] transition-all group">
+            <i data-lucide="corner-down-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+            RETOUR_VERS_L_ACCUEIL_DU_LAB
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    <!-- Pied de page technique spécifique (Mockup login.html) -->
+    <footer class="fixed bottom-6 left-0 w-full flex flex-col items-center gap-4 pointer-events-none z-30">
+        <div class="flex gap-10 opacity-30 text-lab-muted font-mono text-[10px] uppercase tracking-[0.4em]">
+            <span>Connexion Chiffrée : TLS 1.3</span>
+            <span class="hidden md:block">Noeud : JJA_ALPHA_01</span>
+            <span>Auth : AES-256</span>
+        </div>
+    </footer>
+{% endblock %}
+
+{% block javascripts_footer %}
+<script>
+    document.addEventListener('turbo:load', () => {
+        const btn = document.getElementById('login-btn');
+        const overlay = document.getElementById('status-overlay');
+        const statusText = document.getElementById('status-text');
+
+        if (btn && overlay) {
+            btn.addEventListener('click', () => {
+                overlay.classList.remove('hidden');
+                statusText.innerText = 'INITIALISATION_SESSION_GOOGLE...';
+            });
+        }
+    });
+
+    // Fallback if turbo is already loaded or not used
+    window.addEventListener('load', () => {
+        const btn = document.getElementById('login-btn');
+        const overlay = document.getElementById('status-overlay');
+        const statusText = document.getElementById('status-text');
+
+        if (btn && overlay && overlay.classList.contains('hidden')) {
+            btn.addEventListener('click', () => {
+                overlay.classList.remove('hidden');
+                statusText.innerText = 'INITIALISATION_SESSION_GOOGLE...';
+            });
+        }
+    });
+</script>
+{% endblock %}

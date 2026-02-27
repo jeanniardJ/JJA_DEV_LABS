@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HORS LIGNE | JJA DEV LAB{% endblock %}
+
+{% block body %}
+    <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <div class="w-full max-w-2xl">
+            <twig:Terminal user="visitor" host="offline-mode" path="~/error" height="h-auto">
+                <div class="space-y-4 font-mono text-sm">
+                    <div class="flex gap-2">
+                        <span class="text-lab-terminal">➜</span>
+                        <span class="text-lab-cyan">~</span>
+                        <span class="text-white">check_connectivity --status</span>
+                    </div>
+                    
+                    <div class="text-lab-danger font-bold">
+                        [ERREUR] : AUCUNE CONNEXION RÉSEAU DÉTECTÉE
+                    </div>
+                    
+                    <div class="text-lab-text leading-relaxed">
+                        Le laboratoire est actuellement en mode isolation forcée. <br>
+                        Veuillez vérifier votre accès satellite (Wi-Fi/4G) pour rétablir la liaison.
+                    </div>
+                    
+                    <div class="text-lab-muted text-xs italic">
+                        // Les protocoles de cache locaux permettent de naviguer sur les pages déjà visitées.
+                    </div>
+
+                    <div class="flex gap-2 pt-4">
+                        <span class="text-lab-terminal">➜</span>
+                        <span class="text-lab-cyan">~</span>
+                        <span class="animate-blink inline-block w-2 h-4 align-middle bg-lab-primary"></span>
+                    </div>
+                </div>
+            </twig:Terminal>
+        </div>
+
+        <div class="mt-12">
+            <button onclick="window.location.reload()" class="inline-flex items-center gap-2 px-4 py-2 bg-lab-primary/10 border border-lab-primary text-lab-primary font-mono text-xs uppercase tracking-wider hover:bg-lab-primary hover:text-black transition-all group">
+                <i data-lucide="refresh-cw" class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500"></i>
+                RÉESSAYER_LA_LIAISON
+            </button>
+        </div>
+    </div>
+{% endblock %}

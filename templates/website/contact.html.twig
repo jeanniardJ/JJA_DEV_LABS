@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}CONTACT | JJA DEV LAB{% endblock %}
+
+{% block body %}
+    <div class="max-w-2xl mx-auto">
+        <!-- HEADER SECTION -->
+        <div class="mb-12 border-l-2 border-lab-primary pl-6 py-2">
+            <h1 class="text-3xl font-bold tracking-tighter text-white mb-2 uppercase italic glow-text">
+                CANAL_COMMUNICATION
+            </h1>
+            <p class="text-lab-muted font-mono text-xs uppercase tracking-widest">
+                Établissement d'une liaison sécurisée avec l'administrateur
+            </p>
+        </div>
+
+        <!-- CONTACT FORM CONTAINER -->
+        <turbo-frame id="contact-form-frame">
+            <!-- FLASH MESSAGES -->
+            {% for message in app.flashes('success') %}
+                <div class="flash-success mb-8 p-4 bg-lab-terminal/10 border border-lab-terminal text-lab-terminal font-mono text-xs flex items-center gap-3">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+
+            <div class="glass-panel p-8 border border-lab-border/50 relative overflow-hidden group">
+                <!-- Decorative Corners -->
+                <div class="absolute top-0 right-0 w-8 h-8 border-t border-r border-lab-primary/30"></div>
+                <div class="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-lab-primary/30"></div>
+                
+                <div id="contact-form-container">
+                    {{ include('website/_contact_form.html.twig') }}
+                </div>
+            </div>
+        </turbo-frame>
+        
+        <!-- SIDE INFO -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 border border-lab-border/30 bg-lab-panel/50">
+                <div class="text-[10px] text-lab-muted font-mono mb-1 uppercase tracking-tighter">DISPONIBILITÉ_RESEAU</div>
+                <div class="text-xs text-lab-text font-mono">24/7 // RÉPONSE SOUS 48H</div>
+            </div>
+            <div class="p-4 border border-lab-border/30 bg-lab-panel/50">
+                <div class="text-[10px] text-lab-muted font-mono mb-1 uppercase tracking-tighter">LOCALISATION_NOEUD</div>
+                <div class="text-xs text-lab-text font-mono">FRANCE // EUROPE</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

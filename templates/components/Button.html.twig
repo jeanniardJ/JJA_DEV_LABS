@@ -1,0 +1,37 @@
+{% props type = 'primary', size = 'md', href = null, icon = null %}
+
+{% set base_classes = 'inline-flex items-center gap-2 font-mono uppercase tracking-wide transition-all duration-200' %}
+
+{% set size_classes = {
+    'xs': 'px-3 py-1 text-[10px]',
+    'sm': 'px-4 py-2 text-[11px]',
+    'md': 'px-6 py-3 text-xs',
+    'lg': 'px-8 py-4 text-sm'
+}[size] %}
+
+{% set type_classes = {
+    'primary': 'bg-lab-primary text-black font-bold hover:bg-lab-cyan hover:shadow-[0_0_15px_rgba(0,198,255,0.4)]',
+    'outline': 'border border-lab-border text-lab-text hover:border-lab-primary hover:text-white',
+    'ghost': 'text-lab-muted hover:text-lab-primary',
+    'danger': 'border border-lab-danger/50 text-lab-danger hover:bg-lab-danger hover:text-white'
+}[type] %}
+
+{% set button_content %}
+    {% block content %}Action{% endblock %}
+{% endset %}
+
+{% if href %}
+    <a href="{{ href }}" {{ attributes.defaults({ class: base_classes ~ ' ' ~ size_classes ~ ' ' ~ type_classes }) }}>
+        {% if icon %}
+            <i data-lucide="{{ icon }}" class="{{ size == 'xs' ? 'w-3 h-3' : 'w-4 h-4' }}"></i>
+        {% endif %}
+        {{ button_content }}
+    </a>
+{% else %}
+    <button {{ attributes.defaults({ class: base_classes ~ ' ' ~ size_classes ~ ' ' ~ type_classes }) }}>
+        {% if icon %}
+            <i data-lucide="{{ icon }}" class="{{ size == 'xs' ? 'w-3 h-3' : 'w-4 h-4' }}"></i>
+        {% endif %}
+        {{ button_content }}
+    </button>
+{% endif %}

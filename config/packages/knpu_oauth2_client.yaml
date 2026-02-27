@@ -1,0 +1,10 @@
+knpu_oauth2_client:
+    clients:
+        google:
+            # must be "google" to use the Google provider
+            type: google
+            client_id: '%env(GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(GOOGLE_CLIENT_SECRET)%'
+            # the route that you're redirected to after logging in
+            redirect_route: connect_google_check
+            redirect_params: {}

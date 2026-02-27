@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Courier', monospace;
+            background-color: #05070a;
+            color: #cbd5e1;
+            padding: 40px;
+            margin: 0;
+        }
+        .header {
+            border-bottom: 2px solid #00c6ff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .meta {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 10px;
+        }
+        .section-title {
+            color: #00ff88;
+            font-size: 16px;
+            border-left: 4px solid #00ff88;
+            padding-left: 10px;
+            margin: 30px 0 15px 0;
+            text-transform: uppercase;
+        }
+        .vulnerability {
+            background-color: #0b0f14;
+            border: 1px solid #1a2332;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .vuln-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .vuln-name {
+            color: #ffffff;
+            font-weight: bold;
+        }
+        .severity {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+        .severity-high { color: #ff3366; border: 1px solid #ff3366; }
+        .severity-medium { color: #ffcc00; border: 1px solid #ffcc00; }
+        .severity-low { color: #00c6ff; border: 1px solid #00c6ff; }
+        
+        .description {
+            font-size: 12px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        .fix {
+            background-color: #05070a;
+            border-left: 2px solid #00c6ff;
+            padding: 10px;
+            font-size: 11px;
+            color: #00c6ff;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 10px;
+            text-align: center;
+            color: #64748b;
+            border-top: 1px solid #1a2332;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">JJA_LAB // RAPPORT_AUDIT_SÉCURITÉ</div>
+        <div class="meta">
+            CIBLE : {{ url }} <br>
+            DATE  : {{ "now"|date("d/m/Y H:i:s") }} <br>
+            ID_SCAN : {{ scan_id }}
+        </div>
+    </div>
+
+    <div class="section-title">RÉSUMÉ_EXÉCUTIF</div>
+    <p class="description">
+                L'analyse automatisée via le moteur Nuclei v3.0 a identifié <strong>{{ results|length }}</strong> point{{ results|length > 1 ? 's' : '' }} d'attention sur l'infrastructure cible. Les recommandations ci-dessous sont prioritaires pour renforcer votre posture de sécurité.
+        
+    </p>
+
+    <div class="section-title">DÉTAILS_DES_VULNÉRABILITÉS</div>
+    
+    {% for vuln in results %}
+        <div class="vulnerability">
+            <div class="vuln-header">
+                <span class="vuln-name">{{ vuln.info.name }}</span>
+                <span class="severity severity-{{ vuln.info.severity }}">{{ vuln.info.severity }}</span>
+            </div>
+            <div class="description">
+                {{ vuln.info.description }}
+            </div>
+            <div class="fix">
+                {% if vuln['template-id'] == 'missing-secure-headers' %}
+                    RECOMMANDATION : Ajoutez les en-têtes suivants dans votre configuration serveur (Nginx/Apache) :
+                    <br><code>add_header Content-Security-Policy "default-src 'self';";</code>
+                    <br><code>add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";</code>
+                {% elseif vuln['template-id'] == 'ssl-obsolete-version' %}
+                    RECOMMANDATION : Désactivez TLS 1.0 et 1.1. Forcez TLS 1.2 minimum.
+                    <br><code>ssl_protocols TLSv1.2 TLSv1.3;</code>
+                {% elseif vuln['template-id'] == 'git-config-exposure' %}
+                    RECOMMANDATION CRITIQUE : Bloquez l'accès au dossier .git immédiatement !
+                    <br><code>location ~ /\.git { deny all; }</code>
+                {% else %}
+                    RECOMMANDATION : Consultez la documentation officielle pour corriger cette vulnérabilité spécifique.
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <p>Aucune vulnérabilité critique détectée lors de ce passage.</p>
+    {% endfor %}
+
+    <div class="footer">
+        // GÉNÉRÉ PAR JJA_DEV_LAB // PAS DE STOCKAGE PERMANENT DES DONNÉES // RGPD COMPLIANT
+    </div>
+</body>
+</html>

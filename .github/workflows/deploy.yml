@@ -1,0 +1,67 @@
+name: Deploy to OVH
+
+# Le déploiement réel est déclenché par le webhook GitHub -> OVH
+# Ce workflow sert de garde-fou : il vérifie que le code est valide
+# AVANT que le webhook ne déclenche le déploiement sur le serveur.
+#
+# Flux complet :
+#   1. Push sur master
+#   2. GitHub Actions lance ce workflow (CI rapide)
+#   3. GitHub envoie le webhook POST à https://votre-domaine.com/webhook.php
+#   4. Le serveur OVH exécute scripts/deploy.sh automatiquement
+#
+# Configuration webhook GitHub :
+#   Repository > Settings > Webhooks > Add webhook
+#   - Payload URL: https://votre-domaine.com/webhook.php
+#   - Content type: application/json
+#   - Secret: (même que WEBHOOK_SECRET dans .env.prod.local)
+#   - Events: Just the push event
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  DB_USER: ci
+  DB_PASSWORD: ci
+  DB_HOST: 127.0.0.1
+  DB_PORT: 3306
+  DB_NAME: ci_db
+  DB_VERSION: mariadb-10.11.2
+
+jobs:
+  pre-deploy-check:
+    name: Pre-deploy validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl-icu, pdo_mysql
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Lint Twig
+        run: php bin/console lint:twig templates/ --env=dev
+
+      - name: Lint Container
+        run: php bin/console lint:container --env=dev
+
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse --no-progress

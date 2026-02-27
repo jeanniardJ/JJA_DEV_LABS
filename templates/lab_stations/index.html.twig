@@ -1,0 +1,95 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}JJA DEV LAB | Lab Stations{% endblock %}
+
+{% block admin_breadcrumb %}Skill Nodes{% endblock %}
+
+{% block admin_body %}
+    <!-- HEADER DE LA PAGE -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-none">Lab Station Operator</h1>
+            <p class="text-lab-muted font-mono text-xs mt-2 uppercase tracking-widest">Monitoring critical lab environments. All systems nominal.</p>
+        </div>
+        <a href="{{ path('app_lab_station_new') }}" class="px-4 py-2 bg-lab-terminal/10 border border-lab-terminal/40 text-lab-terminal font-mono text-[10px] uppercase hover:bg-lab-terminal hover:text-black transition-all inline-flex items-center gap-2">
+            <i data-lucide="plus" class="w-3 h-3"></i> Déployer une Station
+        </a>
+    </div>
+
+    {% for flash in app.flashes('success') %}
+        <div class="admin-card p-4 border-lab-terminal/30 bg-lab-terminal/5">
+            <div class="flex items-center gap-3 text-[10px] font-mono text-lab-terminal uppercase tracking-widest">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> {{ flash }}
+            </div>
+        </div>
+    {% endfor %}
+
+    <!-- GRID PRINCIPALE DES STATIONS -->
+    <div class="space-y-8">
+
+        <!-- STATUT GÉNÉRAL -->
+        <div class="admin-card p-6 rounded-sm">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                    <i data-lucide="activity" class="w-4 h-4 text-lab-terminal"></i> Global System Health
+                </h2>
+                <span class="text-[10px] font-mono text-lab-terminal uppercase">
+                    Last Update: {{ "now"|date("Y/m/d H:i:s") }} UTC
+                </span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-[10px] font-mono uppercase">
+                <div class="p-4 bg-black/20 border border-lab-border rounded-sm group hover:border-lab-primary transition-colors">
+                    <div class="text-lab-muted mb-1">CPU Load (Avg)</div>
+                    <div class="text-white text-lg font-bold">2.1%</div>
+                </div>
+                <div class="p-4 bg-black/20 border border-lab-border rounded-sm group hover:border-lab-warning transition-colors">
+                    <div class="text-lab-muted mb-1">Memory Usage</div>
+                    <div class="text-white text-lg font-bold">3.4 GB</div>
+                </div>
+                <div class="p-4 bg-black/20 border border-lab-border rounded-sm group hover:border-lab-cyan transition-colors">
+                    <div class="text-lab-muted mb-1">Network I/O</div>
+                    <div class="text-white text-lg font-bold">1.2 MB/s</div>
+                </div>
+                <div class="p-4 bg-black/20 border border-lab-border rounded-sm group hover:border-lab-terminal transition-colors">
+                    <div class="text-lab-muted mb-1">Active Containers</div>
+                    <div class="text-lab-primary text-lg font-bold">4/7</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for station in stations %}
+                <article class="admin-card p-6 flex flex-col justify-between" style="border-left: 2px solid {{ station.borderColor }};">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span style="color: {{ station.borderColor }};"><i data-lucide="{{ station.icon }}" class="w-5 h-5"></i></span>
+                            <span class="text-[9px] font-mono
+                                {% if station.status.value == 'WARNING' %}text-lab-warning
+                                {% elseif station.status.value == 'CRITICAL' %}text-lab-danger
+                                {% elseif station.status.value == 'RUNNING' %}text-lab-terminal
+                                {% else %}text-lab-terminal
+                                {% endif %} tracking-widest">{{ station.status.value }}</span>
+                        </div>
+                        <h3 class="font-bold text-white text-sm uppercase tracking-tight mb-2">{{ station.name }}</h3>
+                        <p class="text-[11px] text-lab-muted font-mono leading-relaxed">{{ station.description }}</p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-lab-border/50 text-[10px] font-mono uppercase">
+                        <div class="text-lab-muted">Uptime: {{ station.uptime }}</div>
+                        <div style="color: {{ station.borderColor }};">{{ station.metricLabel }}: {{ station.metricValue }}</div>
+                        <a href="{{ path('app_lab_station_edit', {'id': station.id}) }}" class="inline-flex items-center gap-1 text-lab-muted hover:text-lab-primary transition-colors text-[10px] uppercase font-mono tracking-widest mt-2">
+                            <i data-lucide="settings" class="w-3 h-3"></i> Configurer
+                        </a>
+                    </div>
+                </article>
+            {% else %}
+                <div class="col-span-full admin-card p-12 text-center">
+                    <i data-lucide="server-off" class="w-8 h-8 text-lab-border mx-auto mb-4"></i>
+                    <p class="text-lab-muted font-mono text-xs uppercase tracking-widest">Aucune station déployée</p>
+                    <a href="{{ path('app_lab_station_new') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-lab-terminal/10 border border-lab-terminal/40 text-lab-terminal font-mono text-[10px] uppercase hover:bg-lab-terminal hover:text-black transition-all">
+                        <i data-lucide="plus" class="w-3 h-3"></i> Déployer la première station
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

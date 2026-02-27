@@ -1,0 +1,247 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}JJA DEV LAB | ADMIN MAINFRAME{% endblock %}
+
+{% block admin_breadcrumb %}Vue d'ensemble{% endblock %}
+
+{% block admin_body %}
+    <!-- SECTION TITRE -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-none">Mainframe Kernel</h1>
+            <p class="text-lab-muted font-mono text-xs mt-2 uppercase tracking-widest">Séquence de monitoring temps réel initialisée</p>
+        </div>
+        <div class="flex gap-2">
+            <button class="px-4 py-2 bg-lab-primary/10 border border-lab-primary/40 text-lab-primary font-mono text-[10px] uppercase hover:bg-lab-primary hover:text-black transition-all">
+                Exporter Rapport
+            </button>
+            <button class="px-4 py-2 bg-lab-danger/10 border border-lab-danger/40 text-lab-danger font-mono text-[10px] uppercase hover:bg-lab-danger hover:text-white transition-all">
+                Panic_Mode
+            </button>
+        </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 font-mono">
+        <div class="admin-card p-6 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">DATA_FETCH_01</div>
+            <div class="flex justify-between items-start mb-4">
+                <span class="text-xs text-lab-muted uppercase tracking-widest">Utilisateurs Total</span>
+                <i data-lucide="users" class="w-4 h-4 text-lab-primary"></i>
+            </div>
+            <div class="text-3xl font-bold text-white">{{ stats.total_users }}</div>
+            <div class="mt-2 text-[10px] text-lab-terminal">+{{ stats.total_users }} vs last sync</div>
+        </div>
+
+        <div class="admin-card p-6 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">DATA_FETCH_02</div>
+            <div class="flex justify-between items-start mb-4">
+                <span class="text-xs text-lab-muted uppercase tracking-widest">Pipeline Leads</span>
+                <i data-lucide="activity" class="w-4 h-4 text-lab-cyan"></i>
+            </div>
+            <div class="text-3xl font-bold text-white">{{ stats.total_leads }}</div>
+            <div class="mt-2 text-[10px] text-lab-cyan tracking-widest">Séquence Stable</div>
+        </div>
+
+        <div class="admin-card p-6 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">DATA_FETCH_03</div>
+            <div class="flex justify-between items-start mb-4">
+                <span class="text-xs text-lab-muted uppercase tracking-widest">Rdv Aujourd'hui</span>
+                <i data-lucide="calendar" class="w-4 h-4 text-lab-terminal"></i>
+            </div>
+            <div class="text-3xl font-bold text-white">{{ stats.today_appointments }}</div>
+            <div class="mt-2 text-[10px] text-lab-terminal uppercase tracking-widest">All Online</div>
+        </div>
+
+        <div class="admin-card p-6 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-2 text-[8px] text-lab-border opacity-30 select-none">DATA_FETCH_04</div>
+            <div class="flex justify-between items-start mb-4">
+                <span class="text-xs text-lab-muted uppercase tracking-widest">Push Nodes</span>
+                <i data-lucide="zap" class="w-4 h-4 text-lab-warning"></i>
+            </div>
+            <div class="text-3xl font-bold text-white">{{ stats.active_push }}</div>
+            <div class="mt-2 text-[10px] text-lab-warning tracking-widest">Peak Detected</div>
+        </div>
+    </div>
+
+    <!-- PWA NOTIFICATIONS SYSTEM -->
+    <div data-controller="pwa-notification"
+         data-pwa-notification-public-key-value="{{ vapid_public_key }}"
+         data-pwa-notification-subscribe-url-value="{{ path('api_admin_push_subscribe') }}">
+        <div class="admin-card p-4 flex items-center justify-between bg-lab-primary/5 border-lab-primary/20">
+            <div class="flex items-center gap-4">
+                <div class="p-2 bg-lab-primary/10 rounded-full">
+                    <i data-lucide="bell-ring" class="w-4 h-4 text-lab-primary"></i>
+                </div>
+                <div>
+                    <p class="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Système de Notifications Push</p>
+                    <p data-pwa-notification-target="status" class="text-[9px] font-mono text-lab-muted uppercase">Initialisation du socket...</p>
+                </div>
+            </div>
+            <button data-action="click->pwa-notification#toggle" 
+                    data-pwa-notification-target="button"
+                    class="text-[9px] font-mono font-bold text-lab-primary border border-lab-primary/50 px-6 py-2 hover:bg-lab-primary hover:text-black transition-all">
+                ACTIVER_LES_FLUX
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN GRID CONTENT -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- JOURNAL DU KERNEL (Activités récentes) -->
+        <div class="lg:col-span-2 admin-card flex flex-col">
+            <div class="p-6 border-b border-lab-border flex items-center justify-between">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                    <i data-lucide="list" class="w-4 h-4 text-lab-primary"></i> Journal du Kernel
+                </h2>
+                <button class="text-[10px] font-mono text-lab-muted hover:text-lab-primary transition-colors uppercase">Effacer les logs</button>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[400px] font-mono text-[11px] space-y-4">
+                {% for lead in grouped_leads['Nouveau']|default([])|slice(0, 5) %}
+                    <div class="flex gap-4 group">
+                        <span class="text-lab-muted shrink-0">[{{ lead.createdAt|date('H:i:s') }}]</span>
+                        <span class="text-lab-terminal uppercase">SUCCESS</span>
+                        <span class="text-lab-text">Nouveau lead identifié : <span class="text-lab-primary">{{ lead.email }}</span></span>
+                    </div>
+                {% endfor %}
+                
+                <div class="flex gap-4 group">
+                    <span class="text-lab-muted shrink-0">[{{ "now"|date('H:i:s') }}]</span>
+                    <span class="text-lab-primary uppercase">SYSTEM</span>
+                    <span class="text-lab-text">Session opérateur authentifiée : <span class="text-lab-primary underline">{{ app.user ? app.user.userIdentifier : 'DEV_OP' }}</span></span>
+                </div>
+
+                <div class="flex gap-4 group italic opacity-50">
+                    <span class="text-lab-muted shrink-0">[{{ "now"|date('H:i:s', 'Europe/Paris') }}]</span>
+                    <span class="text-lab-muted uppercase">INFO</span>
+                    <span class="text-lab-text">Initialisation des services de monitoring... <span class="animate-blink">_</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SYSTEM STATUS / SIDE -->
+        <div class="space-y-6">
+            <div class="admin-card p-6">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3 mb-6">
+                    <i data-lucide="cpu" class="w-4 h-4 text-lab-danger"></i> État du Noyau
+                </h2>
+                
+                <div class="space-y-6 font-mono">
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] uppercase tracking-widest">
+                            <span class="text-lab-muted">Charge PHP</span>
+                            <span class="text-lab-terminal">{{ stats.memory_usage }} MB</span>
+                        </div>
+                        <div class="h-1 bg-lab-border rounded-full overflow-hidden">
+                            <div class="h-full bg-lab-terminal w-[24%]"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] uppercase tracking-widest">
+                            <span class="text-lab-muted">Utilisation Système</span>
+                            <span class="text-lab-warning">Stable</span>
+                        </div>
+                        <div class="h-1 bg-lab-border rounded-full overflow-hidden">
+                            <div class="h-full bg-lab-warning w-[68%]"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] uppercase tracking-widest">
+                            <span class="text-lab-muted">Storage I/O</span>
+                            <span class="text-lab-primary">Sync OK</span>
+                        </div>
+                        <div class="h-1 bg-lab-border rounded-full overflow-hidden">
+                            <div class="h-full bg-lab-primary w-[12%]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-lab-danger/5 border border-lab-danger/20 rounded-sm">
+                    <div class="flex items-center gap-2 text-[10px] text-lab-danger font-bold uppercase tracking-widest">
+                        <i data-lucide="alert-circle" class="w-3 h-3"></i> Alerte Sécurité
+                    </div>
+                    <p class="text-[9px] text-lab-muted font-mono mt-2 leading-relaxed uppercase">
+                        Pare-feu actif. Secteur mémoire protégé. Session sécurisée pour {{ app.user ? app.user.userIdentifier : 'DEV_OP' }}.
+                    </p>
+                </div>
+            </div>
+
+            <!-- RECENT SESSIONS (Derniers Leads gagnés/en cours) -->
+            <div class="admin-card p-6">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3 mb-6">
+                    <i data-lucide="user-check" class="w-4 h-4 text-lab-cyan"></i> Sessions Récentes
+                </h2>
+                <div class="space-y-4 font-mono">
+                    {% for lead in grouped_leads['En cours']|default([])|slice(0, 3) %}
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-lab-border flex items-center justify-center text-[10px] text-white">
+                                {{ lead.name|slice(0, 1)|upper }}{{ lead.name|slice(-1)|upper }}
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-xs text-white uppercase tracking-tighter">{{ lead.name }}</span>
+                                <span class="text-[9px] text-lab-terminal uppercase">Online</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-[9px] text-lab-muted uppercase">Aucune session active</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PIPELINE SECTION (Kanban) - Ajouté sous le dashboard principal pour garder la fonctionnalité -->
+    <div class="admin-card p-6">
+        <div class="flex items-center justify-between mb-6 border-b border-lab-border pb-4">
+            <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                <i data-lucide="layout-list" class="w-4 h-4 text-lab-cyan"></i> Pipeline de Conversion
+            </h2>
+            <div class="flex items-center gap-2 text-[10px] font-mono text-lab-muted">
+                <span class="uppercase">Sort:</span>
+                <a href="{{ path('admin_dashboard', {sort: 'createdAt', direction: current_direction == 'DESC' ? 'ASC' : 'DESC'}) }}" class="hover:text-white underline">Date</a>
+            </div>
+        </div>
+
+        <div class="flex gap-4 overflow-x-auto pb-4" 
+             data-controller="kanban"
+             data-kanban-update-url-value="{{ path('api_admin_lead_update_status', {id: 'ID_PLACEHOLDER'}) }}">
+            
+            {% for status in statuses %}
+                <div class="flex-shrink-0 w-72 flex flex-col admin-card !bg-black/20">
+                    <div class="p-3 border-b border-lab-border/50 flex items-center justify-between bg-black/40">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 rounded-full bg-lab-primary"></div>
+                            <h3 class="text-[10px] font-mono font-bold text-white uppercase tracking-widest">{{ status.getLabel() }}</h3>
+                        </div>
+                        <span class="text-[10px] font-mono text-lab-muted">{{ grouped_leads[status.value]|length }}</span>
+                    </div>
+
+                    <div class="flex-1 p-2 space-y-3 min-h-[300px]" 
+                         data-kanban-target="column" 
+                         data-status="{{ status.value }}">
+                        {% for lead in grouped_leads[status.value] %}
+                            {{ include('admin/leads/_card.html.twig', {lead: lead}) }}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Side Panel Detail (Turbo Frame placeholder) -->
+    <div id="lead-detail-panel" class="fixed inset-y-0 right-0 z-50 flex transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="w-screen h-full absolute inset-0 -left-full bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300"
+             id="lead-detail-overlay"
+             data-action="click->kanban#hideDetails"></div>
+
+        <div class="w-full max-w-lg bg-lab-panel border-l border-lab-border shadow-2xl relative z-10 h-full">
+            <turbo-frame id="lead_detail">
+                <!-- Content will be loaded here -->
+            </turbo-frame>
+        </div>
+    </div>
+{% endblock %}

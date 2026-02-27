@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}2FA VERIFICATION | JJA ACCESS TERMINAL{% endblock %}
+
+{% block body %}
+<div class="min-h-[60vh] flex items-center justify-center py-12">
+    <!-- Main Auth Card -->
+    <main class="glass-panel w-full max-w-[420px] rounded-sm p-8 relative overflow-hidden animate-float border border-lab-primary/20 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+        
+        <!-- Decorative corner highlight -->
+        <div class="absolute top-0 right-0 w-16 h-16 pointer-events-none opacity-20">
+            <div class="absolute top-0 right-0 w-full h-[2px] bg-lab-primary"></div>
+            <div class="absolute top-0 right-0 w-[2px] h-full bg-lab-primary"></div>
+        </div>
+
+        <!-- Header: Logo and Title -->
+        <div class="flex flex-col items-center mb-10">
+            <div class="w-12 h-12 bg-lab-primary/10 border border-lab-primary flex items-center justify-center mb-4">
+                <i data-lucide="shield-alert" class="w-6 h-6 text-lab-primary animate-pulse"></i>
+            </div>
+            <h1 class="font-bold tracking-[0.2em] text-white text-lg uppercase">2FA VERIFICATION</h1>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="w-1.5 h-1.5 bg-lab-danger rounded-full"></span>
+                <span class="text-[10px] font-mono text-lab-danger uppercase tracking-widest">Awaiting Second Factor</span>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <p class="text-xs text-lab-muted font-mono leading-relaxed text-center">
+                Veuillez entrer le code généré par votre application d'authentification pour confirmer votre identité.
+            </p>
+
+            <form action="{{ path('2fa_login_check') }}" method="post" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="font-mono text-[10px] text-lab-muted uppercase tracking-widest ml-1" for="_auth_code">AUTHENTICATION_CODE</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lab-muted"></i>
+                        <input type="text" 
+                               name="_auth_code" 
+                               id="_auth_code"
+                               autocomplete="one-time-code"
+                               autofocus
+                               placeholder="000000" 
+                               class="w-full bg-black/50 border border-lab-border rounded-sm py-3 pl-10 pr-4 text-sm font-mono text-lab-terminal focus:border-lab-primary focus:outline-none transition-colors" 
+                               required>
+                    </div>
+                </div>
+
+                {% if authenticationError|default(null) %}
+                    <p class="text-[10px] text-lab-danger font-mono uppercase tracking-tight text-center italic">
+                        {{ authenticationError|trans(authenticationErrorData|default([]), 'SchebTwoFactorBundle') }}
+                    </p>
+                {% endif %}
+
+                <button type="submit" class="w-full py-4 bg-lab-primary text-black font-mono font-black uppercase text-xs tracking-[0.2em] hover:bg-lab-cyan transition-all shadow-lg shadow-lab-primary/20 flex items-center justify-center gap-2">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i> EXECUTE_VERIFICATION
+                </button>
+
+                <div class="flex justify-center">
+                    <a href="{{ path('admin_logout') }}" class="text-[9px] text-lab-muted hover:text-white uppercase tracking-widest transition-colors">
+                        [ ANNULER_ET_DECONNEXION ]
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Decorative UI footer -->
+        <div class="mt-8 pt-4 border-t border-lab-border/30 flex justify-between items-center opacity-30">
+            <div class="text-[8px] font-mono text-lab-muted uppercase">PROTOCOL: TOTP</div>
+            <div class="text-[8px] font-mono text-lab-muted uppercase">SESSION: SECURE</div>
+        </div>
+    </main>
+</div>
+{% endblock %}

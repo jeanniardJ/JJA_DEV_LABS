@@ -1,0 +1,244 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}JJA DEV LAB | HOME_STATION{% endblock %}
+
+{% block body_controller %}data-controller="boot"{% endblock %}
+
+{% block boot_screen %}
+    <div id="boot-screen" data-boot-target="screen" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center font-mono text-xs text-lab-primary select-none cursor-wait transition-opacity duration-500">
+        <div class="w-64 space-y-2">
+            <div class="flex justify-between text-lab-muted">
+                <span>BIOS_CHECK</span>
+                <span class="text-lab-terminal">OK</span>
+            </div>
+            <div class="flex justify-between text-lab-muted">
+                <span>MONTAGE_VOLUMES</span>
+                <span class="text-lab-terminal">OK</span>
+            </div>
+             <div class="flex justify-between text-lab-muted">
+                <span>CHARGEMENT_MODULES_UI</span>
+                <span id="loader-status" data-boot-target="status" class="text-lab-primary">CHARGEMENT...</span>
+            </div>
+            <div class="h-1 w-full bg-lab-border mt-4 overflow-hidden">
+                <div id="progress-bar" data-boot-target="bar" class="h-full bg-lab-primary w-0 transition-all duration-[2000ms] ease-out"></div>
+            </div>
+            <div class="text-center mt-2 text-lab-muted">NOYAU JJA_LAB v4.1.0</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block meta_description %}Bienvenue dans le laboratoire de développement de Jonathan Jeanniard. Explorez mes projets Fullstack, mes outils de sécurité et mes expérimentations techniques.{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "JJA DEV LAB",
+  "url": "{{ app.request.getSchemeAndHttpHost() }}",
+  "description": "Laboratoire de développement Fullstack de Jonathan Jeanniard."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Jonathan Jeanniard",
+  "jobTitle": "Développeur Fullstack",
+  "url": "{{ app.request.getSchemeAndHttpHost() }}",
+  "sameAs": [
+    "https://github.com/JeanniardJ",
+    "https://linkedin.com/in/jonathan-jeanniard"
+  ]
+}
+</script>
+{% endblock %}
+
+{% block body %}
+    <div>
+    <!-- HERO SECTION -->
+    <section class="mb-32 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[70vh]">
+        <!-- Text Content -->
+        <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-lab-primary/5 border border-lab-primary/20 text-lab-primary text-[10px] font-mono tracking-[0.2em] uppercase rounded-sm mx-auto lg:mx-0">
+                <i data-lucide="terminal" class="w-3 h-3"></i>
+                Utilisateur Session : Jonathan
+            </div>
+            
+            <h1 class="text-4xl md:text-6xl font-bold text-white tracking-tight leading-[1.05]">
+                Laboratoire de <br class="hidden md:block">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-lab-primary via-lab-cyan to-lab-terminal">Développement</span><br>
+                Personnel
+            </h1>
+            
+            <p class="text-lab-text text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0 border-l-0 lg:border-l-2 border-lab-border lg:pl-6 font-light">
+                Expérimentations architecturales, audits de sécurité automatisés et forge logicielle en itération continue.
+                <span class="text-lab-muted font-mono text-sm mt-4 block">// NOTE : Environnement de test privé.</span>
+            </p>
+
+            <div class="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
+                <twig:Button href="#scanner" icon="shield-check" type="primary">
+                    Lancer_Audit
+                </twig:Button>
+                <twig:Button href="#stations" icon="cpu" type="outline">
+                    Explorer_Lab
+                </twig:Button>
+            </div>
+        </div>
+
+        <!-- Terminal Window -->
+        <div class="lg:col-span-5 w-full max-w-2xl mx-auto lg:max-w-none">
+            <twig:Terminal user="jjadev" host="lab-station" path="~/home">
+                <div data-controller="terminal" 
+                     data-terminal-command-value="cat mission_statement.sh" 
+                     data-terminal-result-value='"Prouver la compétence technique par l&apos;action. Déployer des solutions robustes, sécurisées et scalables."'
+                     data-terminal-target="container">
+                    <div class="flex gap-2">
+                        <span class="text-lab-terminal">➜</span>
+                        <span class="text-lab-cyan">~</span>
+                        <span class="text-white">init_env --mode=secure</span>
+                    </div>
+                    <div class="pl-4 text-lab-muted space-y-0.5 text-[11px]">
+                        <div>> Chargement des protocoles... <span class="text-lab-terminal">OK</span></div>
+                        <div>> Vérification intégrité... <span class="text-lab-terminal">OK</span></div>
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <span class="text-lab-terminal">➜</span>
+                        <span class="text-lab-cyan">~</span>
+                        <span data-terminal-target="text" class="text-white"></span><span data-terminal-target="cursor" class="animate-blink inline-block w-2 h-4 align-middle bg-lab-primary"></span>
+                    </div>
+                </div>
+            </twig:Terminal>
+        </div>
+    </section>
+
+    <!-- SCANNER SECTION (The "Wow" Moment) -->
+    <section id="scanner" class="mb-32 scroll-mt-24 relative">
+        <div class="absolute -top-24 -left-24 w-64 h-64 bg-lab-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
+        
+        <div class="glass-panel border border-lab-border p-8 md:p-12 rounded-lg relative overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-white mb-4 flex items-center gap-3">
+                        <i data-lucide="shield-check" class="text-lab-primary w-8 h-8"></i>
+                        Scanner de Vulnérabilités
+                    </h2>
+                    <p class="text-lab-text mb-6">
+                        Testez la robustesse de votre infrastructure web. Notre moteur d'audit analyse les vecteurs d'attaque critiques en temps réel.
+                    </p>
+                    <ul class="space-y-3 text-sm font-mono text-lab-muted mb-8">
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-lab-terminal"></i> Injection SQL & XSS
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-lab-terminal"></i> Mauvaises configurations SSL/TLS
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-lab-terminal"></i> En-têtes de sécurité manquants
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="space-y-4">
+                    <twig:Scanner />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATIONS SECTION -->
+    <section id="stations" class="mb-32 scroll-mt-24">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+            <div>
+                <h2 class="text-3xl font-bold text-white flex items-center gap-3">
+                    <i data-lucide="layout-grid" class="text-lab-primary w-8 h-8"></i>
+                    Stations du Labo
+                </h2>
+                <p class="text-xs text-lab-muted font-mono mt-2 uppercase tracking-widest">MODULES ACTIFS : 05 // STATUT : OPÉRATIONNEL</p>
+            </div>
+            <div class="text-[10px] font-mono text-lab-muted uppercase border border-lab-border px-3 py-1 rounded self-start">
+                Niveau d'accès : Administrateur
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <twig:StationCard 
+                title="Banc d'Essai Symfony"
+                description="Tests de patterns architecturaux avancés (DDD, Hexagonal), bundles personnalisés et composants UX."
+                icon="flask-conical"
+                version="v7.4"
+                status="Actif"
+            />
+            <twig:StationCard 
+                title="Terrain de Jeu Sécurité"
+                description="Audits OWASP, gestion RBAC/MFA et tests d'intrusion contrôlés sur environnements isolés."
+                icon="shield-alert"
+                version="SecOps"
+                status="Restreint"
+                status_type="danger"
+            />
+            <twig:StationCard 
+                title="Forge Automatisation"
+                description="Scripts d'orchestration Docker, pipelines CI/CD GitHub Actions et automatisation système."
+                icon="zap"
+                version="Bash/CI"
+                status="En cours"
+            />
+            <twig:StationCard 
+                title="Notes Techniques"
+                description="Base de connaissances interactive, snippets réutilisables et documentation de recherche."
+                icon="file-code"
+                version="Wiki"
+                status="Mis à jour"
+            />
+            <twig:StationCard 
+                title="Laboratoire IA"
+                description="Intégration de Large Language Models (Gemini) pour l'assistance au développement et l'analyse de données."
+                icon="brain-circuit"
+                version="API/v1"
+                status="Expérimental"
+            />
+            
+            <article class="bg-lab-panel/30 border border-dashed border-lab-border p-5 rounded-sm flex flex-col items-center justify-center hover:bg-lab-panel/50 transition-colors group cursor-pointer h-full min-h-[180px]">
+                <i data-lucide="plus" class="w-8 h-8 text-lab-border group-hover:text-lab-text transition-colors mb-2"></i>
+                <span class="text-xs font-mono text-lab-muted group-hover:text-lab-text">INIT_NOUVEAU_MODULE</span>
+            </article>
+        </div>
+    </section>
+
+    <!-- TECH STACK SECTION -->
+    <section id="stack" class="mb-32 scroll-mt-24">
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                <i data-lucide="server" class="text-lab-primary w-6 h-6"></i>
+                Pile Système
+            </h2>
+        </div>
+        
+        <div class="bg-[#080a0f] border-l-4 border-lab-primary p-8 rounded-r font-mono text-sm relative overflow-hidden shadow-2xl">
+            <div class="absolute top-4 right-4 text-[10px] text-lab-border pointer-events-none select-none">LECTURE SEULE</div>
+            
+            <div class="overflow-x-auto">
+                <pre class="whitespace-pre text-lab-text leading-relaxed">
+<span class="text-lab-primary">root@jja-lab:~/config#</span> system.stack --show --full
+
+<span class="text-white font-bold underline decoration-lab-primary/30 underline-offset-4">>> RUNTIME_COEUR</span>
+   <span class="cmd">PHP</span>            <span class="arg">8.2+</span>          <span class="comment">// Types stricts, Readonly classes</span>
+   <span class="cmd">Symfony</span>        <span class="arg">7.4</span>           <span class="comment">// Framework applicatif</span>
+   <span class="cmd">AssetMapper</span>    <span class="arg">Standard</span>      <span class="comment">// Gestion des assets No-Node</span>
+
+<span class="text-white font-bold underline decoration-lab-primary/30 underline-offset-4">>> PERSISTANCE & MESSAGERIE</span>
+   <span class="cmd">MySQL</span>          <span class="arg">8.0</span>           <span class="comment">// BDD Relationnelle</span>
+   <span class="cmd">Doctrine</span>       <span class="arg">v3.x</span>          <span class="comment">// ORM & Migrations</span>
+   <span class="cmd">Messenger</span>      <span class="arg">Async</span>         <span class="comment">// File d'attente tâches lourdes</span>
+
+<span class="text-white font-bold underline decoration-lab-primary/30 underline-offset-4">>> FRONTEND & UX</span>
+   <span class="cmd">TailwindCSS</span>    <span class="arg">v4.0</span>          <span class="comment">// Styling Utility-First</span>
+   <span class="cmd">Stimulus</span>       <span class="arg">v3.0</span>          <span class="comment">// Interactivité JS progressive</span>
+   <span class="cmd">Turbo</span>          <span class="arg">v8.0</span>          <span class="comment">// Navigation SPA-like</span>
+                </pre>
+            </div>
+        </div>
+    </section>
+    </div>
+{% endblock %}

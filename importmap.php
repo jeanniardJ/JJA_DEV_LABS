@@ -25,4 +25,13 @@ return [
     '@hotwired/turbo' => [
         'version' => '7.3.0',
     ],
+    'lucide' => [
+        'version' => '0.563.0',
+    ],
+    'sortablejs' => [
+        'version' => '1.15.6',
+    ],
+    'chart.js' => [
+        'version' => '3.9.1',
+    ],
 ];

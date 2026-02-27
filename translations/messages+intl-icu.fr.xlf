@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="fr" target-language="fr" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="conversion.hook.critical" resname="conversion.hook.critical">
+        <source>conversion.hook.critical</source>
+        <target>Sécurisez votre site d'urgence</target>
+      </trans-unit>
+      <trans-unit id="conversion.hook.medium" resname="conversion.hook.medium">
+        <source>conversion.hook.medium</source>
+        <target>Optimisez votre sécurité</target>
+      </trans-unit>
+      <trans-unit id="conversion.hook.safe" resname="conversion.hook.safe">
+        <source>conversion.hook.safe</source>
+        <target>Votre site semble sécurisé, restons-en là ?</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

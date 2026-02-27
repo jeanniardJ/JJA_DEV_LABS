@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JJA DEV LAB | SYSTÈME OPÉRATIONNEL</title>
+    
+    <!-- Polices de caractères : Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lab: {
+                            bg: '#05070a',      // Fond ultra-sombre
+                            panel: '#0b0f14',   // Fond des panneaux
+                            border: '#1a2332',  // Bordures techniques
+                            primary: '#00c6ff', // Bleu Cyber
+                            cyan: '#4df4ff',    // Accent lumineux
+                            terminal: '#00ff88',// Vert Succès
+                            danger: '#ff3366',  // Rouge Alerte
+                            text: '#cbd5e1',    // Texte principal
+                            muted: '#64748b'    // Texte secondaire
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    animation: {
+                        'blink': 'blink 1s step-end infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'scan': 'scan 8s linear infinite',
+                    },
+                    keyframes: {
+                        blink: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0' } },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        scan: { '0%': { transform: 'translateY(-100%)' }, '100%': { transform: 'translateY(100%)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Icônes : Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Styles globaux hérités du Canvas */
+        body {
+            background-color: #05070a;
+            color: #cbd5e1;
+            overflow-x: hidden;
+        }
+
+        /* Effet d'incrustation CRT */
+        .crt-overlay {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            opacity: 0.2;
+        }
+
+        /* Grille technique de fond */
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(30, 41, 59, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        /* Cartes du Lab avec effet de survol */
+        .lab-card {
+            background: rgba(11, 15, 20, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid #1a2332;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .lab-card:hover {
+            border-color: #00c6ff;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.15);
+            transform: translateY(-4px);
+        }
+
+        /* Écran de Boot */
+        #boot-screen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .terminal-text {
+            color: #00c6ff;
+            text-shadow: 0 0 5px rgba(0, 198, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="antialiased font-sans relative">
+
+    <!-- ÉCRAN DE DÉMARRAGE -->
+    <div id="boot-screen">
+        <div class="w-80">
+            <div class="text-[10px] text-lab-muted mb-2 uppercase tracking-widest font-mono">> Initialisation du noyau JJA_LAB...</div>
+            <div class="h-1 w-full bg-lab-border rounded-full overflow-hidden">
+                <div id="boot-bar" class="h-full bg-lab-primary w-0 transition-all duration-75"></div>
+            </div>
+            <div class="mt-2 text-[10px] flex justify-between text-lab-muted font-mono uppercase">
+                <span id="boot-status">Chargement des modules</span>
+                <span id="boot-percent">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- EFFETS VISUELS -->
+    <div class="crt-overlay"></div>
+    <div class="fixed inset-0 grid-bg -z-10"></div>
+
+    <!-- HEADER NAVIGATION -->
+    <header class="fixed top-0 w-full z-40 bg-lab-panel/90 backdrop-blur-md border-b border-lab-border h-16">
+        <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-lab-primary/10 border border-lab-primary flex items-center justify-center">
+                    <i data-lucide="flask-conical" class="w-4 h-4 text-lab-primary"></i>
+                </div>
+                <div class="flex flex-col leading-none">
+                    <span class="font-bold tracking-widest text-white text-sm uppercase">JJA DEV LAB</span>
+                    <span class="text-[10px] text-lab-muted font-mono uppercase tracking-[0.2em] mt-1">Console Opérateur</span>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex gap-8 text-[10px] font-mono text-lab-muted uppercase tracking-widest">
+                <a href="#stations" class="hover:text-lab-primary transition-colors flex items-center gap-2">
+                    <span class="text-lab-border">01.</span> Stations
+                </a>
+                <a href="#stack" class="hover:text-lab-primary transition-colors flex items-center gap-2">
+                    <span class="text-lab-border">02.</span> Configuration
+                </a>
+                <a href="contact_lab.html" class="hover:text-lab-primary transition-colors flex items-center gap-2">
+                    <span class="text-lab-border">03.</span> Contact
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-3 px-3 py-1.5 border border-lab-border bg-black rounded-sm">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lab-terminal opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-lab-terminal"></span>
+                </span>
+                <span class="text-[10px] font-mono text-lab-terminal tracking-widest uppercase">Kernel: Online</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-20 px-4 max-w-7xl mx-auto relative z-10">
+
+        <!-- SECTION HERO -->
+        <section class="mb-32 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            <div class="lg:col-span-7 space-y-8 animate-in fade-in slide-in-from-left duration-700">
+                <div class="inline-flex items-center gap-2 px-2 py-1 bg-lab-primary/5 border border-lab-primary/20 text-lab-primary text-[10px] font-mono tracking-widest uppercase rounded-sm">
+                    <i data-lucide="terminal" class="w-3 h-3"></i> Session_Active : Opérateur Jonathan
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none uppercase">
+                    LABORATOIRE DE <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-lab-primary to-lab-cyan">DÉVELOPPEMENT</span>
+                </h1>
+                
+                <p class="text-lab-text text-lg leading-relaxed max-w-xl border-l-2 border-lab-border pl-6 font-light italic">
+                    "Ceci n'est pas un portfolio standard. C'est une instance sécurisée pour l'expérimentation de code, l'audit de sécurité et l'itération continue."
+                </p>
+
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <a href="#stations" class="px-8 py-4 bg-lab-primary text-black font-mono font-black uppercase text-xs tracking-widest hover:bg-lab-cyan transition-all shadow-lg shadow-lab-primary/20 flex items-center gap-3">
+                        <i data-lucide="cpu" class="w-4 h-4"></i> ACCÉDER_AUX_STATIONS
+                    </a>
+                    <a href="auth_terminal.html" class="px-8 py-4 border border-lab-border text-lab-text font-mono text-xs uppercase tracking-widest hover:border-lab-primary hover:text-white transition-all flex items-center gap-3">
+                        <i data-lucide="lock" class="w-4 h-4"></i> AUTHENTIFICATION
+                    </a>
+                </div>
+            </div>
+
+            <!-- Terminal Visuel -->
+            <div class="lg:col-span-5 w-full animate-float">
+                <div class="relative bg-black border border-lab-border rounded-sm shadow-2xl overflow-hidden font-mono text-xs h-72 flex flex-col group">
+                    <div class="bg-lab-panel px-4 py-2 border-b border-lab-border flex items-center justify-between">
+                        <div class="flex gap-2">
+                            <div class="w-2.5 h-2.5 rounded-full bg-lab-danger/40"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/40"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-lab-terminal/40"></div>
+                        </div>
+                        <div class="text-[9px] text-lab-muted tracking-widest">jja-kernel-v4.2.log</div>
+                    </div>
+                    
+                    <div class="p-5 flex-1 space-y-2 overflow-y-auto">
+                        <div class="flex gap-2">
+                            <span class="text-lab-terminal">➜</span>
+                            <span class="text-lab-cyan">~</span>
+                            <span class="text-white">init_lab_environment --verbose</span>
+                        </div>
+                        <div class="pl-4 text-lab-muted space-y-1">
+                            <div>> Chargement des modules noyau... <span class="text-lab-terminal">OK</span></div>
+                            <div>> Montage des volumes Docker... <span class="text-lab-terminal">OK</span></div>
+                            <div>> Vérification stack Symfony 7.x... <span class="text-lab-primary">READY</span></div>
+                            <div>> Audit de sécurité OWASP... <span class="text-lab-terminal">PASSED</span></div>
+                        </div>
+                        <div class="flex gap-2 pt-2">
+                            <span class="text-lab-terminal">➜</span>
+                            <span class="text-lab-cyan">~</span>
+                            <span id="typing-text" class="text-white"></span><span class="animate-blink inline-block w-1.5 h-4 align-middle bg-lab-primary ml-1"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION STATIONS -->
+        <section id="stations" class="mb-32 scroll-mt-24">
+            <div class="flex items-end justify-between mb-12 border-b border-lab-border pb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3 uppercase tracking-tighter">
+                        <i data-lucide="layout-grid" class="text-lab-primary w-6 h-6"></i>
+                        Stations du Lab
+                    </h2>
+                    <p class="text-xs text-lab-muted font-mono mt-2 tracking-widest">UNITÉS ACTIVES : 07 // STATUT : OPÉRATIONNEL</p>
+                </div>
+                <div class="hidden sm:block text-[10px] font-mono text-lab-muted uppercase border border-lab-border px-3 py-1 rounded-sm bg-black">
+                    Zone : Sécurisée
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Station: Symfony -->
+                <article class="lab-card p-6 rounded-sm flex flex-col h-52 group cursor-pointer">
+                    <div class="mb-6 text-lab-primary group-hover:scale-110 transition-transform">
+                        <i data-lucide="flask-conical" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-lg mb-2 group-hover:text-lab-primary transition-colors uppercase tracking-tighter">Symfony Bench</h3>
+                    <p class="text-xs text-lab-muted leading-relaxed mb-auto italic">Banc de test pour composants, bundles et architectures hexagonales / DDD.</p>
+                    <div class="mt-6 pt-4 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted uppercase">
+                        <span>v7.0.2</span>
+                        <span class="text-lab-terminal animate-pulse">● Actif</span>
+                    </div>
+                </article>
+
+                <!-- Station: Security -->
+                <article class="lab-card p-6 rounded-sm flex flex-col h-52 group cursor-pointer">
+                    <div class="mb-6 text-lab-danger group-hover:scale-110 transition-transform">
+                        <i data-lucide="shield-alert" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-lg mb-2 group-hover:text-lab-danger transition-colors uppercase tracking-tighter">Security Lab</h3>
+                    <p class="text-xs text-lab-muted leading-relaxed mb-auto italic">Audits OWASP, tests d'intrusion, validation JWT et cryptographie.</p>
+                    <div class="mt-6 pt-4 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted uppercase">
+                        <span>SecOps</span>
+                        <span class="text-lab-danger">● Restreint</span>
+                    </div>
+                </article>
+
+                <!-- Station: Docker -->
+                <article class="lab-card p-6 rounded-sm flex flex-col h-52 group cursor-pointer">
+                    <div class="mb-6 text-blue-400 group-hover:scale-110 transition-transform">
+                        <i data-lucide="container" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-lg mb-2 group-hover:text-blue-400 transition-colors uppercase tracking-tighter">Docker / LXC</h3>
+                    <p class="text-xs text-lab-muted leading-relaxed mb-auto italic">Orchestration de services isolés et environnements de déploiement.</p>
+                    <div class="mt-6 pt-4 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted uppercase">
+                        <span>Cluster</span>
+                        <span class="text-lab-muted">● Idle</span>
+                    </div>
+                </article>
+
+                <!-- Station: Automation -->
+                <article class="lab-card p-6 rounded-sm flex flex-col h-52 group cursor-pointer">
+                    <div class="mb-6 text-yellow-400 group-hover:scale-110 transition-transform">
+                        <i data-lucide="zap" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="font-bold text-white text-lg mb-2 group-hover:text-yellow-400 transition-colors uppercase tracking-tighter">Automation</h3>
+                    <p class="text-xs text-lab-muted leading-relaxed mb-auto italic">Scripts de maintenance Bash, pipelines CI/CD et déploiement continu.</p>
+                    <div class="mt-6 pt-4 border-t border-lab-border/50 flex justify-between items-center text-[10px] font-mono text-lab-muted uppercase">
+                        <span>GitHub</span>
+                        <span class="text-lab-terminal animate-pulse">● Running</span>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+        <!-- SECTION STACK -->
+        <section id="stack" class="mb-32 scroll-mt-24">
+            <div class="mb-10">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3 uppercase tracking-tighter">
+                    <i data-lucide="server" class="text-lab-primary w-6 h-6"></i>
+                    Configuration Stack
+                </h2>
+            </div>
+            
+            <div class="bg-black border-l-2 border-lab-primary p-8 rounded-r-sm font-mono text-sm relative overflow-hidden shadow-2xl">
+                <div class="absolute top-2 right-2 text-[10px] text-lab-border pointer-events-none select-none uppercase tracking-[0.4em]">Read_Only_Stream</div>
+                
+                <div class="overflow-x-auto">
+<pre class="whitespace-pre text-lab-text">
+<span class="text-lab-primary">root@jja-lab:~/config#</span> system.stack --show --all
+
+<span class="text-white font-bold">>> CORE_RUNTIME</span>
+   PHP              <span class="text-lab-cyan">8.3</span>          <span class="text-lab-muted">// Typage strict, JIT activé</span>
+   Symfony          <span class="text-lab-cyan">7.x</span>          <span class="text-lab-muted">// Framework backend principal</span>
+   Composer         <span class="text-lab-cyan">2.6</span>          <span class="text-lab-muted">// Gestionnaire de dépendances</span>
+
+<span class="text-white font-bold">>> DATA_PERSISTENCE</span>
+   MySQL / MariaDB  <span class="text-lab-cyan">8.0</span>          <span class="text-lab-muted">// Stockage relationnel</span>
+   Redis            <span class="text-lab-cyan">7.2</span>          <span class="text-lab-muted">// Cache & Session store</span>
+   RabbitMQ         <span class="text-lab-cyan">v3.12</span>        <span class="text-lab-muted">// Messagerie asynchrone</span>
+
+<span class="text-white font-bold">>> INFRASTRUCTURE</span>
+   Docker & Compose <span class="text-lab-terminal">Active</span>       <span class="text-lab-muted">// Conteneurisation</span>
+   Git / GitHub     <span class="text-lab-terminal">Sync</span>         <span class="text-lab-muted">// Contrôle de version</span>
+   Nginx            <span class="text-lab-terminal">Proxy</span>        <span class="text-lab-muted">// Reverse proxy & SSL</span>
+</pre>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-lab-border bg-lab-panel py-12 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-10">
+            <div class="text-center md:text-left space-y-2">
+                <div class="font-black text-white tracking-[0.3em] text-lg uppercase">JJA DEV LAB</div>
+                <div class="text-[10px] text-lab-muted font-mono uppercase tracking-widest leading-loose">
+                    Environnement de Laboratoire Privé // Pas de Tracking <br>
+                    Propulsé par JJA_KERNEL v4.2.0
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-10 text-xs font-mono">
+                <a href="mailto:contact@jja-dev.fr" class="text-lab-muted hover:text-lab-primary transition-colors flex items-center gap-2 uppercase tracking-widest">
+                    <i data-lucide="mail" class="w-3 h-3"></i> Contact
+                </a>
+                <a href="https://github.com/jeanniardJ" target="_blank" class="text-lab-muted hover:text-white transition-colors flex items-center gap-2 uppercase tracking-widest">
+                    <i data-lucide="github" class="w-3 h-3"></i> Remote_Git
+                </a>
+            </div>
+        </div>
+        <div class="text-center mt-12 text-[10px] text-lab-border font-mono tracking-[0.8em] uppercase select-none opacity-50">
+            // End of Line // Session Terminated //
+        </div>
+    </footer>
+
+    <!-- LOGIQUE D'INTERACTION -->
+    <script>
+        // Initialisation des icônes Lucide
+        lucide.createIcons();
+
+        // Séquence de Boot
+        document.addEventListener('DOMContentLoaded', () => {
+            const bootScreen = document.getElementById('boot-screen');
+            const bootBar = document.getElementById('boot-bar');
+            const bootPercent = document.getElementById('boot-percent');
+            const bootStatus = document.getElementById('boot-status');
+
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    bootStatus.innerText = "SYSTÈME PRÊT";
+                    setTimeout(() => {
+                        bootScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            bootScreen.style.display = 'none';
+                            startTerminalTyping();
+                        }, 500);
+                    }, 400);
+                } else {
+                    width += Math.floor(Math.random() * 8) + 1;
+                    if (width > 100) width = 100;
+                    bootBar.style.width = width + '%';
+                    bootPercent.innerText = width + '%';
+                    
+                    if(width > 40) bootStatus.innerText = "Chargement des modules";
+                    if(width > 70) bootStatus.innerText = "Vérification sécurité";
+                    if(width > 90) bootStatus.innerText = "Démarrage interface";
+                }
+            }, 60);
+        });
+
+        // Effet de frappe terminal Hero
+        function startTerminalTyping() {
+            const textElement = document.getElementById('typing-text');
+            const textToType = "cat vision_statement.sh";
+            let index = 0;
+
+            function typeChar() {
+                if (index < textToType.length) {
+                    textElement.textContent += textToType.charAt(index);
+                    index++;
+                    setTimeout(typeChar, Math.random() * 60 + 40);
+                } else {
+                    setTimeout(() => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = "text-lab-primary pl-4 mt-1 block italic opacity-80 animate-in fade-in duration-500";
+                        resultDiv.innerHTML = '>> "Innover sans relâche dans un environnement sécurisé."';
+                        textElement.parentElement.parentElement.appendChild(resultDiv);
+                    }, 500);
+                }
+            }
+            typeChar();
+        }
+    </script>
+</body>
+</html>

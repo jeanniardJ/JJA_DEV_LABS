@@ -1,3 +1,175 @@
-body {
-    background-color: skyblue;
+@import "tailwindcss";
+
+@source "../../templates/**/*.html.twig";
+@source "../**/*.js";
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../fonts/Inter-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
 }
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../fonts/Inter-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('../fonts/JetBrainsMono-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('../fonts/JetBrainsMono-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@theme {
+    /* --- COLORS --- */
+    --color-lab-bg: #05070a;
+    --color-lab-panel: #0b0f14;
+    --color-lab-border: #1a2332;
+    --color-lab-primary: #00c6ff;
+    --color-lab-cyan: #4df4ff;
+    --color-lab-terminal: #00ff88;
+    --color-lab-danger: #ff3366;
+    --color-lab-warning: #ffb700;
+    --color-lab-text: #cbd5e1;
+    --color-lab-muted: #64748b;
+
+    /* --- FONTS --- */
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* --- ANIMATIONS --- */
+    --animate-blink: blink 1s step-end infinite;
+    --animate-boot-load: width 2s ease-out forwards;
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    --animate-fade-in-up: fadeInUp 0.3s ease-out forwards;
+    --animate-float: float 6s ease-in-out infinite;
+}
+
+/* --- KANBAN DRAG & DROP --- */
+.sortable-ghost {
+    opacity: 0.4;
+    background: var(--color-lab-primary) !important;
+    border: 2px dashed var(--color-lab-primary) !important;
+}
+
+.sortable-drag {
+    cursor: grabbing;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    transform: rotate(2deg);
+}
+
+.animate-fade-in-up {
+    animation: var(--animate-fade-in-up);
+}
+
+.animate-float {
+    animation: var(--animate-float);
+}
+
+/* --- GLOBAL STYLES --- */
+body {
+    background-color: var(--color-lab-bg);
+    color: var(--color-lab-text);
+}
+
+/* Fallback for boot screen if JS fails */
+#boot-screen {
+    animation: fadeOutFallback 0.5s ease-out 5s forwards;
+}
+
+@keyframes fadeOutFallback {
+    from { opacity: 1; }
+    to { opacity: 0; pointer-events: none; }
+}
+
+/* Scanline Overlay Effect */
+.crt-overlay {
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+}
+
+/* SVG Grid Background */
+.grid-bg {
+    background-image: 
+        linear-gradient(to right, rgba(30, 41, 59, 0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 41, 59, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+}
+
+/* Glassmorphism Panel */
+.glass-panel {
+    background: rgba(11, 15, 20, 0.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(26, 35, 50, 0.8);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-lab-bg); }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-lab-primary); }
+
+/* Card Hover Effects */
+.station-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.station-card:hover {
+    border-color: var(--color-lab-primary);
+    box-shadow: 0 0 15px rgba(0, 198, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.status-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 3px solid transparent;
+}
+.status-card:hover {
+    border-left-color: var(--color-lab-primary);
+    box-shadow: 0 0 15px rgba(0, 198, 255, 0.1);
+}
+
+/* Utility: Glow Text */
+.glow-text {
+    text-shadow: 0 0 5px var(--color-lab-primary);
+}
+
+/* Terminal Syntax Colors */
+.cmd { color: var(--color-lab-text); }
+.arg { color: var(--color-lab-primary); }
+.comment { color: var(--color-lab-muted); font-style: italic; }
+.keyword { color: var(--color-lab-terminal); }

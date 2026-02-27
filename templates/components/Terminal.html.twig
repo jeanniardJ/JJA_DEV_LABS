@@ -1,0 +1,22 @@
+{% props user = 'root', host = 'jja-lab', path = '~', height = 'h-72' %}
+
+<div class="relative bg-[#080a0f] border border-lab-border rounded-md shadow-2xl overflow-hidden font-mono text-sm {{ height }} flex flex-col group">
+    <!-- Terminal Header -->
+    <div class="bg-lab-panel px-4 py-2 border-b border-lab-border flex items-center justify-between select-none">
+        <div class="flex gap-2">
+            <div class="w-3 h-3 rounded-full bg-lab-border"></div>
+            <div class="w-3 h-3 rounded-full bg-lab-border"></div>
+        </div>
+        <div class="text-[10px] text-lab-muted">{{ user }}@{{ host }}:{{ path }}</div>
+    </div>
+    
+    <!-- Terminal Body -->
+    <div class="p-4 flex-1 overflow-y-auto space-y-2 text-xs md:text-sm custom-scrollbar">
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Decorative corner -->
+    <div class="absolute bottom-0 right-0 p-2 opacity-50">
+        <i data-lucide="corner-right-down" class="w-4 h-4 text-lab-border"></i>
+    </div>
+</div>
