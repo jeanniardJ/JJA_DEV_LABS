@@ -7,10 +7,10 @@ name: Deploy to OVH
 #   4. Exécution de scripts/deploy.sh sur le serveur (sans build assets)
 #
 # Secrets GitHub requis :
-#   OVH_SSH_HOST    — adresse SSH du serveur OVH
-#   OVH_SSH_USER    — utilisateur SSH
-#   OVH_SSH_KEY     — clé privée SSH (ed25519 ou RSA)
-#   OVH_DEPLOY_PATH — chemin absolu du projet sur le serveur
+#   OVH_SSH_HOST     — adresse SSH du serveur OVH
+#   OVH_SSH_USER     — utilisateur SSH
+#   OVH_SSH_PASSWORD — mot de passe SSH
+#   OVH_DEPLOY_PATH  — chemin absolu du projet sur le serveur
 
 on:
   push:
@@ -90,7 +90,7 @@ jobs:
         with:
           host: ${{ secrets.OVH_SSH_HOST }}
           username: ${{ secrets.OVH_SSH_USER }}
-          key: ${{ secrets.OVH_SSH_KEY }}
+          password: ${{ secrets.OVH_SSH_PASSWORD }}
           source: "public/assets/*"
           target: ${{ secrets.OVH_DEPLOY_PATH }}
 
@@ -99,7 +99,7 @@ jobs:
         with:
           host: ${{ secrets.OVH_SSH_HOST }}
           username: ${{ secrets.OVH_SSH_USER }}
-          key: ${{ secrets.OVH_SSH_KEY }}
+          password: ${{ secrets.OVH_SSH_PASSWORD }}
           script: |
             cd ${{ secrets.OVH_DEPLOY_PATH }}
             bash scripts/deploy.sh
