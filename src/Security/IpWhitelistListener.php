@@ -7,6 +7,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
+use Symfony\Component\HttpFoundation\IpUtils;
+
 #[AsEventListener(event: 'kernel.request', priority: 10)]
 class IpWhitelistListener
 {
@@ -28,7 +30,7 @@ class IpWhitelistListener
 
         if (str_starts_with($path, '/admin')) {
             $clientIp = $request->getClientIp();
-            if (!in_array($clientIp, $this->allowedIps, true)) {
+            if ($clientIp && !IpUtils::checkIp($clientIp, $this->allowedIps)) {
                 throw new NotFoundHttpException();
             }
         }
