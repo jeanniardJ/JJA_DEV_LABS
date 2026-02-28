@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 #[IsGranted('ROLE_ADMIN')]
 class DashboardController extends AbstractController
 {
-    #[Route('/dashboard', name: 'admin_dashboard')]
+    #[Route('/', name: 'admin_dashboard')]
     public function index(
         Request $request, 
         LeadRepository $leadRepository,
