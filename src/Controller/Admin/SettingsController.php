@@ -2,10 +2,15 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\AppConfig;
+use App\Form\AppConfigType;
+use App\Repository\AppConfigRepository;
+use App\Service\SystemLogService;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -13,65 +18,44 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 class SettingsController extends AbstractController
 {
-    #[Route('', name: 'admin_settings')]
-    public function index(KernelInterface $kernel, Connection $connection): Response
-    {
-        $phpInfo = [
-            'version' => PHP_VERSION,
-            'os' => PHP_OS,
-            'sapi' => PHP_SAPI,
-            'memory_limit' => ini_get('memory_limit'),
-            'max_execution_time' => ini_get('max_execution_time'),
-            'upload_max_filesize' => ini_get('upload_max_filesize'),
-            'extensions' => get_loaded_extensions(),
-        ];
-
-        $symfonyInfo = [
-            'version' => \Symfony\Component\HttpKernel\Kernel::VERSION,
-            'environment' => $kernel->getEnvironment(),
-            'debug' => $kernel->isDebug(),
-            'project_dir' => $kernel->getProjectDir(),
-            'cache_dir' => $kernel->getCacheDir(),
-            'log_dir' => $kernel->getLogDir(),
-        ];
-
-        $services = [
-            [
-                'name' => 'Base de données (MySQL)',
-                'status' => $this->checkDatabase($connection),
-                'icon' => 'database',
-            ],
-            [
-                'name' => 'Google OAuth2',
-                'status' => !empty($_ENV['GOOGLE_CLIENT_ID']),
-                'icon' => 'key-round',
-            ],
-            [
-                'name' => 'Gemini AI',
-                'status' => !empty($_ENV['GEMINI_API_KEY']),
-                'icon' => 'brain',
-            ],
-            [
-                'name' => 'VAPID (Push Notifications)',
-                'status' => !empty($_ENV['VAPID_PUBLIC_KEY']),
-                'icon' => 'bell',
-            ],
-            [
-                'name' => 'Cloudflare Turnstile',
-                'status' => !empty($_ENV['TURNSTILE_KEY']),
-                'icon' => 'shield-check',
-            ],
-            [
-                'name' => 'Mailer (SMTP)',
-                'status' => !empty($_ENV['MAILER_DSN']) && $_ENV['MAILER_DSN'] !== 'null://null',
-                'icon' => 'mail',
-            ],
-        ];
+    #[Route('', name: 'admin_settings_index', methods: ['GET', 'POST'])]
+    public function index(
+        Request $request,
+        AppConfigRepository $configRepository, 
+        Connection $connection,
+        EntityManagerInterface $em,
+        SystemLogService $logService
+    ): Response {
+        $configs = $configRepository->findAll();
+        
+        // Formulaires pour chaque config (approche simple pour ce Lab)
+        // Note: En prod on ferait une collection, mais ici on veut rester granulaire
+        
+        $editId = $request->query->get('edit');
+        $editForm = null;
+        if ($editId) {
+            $configToEdit = $configRepository->find($editId);
+            if ($configToEdit) {
+                $form = $this->createForm(AppConfigType::class, $configToEdit);
+                $form->handleRequest($request);
+                
+                if ($form->isSubmitted() && $form->isValid()) {
+                    $em->flush();
+                    $logService->warning("Réglage système modifié : " . $configToEdit->getSettingKey(), "CONFIG");
+                    $this->addFlash('success', 'Configuration mise à jour.');
+                    return $this->redirectToRoute('admin_settings_index');
+                }
+                $editForm = $form->createView();
+            }
+        }
 
         return $this->render('admin/settings/index.html.twig', [
-            'php_info' => $phpInfo,
-            'symfony_info' => $symfonyInfo,
-            'services' => $services,
+            'configs' => $configs,
+            'db_status' => $this->checkDatabase($connection),
+            'php_version' => PHP_VERSION,
+            'env' => $_ENV['APP_ENV'] ?? 'n/a',
+            'edit_form' => $editForm,
+            'edit_id' => $editId
         ]);
     }
 

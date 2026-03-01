@@ -31,7 +31,9 @@ class SecurityHeadersSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::RESPONSE => 'onKernelResponse',
+            // On utilise une priorité très basse (-100) pour s'exécuter APRES les autres
+            // et ainsi pouvoir écraser leurs headers avec le paramètre 'true'
+            KernelEvents::RESPONSE => ['onKernelResponse', -100],
         ];
     }
 }

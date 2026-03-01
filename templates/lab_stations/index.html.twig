@@ -40,19 +40,19 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-[10px] font-mono uppercase">
                 <div class="p-4 bg-black/20 border border-lab-border rounded-sm group hover:border-lab-primary transition-colors">
                     <div class="text-lab-muted mb-1">CPU Load (Avg)</div>
-                    <div class="text-white text-lg font-bold">2.1%</div>
+                    <div class="text-white text-lg font-bold">{{ system_metrics.cpu }}</div>
                 </div>
                 <div class="p-4 bg-black/20 border border-lab-border rounded-sm group hover:border-lab-warning transition-colors">
                     <div class="text-lab-muted mb-1">Memory Usage</div>
-                    <div class="text-white text-lg font-bold">3.4 GB</div>
+                    <div class="text-white text-lg font-bold">{{ system_metrics.memory }}</div>
                 </div>
                 <div class="p-4 bg-black/20 border border-lab-border rounded-sm group hover:border-lab-cyan transition-colors">
-                    <div class="text-lab-muted mb-1">Network I/O</div>
-                    <div class="text-white text-lg font-bold">1.2 MB/s</div>
+                    <div class="text-lab-muted mb-1">Storage Available</div>
+                    <div class="text-white text-lg font-bold">{{ system_metrics.disk }}</div>
                 </div>
                 <div class="p-4 bg-black/20 border border-lab-border rounded-sm group hover:border-lab-terminal transition-colors">
-                    <div class="text-lab-muted mb-1">Active Containers</div>
-                    <div class="text-lab-primary text-lg font-bold">4/7</div>
+                    <div class="text-lab-muted mb-1">Active Stations</div>
+                    <div class="text-lab-primary text-lg font-bold">{{ stations|length }}</div>
                 </div>
             </div>
         </div>

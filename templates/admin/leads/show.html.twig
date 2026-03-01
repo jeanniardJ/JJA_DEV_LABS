@@ -1,127 +1,143 @@
 <turbo-frame id="lead_detail">
-    <div class="h-full flex flex-col">
-        <!-- Detail Header -->
-        <div class="p-6 border-b border-lab-border flex items-center justify-between bg-black/20">
-            <div>
-                <h2 class="text-lg font-bold text-white font-mono uppercase">{{ lead.name }}</h2>
-                <div class="flex items-center gap-2 mt-1">
-                    <span class="text-[9px] font-mono text-lab-muted">ID: #{{ lead.id }}</span>
-                    <span class="w-1 h-1 rounded-full bg-lab-border"></span>
-                    <span class="text-[9px] font-mono text-lab-primary uppercase">{{ lead.status.getLabel() }}</span>
+    <!-- Conteneur principal sans ombre interne (elle est gérée par le panneau parent) -->
+    <div class="h-full flex flex-col bg-lab-panel">
+        
+        <!-- HEADER -->
+        <header class="p-5 border-b border-lab-border bg-black/40 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-lab-primary/10 border border-lab-primary/30 flex items-center justify-center rounded-sm">
+                    <i data-lucide="user" class="w-5 h-5 text-lab-primary"></i>
+                </div>
+                <div>
+                    <h2 class="text-sm font-black text-white uppercase tracking-tighter leading-none">{{ lead.name }}</h2>
+                    <div class="flex items-center gap-2 mt-1.5">
+                        <span class="px-1.5 py-0.5 bg-lab-primary/20 text-lab-primary text-[8px] font-mono uppercase rounded-xs border border-lab-primary/30">
+                            {{ lead.status.getLabel() }}
+                        </span>
+                        <span class="text-[9px] font-mono text-lab-muted">#{{ lead.id }}</span>
+                    </div>
                 </div>
             </div>
-            <button data-action="click->kanban#hideDetails" class="text-lab-muted hover:text-white p-2">
+            <!-- Bouton fermer : Maintenant capté par le controller kanban parent -->
+            <button data-action="click->kanban#hideDetails" class="text-lab-muted hover:text-white p-2 transition-colors">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
-        </div>
+        </header>
 
-        <!-- Detail Content -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-8">
-            <!-- Contact Info -->
-            <section class="space-y-4">
-                <h3 class="text-[10px] font-mono font-bold text-lab-muted uppercase tracking-widest">INFOS_CONTACT</h3>
-                <div class="grid grid-cols-1 gap-4">
-                    <div class="bg-black/30 border border-lab-border p-3 rounded-sm">
-                        <p class="text-[8px] text-lab-muted font-mono uppercase">Email</p>
-                        <p class="text-xs text-lab-terminal font-mono mt-1">{{ lead.email }}</p>
+        <!-- CONTENT -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+            
+            <!-- CONTACT -->
+            <div class="grid grid-cols-1 gap-4">
+                <div class="admin-card p-4 !bg-black/20">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="mail" class="w-3 h-3 text-lab-muted"></i>
+                        <span class="text-[9px] font-mono text-lab-muted uppercase tracking-widest">Canal de communication</span>
                     </div>
-                    <div class="bg-black/30 border border-lab-border p-3 rounded-sm">
-                        <p class="text-[8px] text-lab-muted font-mono uppercase">Message Initial</p>
-                        <p class="text-xs text-lab-text font-mono mt-2 leading-relaxed whitespace-pre-wrap">{{ lead.message }}</p>
+                    <p class="text-xs text-lab-terminal font-mono font-bold">{{ lead.email }}</p>
+                </div>
+
+                <div class="admin-card p-4 !bg-black/20">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="message-square" class="w-3 h-3 text-lab-muted"></i>
+                        <span class="text-[9px] font-mono text-lab-muted uppercase tracking-widest">Note d'entrée</span>
+                    </div>
+                    <div class="text-[11px] text-lab-text font-mono leading-relaxed bg-black/40 p-3 border border-lab-border/30 rounded-sm italic">
+                        "{{ lead.message }}"
+                    </div>
+                </div>
+            </div>
+
+            <!-- ASSISTANT IA -->
+            <section class="admin-card p-5 border-lab-terminal/30 !bg-lab-terminal/5" 
+                     data-controller="ai-assistant"
+                     data-ai-assistant-generate-url-value="{{ path('admin_ai_generate', {id: lead.id}) }}"
+                     data-ai-assistant-send-url-value="{{ path('admin_ai_send', {id: lead.id}) }}">
+                
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-lab-terminal rounded-full animate-pulse"></div>
+                        <h3 class="text-[10px] font-mono font-bold text-lab-terminal uppercase tracking-[0.2em]">Assistant Gemini</h3>
+                    </div>
+                    <button data-action="click->ai-assistant#generate" 
+                            data-ai-assistant-target="button"
+                            class="text-[9px] font-mono font-bold text-white bg-lab-terminal/20 border border-lab-terminal/50 px-4 py-1.5 hover:bg-lab-terminal hover:text-black transition-all disabled:opacity-50 uppercase tracking-widest">
+                        Générer Brouillon
+                    </button>
+                </div>
+
+                <div data-ai-assistant-target="loader" class="hidden py-8 flex flex-col items-center justify-center space-y-4">
+                    <div class="w-10 h-10 border-2 border-lab-terminal border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-[8px] font-mono text-lab-terminal animate-pulse uppercase">Traitement neuronal en cours...</p>
+                </div>
+
+                <div data-ai-assistant-target="container" class="hidden space-y-4">
+                    <textarea data-ai-assistant-target="draftArea" 
+                              class="w-full bg-black border border-lab-terminal/30 p-4 text-[11px] text-lab-terminal font-mono focus:border-lab-terminal outline-none min-h-[180px] transition-all"
+                              placeholder="Réponse IA..."></textarea>
+                    
+                    <div class="flex justify-end">
+                        <button data-action="click->ai-assistant#send"
+                                data-ai-assistant-target="sendButton"
+                                class="bg-lab-terminal text-black font-mono font-black uppercase text-[9px] px-6 py-2.5 hover:bg-white transition-all">
+                            Envoyer la réponse
+                        </button>
                     </div>
                 </div>
             </section>
 
-            <!-- Activity Timeline -->
+            <!-- HISTORIQUE -->
             <section class="space-y-6">
-                <h3 class="text-[10px] font-mono font-bold text-lab-muted uppercase tracking-widest">TIMELINE_ACTIVITÉ</h3>
+                <div class="flex items-center gap-2 border-b border-lab-border pb-2">
+                    <i data-lucide="activity" class="w-3 h-3 text-lab-muted"></i>
+                    <h3 class="text-[10px] font-mono font-bold text-lab-muted uppercase tracking-widest">Logs d'activité</h3>
+                </div>
                 
-                <div class="relative pl-6 space-y-8 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[1px] before:bg-lab-border">
+                <div class="relative pl-4 space-y-6 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-px before:bg-lab-border/50">
                     {% for event in events %}
                         <div class="relative">
-                            <!-- Timeline Dot -->
-                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-lab-bg border border-{{ event.color }} flex items-center justify-center z-10">
-                                <div class="w-1 h-1 rounded-full bg-{{ event.color }}"></div>
-                            </div>
-
-                            <div class="flex flex-col gap-1">
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="{{ event.icon }}" class="w-3 h-3 text-{{ event.color }}"></i>
-                                    <span class="text-[10px] font-bold text-white font-mono uppercase">{{ event.label }}</span>
+                            <div class="absolute -left-[20px] top-1.5 w-2 h-2 rounded-full bg-{{ event.color }}"></div>
+                            <div class="flex flex-col">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] font-bold text-white font-mono uppercase tracking-tight">{{ event.label }}</span>
+                                    <span class="text-[8px] text-lab-muted font-mono">{{ event.date|date('d/m/Y H:i') }}</span>
                                 </div>
-                                <span class="text-[8px] text-lab-muted font-mono">{{ event.date|date('d M Y, H:i') }}</span>
-                                
                                 {% if event.link is defined %}
-                                    <a href="{{ event.link }}" class="text-[9px] text-lab-primary hover:underline font-mono mt-1 flex items-center gap-1">
-                                        [ VOIR_LE_DOCUMENT ]
-                                        <i data-lucide="external-link" class="w-2 h-2"></i>
-                                    </a>
+                                    <a href="{{ event.link }}" class="text-[8px] text-lab-primary hover:text-white font-mono mt-2 uppercase tracking-widest">[ VOIR_RAPPORT ]</a>
                                 {% endif %}
                             </div>
                         </div>
                     {% endfor %}
                 </div>
             </section>
-
-            <!-- AI Assistant Section -->
-            <section class="pt-8 border-t border-lab-border/30" 
-                     data-controller="ai-assistant"
-                     data-ai-assistant-generate-url-value="{{ path('admin_ai_generate', {id: lead.id}) }}"
-                     data-ai-assistant-send-url-value="{{ path('admin_ai_send', {id: lead.id}) }}">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-[10px] font-mono font-bold text-lab-primary uppercase tracking-widest flex items-center gap-2">
-                        <i data-lucide="sparkles" class="w-3 h-3"></i>
-                        ASSISTANT_DE_REPONSE_IA
-                    </h3>
-                    <button data-action="click->ai-assistant#generate" 
-                            data-ai-assistant-target="button"
-                            class="text-[9px] font-mono font-bold text-white bg-lab-primary/20 border border-lab-primary/50 px-3 py-1 hover:bg-lab-primary/40 transition-all disabled:opacity-50">
-                        GÉNÉRER_BROUILLON
-                    </button>
-                </div>
-
-                <div data-ai-assistant-target="loader" class="hidden mb-4 space-y-3">
-                    <div class="flex items-center gap-2 text-[10px] text-lab-primary font-mono animate-pulse">
-                        <i data-lucide="brain" class="w-4 h-4"></i>
-                        ANALYSE_DU_CONTEXTE_ET_GENERATION_EN_COURS...
-                    </div>
-                    <!-- Skeleton effect -->
-                    <div class="space-y-2 opacity-20">
-                        <div class="h-2 bg-lab-primary w-full rounded-full animate-pulse"></div>
-                        <div class="h-2 bg-lab-primary w-5/6 rounded-full animate-pulse delay-75"></div>
-                        <div class="h-2 bg-lab-primary w-4/6 rounded-full animate-pulse delay-150"></div>
-                    </div>
-                </div>
-
-                <div data-ai-assistant-target="container" class="hidden space-y-4">
-                    <div class="relative">
-                        <textarea data-ai-assistant-target="draftArea" 
-                                  class="w-full bg-black/40 border border-lab-primary/30 p-4 text-xs text-lab-text font-mono focus:border-lab-primary outline-none min-h-[150px] transition-all"
-                                  placeholder="Le brouillon apparaîtra ici..."></textarea>
-                        <div class="absolute top-2 right-2">
-                            <i data-lucide="wand-2" class="w-4 h-4 text-lab-primary/30"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end">
-                        <button data-action="click->ai-assistant#send"
-                                data-ai-assistant-target="sendButton"
-                                class="bg-lab-primary text-black font-mono font-black uppercase text-[10px] px-6 py-2 hover:bg-lab-cyan transition-all">
-                            ENVOYER_LA_RÉPONSE
-                        </button>
-                    </div>
-                </div>
-            </section>
         </div>
 
-        <!-- Footer Actions -->
-        <div class="p-6 border-t border-lab-border bg-black/20 flex gap-3">
-            <a href="mailto:{{ lead.email }}" class="flex-1 py-3 bg-lab-primary text-black font-mono font-black uppercase text-[10px] text-center hover:bg-lab-cyan transition-all">
-                REPONDRE_VIA_EMAIL
+        <!-- FOOTER : Actions de gestion -->
+        <footer class="p-5 border-t border-lab-border bg-black/40 flex gap-3">
+            <a href="mailto:{{ lead.email }}" class="flex-1 py-3 border border-lab-border text-white font-mono font-bold uppercase text-[10px] text-center hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2">
+                <i data-lucide="mail" class="w-3 h-3"></i> Réponse manuelle
             </a>
-            <button class="p-3 border border-lab-border text-lab-muted hover:text-lab-danger hover:border-lab-danger transition-colors">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-            </button>
-        </div>
+            
+            <form method="post" action="{{ path('admin_lead_delete', {'id': lead.id}) }}" 
+                  data-controller="confirmation"
+                  data-confirmation-message-value="DÉTRUIRE DÉFINITIVEMENT CE LEAD ET TOUTES SES DONNÉES ASSOCIÉES ?"
+                  data-action="submit->confirmation#confirm"
+                  class="contents">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ lead.id) }}">
+                <button type="submit" class="p-3 border border-lab-border text-lab-muted hover:text-lab-danger hover:border-lab-danger transition-colors group" title="Détruire l'entrée">
+                    <i data-lucide="trash-2" class="w-4 h-4 group-hover:animate-bounce"></i>
+                </button>
+            </form>
+        </footer>
     </div>
+
+    <!-- REFRESH ICONS -->
+    <script>
+        if (window.lucide && window.lucideIcons) {
+            window.lucide.createIcons({
+                icons: window.lucideIcons,
+                attrs: { class: 'lucide', 'stroke-width': 2 }
+            });
+        }
+    </script>
 </turbo-frame>
