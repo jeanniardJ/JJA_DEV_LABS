@@ -45,6 +45,11 @@ class AppInitConfigCommand extends Command
                 'value' => 'BIENVENUE_DANS_LE_LABORATOIRE_D_AUDIT_CYBER',
                 'desc' => 'Message défilant sur la page d\'accueil.'
             ],
+            [
+                'key' => 'github_url',
+                'value' => 'https://github.com/jeanniardJ',
+                'desc' => 'Lien vers le profil GitHub affiché dans le footer.'
+            ],
         ];
 
         $io->section('Initialisation des variables');

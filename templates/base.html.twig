@@ -93,13 +93,25 @@
                     <i data-lucide="menu" data-mobile-menu-target="icon" class="w-6 h-6"></i>
                 </button>
 
-                <!-- Status Badge (Desktop) -->
-                <div class="hidden md:flex items-center gap-3 px-3 py-1.5 border border-lab-border bg-black rounded-sm">
-                    <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lab-terminal opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-lab-terminal"></span>
-                    </span>
-                    <span class="text-[10px] font-mono text-lab-terminal tracking-widest uppercase">Kernel: Online</span>
+                <!-- Status & Admin Area (Desktop) -->
+                <div class="hidden md:flex items-center gap-4">
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('admin_dashboard') }}" class="px-3 py-1.5 border border-lab-primary/50 bg-lab-primary/10 text-lab-primary font-mono text-[9px] uppercase tracking-widest hover:bg-lab-primary hover:text-black transition-all">
+                            ACCÈS_ADMIN
+                        </a>
+                    {% else %}
+                        <a href="{{ path('admin_login') }}" class="px-3 py-1.5 border border-lab-border bg-black text-lab-muted font-mono text-[9px] uppercase tracking-widest hover:border-lab-primary hover:text-lab-primary transition-all">
+                            LOGIN
+                        </a>
+                    {% endif %}
+                    
+                    <div class="flex items-center gap-3 px-3 py-1.5 border border-lab-border bg-black rounded-sm">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lab-terminal opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-lab-terminal"></span>
+                        </span>
+                        <span class="text-[10px] font-mono text-lab-terminal tracking-widest uppercase">Kernel: Online</span>
+                    </div>
                 </div>
             </div>
 
@@ -140,12 +152,19 @@
                         <span class="text-lab-border group-hover:text-lab-cyan">05.</span> Rdv
                     </a>
                 </nav>
-                <div class="flex items-center gap-3 px-3 py-1.5 border border-lab-border bg-black rounded-sm mt-4 w-fit">
-                    <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lab-terminal opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-lab-terminal"></span>
-                    </span>
-                    <span class="text-[10px] font-mono text-lab-terminal tracking-widest uppercase">Kernel: Online</span>
+                <div class="flex flex-col gap-4 mt-6">
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('admin_dashboard') }}" class="w-full text-center py-3 bg-lab-primary/10 border border-lab-primary/40 text-lab-primary font-mono text-[10px] uppercase tracking-widest">
+                            ACCÈS_PANEL_ADMIN
+                        </a>
+                    {% endif %}
+                    <div class="flex items-center gap-3 px-3 py-1.5 border border-lab-border bg-black rounded-sm w-fit">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lab-terminal opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-lab-terminal"></span>
+                        </span>
+                        <span class="text-[10px] font-mono text-lab-terminal tracking-widest uppercase">Kernel: Online</span>
+                    </div>
                 </div>
             </div>
         </header>
@@ -165,16 +184,16 @@
                 </div>
                 
                 <div class="flex items-center gap-6 text-xs font-mono">
-                    <a href="mailto:contact@jja-dev.fr" class="text-lab-muted hover:text-lab-primary transition-colors flex items-center gap-2">
-                        <i data-lucide="mail" class="w-3 h-3"></i> contact@jja-dev.fr
+                    <a href="mailto:{{ app_config('admin_email', 'contact@jja-dev.fr') }}" class="text-lab-muted hover:text-lab-primary transition-colors flex items-center gap-2">
+                        <i data-lucide="mail" class="w-3 h-3"></i> {{ app_config('admin_email', 'contact@jja-dev.fr') }}
                     </a>
-                    <a href="#" class="text-lab-muted hover:text-white transition-colors flex items-center gap-2">
+                    <a href="{{ app_config('github_url', '#') }}" target="_blank" class="text-lab-muted hover:text-white transition-colors flex items-center gap-2">
                         <i data-lucide="github" class="w-3 h-3"></i> GitHub
                     </a>
                 </div>
             </div>
             <div class="text-center mt-6 text-[10px] text-lab-border font-mono">
-                // TEMPS D'EXÉCUTION SYSTÈME : 0.045s // MEM : 2MB
+                // TEMPS D'EXÉCUTION SYSTÈME : 0.045s // MEM : 2.1 MB
             </div>
         </footer>
         {% endblock %}
