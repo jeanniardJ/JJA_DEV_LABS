@@ -1,6 +1,9 @@
 {
   "scanSettings": {
-    "baseBranches": []
+    "baseBranches": ["master", "develop"],
+    "ignoreSourceFiles": true,
+    "ignoreNpmDirs": true,
+    "scanPackageManagerDirectives": true
   },
   "checkRunSettings": {
     "vulnerableCheckRunConclusionLevel": "failure",
@@ -8,7 +11,12 @@
     "useMendCheckNames": true
   },
   "issueSettings": {
-    "minSeverityLevel": "LOW",
+    "minSeverityLevel": "MEDIUM",
     "issueType": "DEPENDENCY"
+  },
+  "remediateSettings": {
+    "extends": "config:base",
+    "workflow": "pullRequest",
+    "ignoredDependencies": []
   }
 }

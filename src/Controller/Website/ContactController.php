@@ -4,32 +4,36 @@ namespace App\Controller\Website;
 
 use App\Entity\Lead;
 use App\Enum\LeadStatus;
+use App\Form\ContactType;
 use App\Service\SystemLogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class ContactController extends AbstractController
 {
-    #[Route('/contact', name: 'app_contact', methods: ['POST'])]
-    public function index(Request $request, EntityManagerInterface $em, SystemLogService $logService): JsonResponse
+    #[Route('/contact', name: 'app_contact', methods: ['GET', 'POST'])]
+    public function index(Request $request, EntityManagerInterface $em, SystemLogService $logService): Response
     {
-        $data = json_decode($request->getContent(), true);
-        
         $lead = new Lead();
-        $lead->setName($data['name'] ?? 'Anonyme');
-        $lead->setEmail($data['email'] ?? '');
-        $lead->setSubject($data['subject'] ?? 'Contact');
-        $lead->setMessage($data['message'] ?? '');
-        $lead->setStatus(LeadStatus::NEW);
+        $form = $this->createForm(ContactType::class, $lead);
+        $form->handleRequest($request);
 
-        $em->persist($lead);
-        $em->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $lead->setStatus(LeadStatus::NEW);
+            $em->persist($lead);
+            $em->flush();
 
-        $logService->success("Nouveau lead identifié : " . $lead->getEmail(), "LEAD");
+            $logService->success("Nouveau lead identifié via formulaire : " . $lead->getEmail(), "LEAD");
 
-        return new JsonResponse(['status' => 'success', 'message' => 'Message envoyé avec succès']);
+            $this->addFlash('success', 'Votre message a été transmis avec succès au laboratoire.');
+            return $this->redirectToRoute('app_contact');
+        }
+
+        return $this->render('website/contact.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 }
