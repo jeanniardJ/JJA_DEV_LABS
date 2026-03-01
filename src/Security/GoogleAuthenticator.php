@@ -4,6 +4,7 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\SystemLogService;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -16,9 +17,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
-
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface as TotpAuthenticator;
-
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
 class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
@@ -29,7 +28,8 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
         private ClientRegistry $clientRegistry,
         private UserRepository $userRepository,
         private RouterInterface $router,
-        private TotpAuthenticator $totpAuthenticator
+        private TotpAuthenticator $totpAuthenticator,
+        private SystemLogService $logService
     ) {
     }
 
@@ -55,20 +55,16 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
 
                 $email = $googleUser->getEmail();
 
-                // 1) Have they logged in with Google before?
                 $user = $this->userRepository->findOneBy(['googleId' => $googleUser->getId()]);
 
                 if (!$user) {
-                    // 2) Do we have a matching user by email?
                     $user = $this->userRepository->findOneBy(['email' => $email]);
                 }
 
                 if (!$user) {
-                    // Create a new user if not found
                     $user = new User();
                     $user->setEmail($email);
                     
-                    // Sécurité : Seul l'email de Jonas Jeanniard devient ADMIN automatiquement
                     if ($email === 'jonathanjeanniard@gmail.com') {
                         $user->setRoles(['ROLE_ADMIN']);
                     } else {
@@ -78,12 +74,11 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
 
                 $user->setGoogleId($googleUser->getId());
                 
-                // If no 2FA secret, generate one
                 if (!$user->getGoogleAuthenticatorSecret()) {
                     $user->setGoogleAuthenticatorSecret($this->totpAuthenticator->generateSecret());
                 }
 
-                $this->userRepository->upgradePassword($user, ''); // No password for Google users
+                $this->userRepository->upgradePassword($user, ''); 
                 
                 return $user;
             })
@@ -92,6 +87,10 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        /** @var User $user */
+        $user = $token->getUser();
+        $this->logService->system(sprintf("Connexion réussie de l'opérateur %s via Google OAuth", $user->getEmail()), "AUTH");
+
         $targetPath = $this->getTargetPath($request->getSession(), $firewallName);
 
         if ($targetPath) {
@@ -104,6 +103,7 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $message = strtr($exception->getMessageKey(), $exception->getMessageData());
+        $this->logService->error("Échec de connexion Google OAuth : " . $message, "AUTH");
 
         return new Response($message, Response::HTTP_FORBIDDEN);
     }

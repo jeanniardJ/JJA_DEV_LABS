@@ -5,7 +5,10 @@ namespace App\Controller\Admin;
 use App\Entity\Lead;
 use App\Repository\ScanResultRepository;
 use App\Repository\AppointmentRepository;
+use App\Service\SystemLogService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -17,10 +20,8 @@ class LeadController extends AbstractController
     #[Route('/{id}', name: 'admin_lead_show', methods: ['GET'])]
     public function show(Lead $lead, ScanResultRepository $scanResultRepository, AppointmentRepository $appointmentRepository): Response
     {
-        // Aggregate events for timeline
         $events = [];
 
-        // 1. Creation
         $events[] = [
             'type' => 'creation',
             'date' => $lead->getCreatedAt(),
@@ -29,11 +30,6 @@ class LeadController extends AbstractController
             'color' => 'lab-terminal'
         ];
 
-        // 2. Scan Results (match by email or URL if stored)
-        // For now, let's assume we can find scans related to this lead's email if we had that link
-        // Or just show scans that happened around the same time? 
-        // Better: if subject contains "Analyse de", extract URL or just show relevant scans.
-        // Actually, let's just search by URL in the subject if it exists
         if (preg_match('/Analyse de (https?:\/\/[^\s\)]+)/', $lead->getSubject(), $matches)) {
             $url = $matches[1];
             $scans = $scanResultRepository->findBy(['url' => $url], ['createdAt' => 'DESC']);
@@ -49,7 +45,6 @@ class LeadController extends AbstractController
             }
         }
 
-        // 3. Appointments
         foreach ($lead->getAppointments() as $appointment) {
             $events[] = [
                 'type' => 'appointment',
@@ -60,13 +55,26 @@ class LeadController extends AbstractController
             ];
         }
 
-        // Sort events by date DESC
-        /** @var array<array{type: string, date: ?\DateTimeImmutable, label: string, icon: string, color: string}> $events */
         usort($events, fn(array $a, array $b) => $b['date'] <=> $a['date']);
 
         return $this->render('admin/leads/show.html.twig', [
             'lead' => $lead,
             'events' => $events,
         ]);
+    }
+
+    #[Route('/{id}/delete', name: 'admin_lead_delete', methods: ['POST'])]
+    public function delete(Request $request, Lead $lead, EntityManagerInterface $em, SystemLogService $logService): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$lead->getId(), $request->getPayload()->getString('_token'))) {
+            $email = $lead->getEmail();
+            $em->remove($lead);
+            $em->flush();
+
+            $logService->warning("Lead supprimé par l'administrateur : " . $email, "LEAD");
+            $this->addFlash('success', 'Lead supprimé avec succès.');
+        }
+
+        return $this->redirectToRoute('admin_dashboard');
     }
 }

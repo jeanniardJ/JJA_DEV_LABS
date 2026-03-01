@@ -10,10 +10,10 @@
             <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-none">Scheduler Module</h1>
             <p class="text-lab-muted font-mono text-xs mt-2 uppercase tracking-widest">Gestion des créneaux et sessions planifiées</p>
         </div>
-        <div class="flex items-center gap-4 text-[10px] font-mono text-lab-muted uppercase">
-            <span>Total : <span class="text-white">{{ total }}</span></span>
-            <span>À venir : <span class="text-lab-terminal">{{ upcoming|length }}</span></span>
-            <span>Passés : <span class="text-lab-muted">{{ past|length }}</span></span>
+        <div class="flex gap-2">
+            <a href="{{ path('admin_appointment_settings') }}" class="px-4 py-2 bg-lab-primary/10 border border-lab-primary/40 text-lab-primary font-mono text-[10px] uppercase hover:bg-lab-primary hover:text-black transition-all flex items-center gap-2">
+                <i data-lucide="settings" class="w-3 h-3"></i> Disponibilités
+            </a>
         </div>
     </div>
 
@@ -135,9 +135,13 @@
                                 {{ appointment.status|default('pending') }}
                             </span>
                         </div>
-                        <form method="post" action="{{ path('admin_appointment_delete', {id: appointment.id}) }}" onsubmit="return confirm('Supprimer ?');">
+                        <form method="post" action="{{ path('admin_appointment_delete', {'id': appointment.id}) }}" 
+                              data-controller="confirmation"
+                              data-confirmation-message-value="SUPPRIMER DÉFINITIVEMENT CE RENDEZ-VOUS ?"
+                              data-action="submit->confirmation#confirm"
+                              class="inline-block">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ appointment.id) }}">
-                            <button type="submit" class="text-lab-muted hover:text-lab-danger transition-colors">
+                            <button class="text-lab-muted hover:text-lab-danger transition-colors">
                                 <i data-lucide="trash-2" class="w-3 h-3"></i>
                             </button>
                         </form>

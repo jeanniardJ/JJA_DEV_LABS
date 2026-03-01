@@ -1,0 +1,110 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}PARAMÈTRES RDV | JJA DEV LAB{% endblock %}
+
+{% block admin_breadcrumb %}
+    <a href="{{ path('admin_appointment_index') }}" class="text-lab-muted hover:text-lab-primary transition-colors">Rendez-vous</a>
+    <span class="mx-2 text-lab-border">/</span>
+    <span>Paramètres de disponibilité</span>
+{% endblock %}
+
+{% block admin_body %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- FORMULAIRE D'AJOUT -->
+        <div class="lg:col-span-1">
+            <div class="admin-card p-6">
+                <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3 mb-6">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-lab-terminal"></i> Ajouter une plage
+                </h2>
+
+                {{ form_start(form) }}
+                    <div class="space-y-1 mb-4">
+                        {{ form_label(form.dayOfWeek, 'JOUR', {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted mb-1 uppercase'}}) }}
+                        {{ form_widget(form.dayOfWeek) }}
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1 mb-4">
+                            {{ form_label(form.startTime, 'DÉBUT', {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted mb-1 uppercase'}}) }}
+                            {{ form_widget(form.startTime) }}
+                        </div>
+                        <div class="space-y-1 mb-4">
+                            {{ form_label(form.endTime, 'FIN', {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted mb-1 uppercase'}}) }}
+                            {{ form_widget(form.endTime) }}
+                        </div>
+                    </div>
+                    <div class="space-y-1 mb-6">
+                        {{ form_label(form.slotDuration, 'DURÉE CRÉNEAU (MIN)', {'label_attr': {'class': 'block text-[10px] font-mono text-lab-muted mb-1 uppercase'}}) }}
+                        {{ form_widget(form.slotDuration) }}
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-lab-terminal/10 border border-lab-terminal text-lab-terminal font-mono text-[10px] tracking-widest hover:bg-lab-terminal hover:text-black transition-all uppercase">
+                        Enregistrer la plage
+                    </button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        <!-- LISTE DES PLAGES -->
+        <div class="lg:col-span-2">
+            <div class="admin-card">
+                <div class="p-6 border-b border-lab-border flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-3">
+                        <i data-lucide="calendar-clock" class="w-4 h-4 text-lab-primary"></i> Plages de disponibilité actuelles
+                    </h2>
+                </div>
+                <div class="p-0 overflow-x-auto">
+                    <table class="w-full text-left font-mono text-[11px]">
+                        <thead>
+                            <tr class="border-b border-lab-border bg-black/40 text-lab-muted uppercase tracking-widest">
+                                <th class="px-6 py-4 font-bold">Jour</th>
+                                <th class="px-6 py-4 font-bold">Horaires</th>
+                                <th class="px-6 py-4 font-bold">Durée</th>
+                                <th class="px-6 py-4 font-bold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-lab-border/30">
+                            {% for availability in availabilities %}
+                                <tr class="hover:bg-lab-primary/5 transition-colors group">
+                                    <td class="px-6 py-4 text-white font-bold">{{ availability.getDayLabel() }}</td>
+                                    <td class="px-6 py-4 text-lab-text">
+                                        {{ availability.startTime|date('H:i') }} — {{ availability.endTime|date('H:i') }}
+                                    </td>
+                                    <td class="px-6 py-4 text-lab-muted">{{ availability.slotDuration }} min</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <form method="post" action="{{ path('admin_appointment_settings_delete', {'id': availability.id}) }}" 
+                                              data-controller="confirmation"
+                                              data-confirmation-message-value="SUPPRIMER CETTE PLAGE HORAIRE ? LES CRÉNEAUX ASSOCIÉS DISPARAÎTRONT DU SITE."
+                                              data-action="submit->confirmation#confirm"
+                                              class="inline-block">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ availability.id) }}">
+                                            <button class="text-lab-muted hover:text-lab-danger transition-colors">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="px-6 py-12 text-center text-lab-muted italic">
+                                        Aucune plage horaire définie. Le système utilisera les paramètres par défaut (09:00 - 18:00).
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-lab-primary/5 border border-lab-primary/20 rounded-sm">
+                <div class="flex items-center gap-2 text-[10px] text-lab-primary font-bold uppercase tracking-widest">
+                    <i data-lucide="info" class="w-3 h-3"></i> Note Système
+                </div>
+                <p class="text-[9px] text-lab-muted font-mono mt-2 leading-relaxed uppercase">
+                    Les créneaux de rendez-vous sont générés dynamiquement à partir de ces plages. Si plusieurs plages se chevauchent ou sont définies pour le même jour, le système consolidera les créneaux uniques.
+                </p>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

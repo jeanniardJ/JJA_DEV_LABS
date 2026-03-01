@@ -3,11 +3,13 @@
 namespace App\Service;
 
 use App\Repository\AppointmentRepository;
+use App\Repository\AppointmentAvailabilityRepository;
 
 class AppointmentService
 {
     public function __construct(
-        private AppointmentRepository $appointmentRepository
+        private AppointmentRepository $appointmentRepository,
+        private AppointmentAvailabilityRepository $availabilityRepository
     ) {}
 
     /** @return list<array{start: string, end: string, datetime: string}> */
@@ -21,23 +23,46 @@ class AppointmentService
             $bookedSlots[$appointment->getStartsAt()->getTimestamp()] = true;
         }
         
-        $slots = [];
-        $startTime = $day->setTime(9, 0, 0);
-        $endTime = $day->setTime(18, 0, 0);
-        
-        $current = $startTime;
-        while ($current < $endTime) {
-            // Check availability using timestamp for precise comparison
-            if (!isset($bookedSlots[$current->getTimestamp()])) {
-                $slots[] = [
-                    'start' => $current->format('H:i'),
-                    'end' => $current->modify('+15 minutes')->format('H:i'),
-                    'datetime' => $current->format(\DateTimeInterface::ATOM)
-                ];
-            }
-            
-            $current = $current->modify('+15 minutes');
+        $dayOfWeek = (int) $day->format('w');
+        $availabilities = $this->availabilityRepository->findByDayOfWeek($dayOfWeek);
+
+        if (empty($availabilities)) {
+            // Default behavior if no availability is defined for this day
+            // You can choose to return empty or a default range.
+            // Let's keep it safe: no configuration = no slots.
+            return [];
         }
+        
+        $slots = [];
+        
+        foreach ($availabilities as $availability) {
+            $current = $day->setTime(
+                (int) $availability->getStartTime()->format('H'),
+                (int) $availability->getStartTime()->format('i'),
+                0
+            );
+            $endTime = $day->setTime(
+                (int) $availability->getEndTime()->format('H'),
+                (int) $availability->getEndTime()->format('i'),
+                0
+            );
+            $duration = $availability->getSlotDuration();
+
+            while ($current < $endTime) {
+                if (!isset($bookedSlots[$current->getTimestamp()])) {
+                    $slots[] = [
+                        'start' => $current->format('H:i'),
+                        'end' => $current->modify('+' . $duration . ' minutes')->format('H:i'),
+                        'datetime' => $current->format(\DateTimeInterface::ATOM)
+                    ];
+                }
+                
+                $current = $current->modify('+' . $duration . ' minutes');
+            }
+        }
+        
+        // Sort slots by time just in case of multiple overlapping availabilities
+        usort($slots, fn($a, $b) => $a['datetime'] <=> $b['datetime']);
         
         return $slots;
     }

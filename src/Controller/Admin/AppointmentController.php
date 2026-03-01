@@ -3,7 +3,10 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Appointment;
+use App\Entity\AppointmentAvailability;
+use App\Form\AppointmentAvailabilityType;
 use App\Repository\AppointmentRepository;
+use App\Repository\AppointmentAvailabilityRepository;
 use App\Repository\LeadRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,6 +32,40 @@ class AppointmentController extends AbstractController
             'past' => $past,
             'total' => count($appointments),
         ]);
+    }
+
+    #[Route('/settings', name: 'admin_appointment_settings', methods: ['GET', 'POST'])]
+    public function settings(Request $request, AppointmentAvailabilityRepository $availabilityRepository, EntityManagerInterface $em): Response
+    {
+        $availabilities = $availabilityRepository->findBy([], ['dayOfWeek' => 'ASC', 'startTime' => 'ASC']);
+        
+        $newAvailability = new AppointmentAvailability();
+        $form = $this->createForm(AppointmentAvailabilityType::class, $newAvailability);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($newAvailability);
+            $em->flush();
+            $this->addFlash('success', 'Plage horaire ajoutée.');
+            return $this->redirectToRoute('admin_appointment_settings');
+        }
+
+        return $this->render('admin/appointments/settings.html.twig', [
+            'availabilities' => $availabilities,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/settings/delete/{id}', name: 'admin_appointment_settings_delete', methods: ['POST'])]
+    public function deleteAvailability(Request $request, AppointmentAvailability $availability, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete' . $availability->getId(), $request->getPayload()->getString('_token'))) {
+            $em->remove($availability);
+            $em->flush();
+            $this->addFlash('success', 'Plage horaire supprimée.');
+        }
+
+        return $this->redirectToRoute('admin_appointment_settings');
     }
 
     #[Route('/{id}', name: 'admin_appointment_show', methods: ['GET'])]

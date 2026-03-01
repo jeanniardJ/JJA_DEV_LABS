@@ -10,45 +10,30 @@ class GeminiAIService
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
+        private readonly ConfigurationService $configService,
         private readonly string $geminiApiKey,
-        private readonly string $systemPrompt
+        private readonly string $systemPrompt // Fallback
     ) {
     }
 
-    public function generateResponse(string $prompt): string
+    public function generateResponse(string $userMessage): string
     {
-        try {
-            $response = $this->httpClient->request('POST', self::API_URL . '?key=' . $this->geminiApiKey, [
-                'json' => [
-                    'contents' => [
-                        [
-                            'role' => 'user',
-                            'parts' => [
-                                ['text' => $this->systemPrompt . "
+        $prompt = $this->configService->get('gemini_system_prompt', $this->systemPrompt);
 
-Contexte client :
-" . $prompt]
-                            ]
+        $response = $this->httpClient->request('POST', self::API_URL . '?key=' . $this->geminiApiKey, [
+            'json' => [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $prompt . "\n\nMessage client : " . $userMessage]
                         ]
-                    ],
-                    'generationConfig' => [
-                        'temperature' => 0.7,
-                        'maxOutputTokens' => 1000,
                     ]
                 ]
-            ]);
+            ]
+        ]);
 
-            $statusCode = $response->getStatusCode();
-            if ($statusCode !== 200) {
-                throw new \RuntimeException('Erreur lors de l\'appel à l\'API Gemini (Status: ' . $statusCode . ')');
-            }
+        $data = $response->toArray();
 
-            $data = $response->toArray();
-            
-            return $data['candidates'][0]['content']['parts'][0]['text'] ?? throw new \RuntimeException('Réponse IA vide ou malformée');
-
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Erreur lors de l\'appel à l\'API Gemini: ' . $e->getMessage(), 0, $e);
-        }
+        return $data['candidates'][0]['content']['parts'][0]['text'] ?? 'Désolé, je ne peux pas générer de réponse pour le moment.';
     }
 }

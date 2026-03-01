@@ -19,8 +19,9 @@ const refreshIcons = () => {
 // Initial load
 refreshIcons();
 
-// Re-run on Turbo navigation
+// Re-run on Turbo navigation and Frame loads
 document.addEventListener('turbo:load', refreshIcons);
+document.addEventListener('turbo:frame-load', refreshIcons);
 
 // --- SERVICE WORKER REGISTRATION ---
 if ('serviceWorker' in navigator) {

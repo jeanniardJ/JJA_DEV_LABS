@@ -33,6 +33,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET') return;
 
+    // Ne pas intercepter les requêtes vers Google OAuth ou les routes de login
+    const url = new URL(event.request.url);
+    if (url.hostname.includes('google') || url.pathname.includes('/connect/google')) {
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
