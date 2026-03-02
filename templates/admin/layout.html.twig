@@ -128,10 +128,52 @@
                     <span class="w-1.5 h-1.5 bg-lab-terminal rounded-full animate-pulse"></span>
                     Serveur : Actif
                 </div>
-                <button class="p-2 text-lab-muted hover:text-white transition-colors relative">
-                    <i data-lucide="bell" class="w-4 h-4"></i>
-                    <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-lab-danger rounded-full"></span>
-                </button>
+                <!-- NOTIFICATIONS BELL -->
+                <div class="relative" data-controller="notifications">
+                    <button class="p-2 text-lab-muted hover:text-white transition-colors relative" data-action="click->notifications#toggle">
+                        <i data-lucide="bell" class="w-4 h-4"></i>
+                        {% if admin_notifications_count|default(0) > 0 %}
+                            <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-lab-danger rounded-full animate-pulse shadow-[0_0_8px_rgba(255,51,102,0.8)]"></span>
+                        {% endif %}
+                    </button>
+
+                    <!-- DROPDOWN NOTIFICATIONS -->
+                    <div class="absolute right-0 mt-2 w-80 admin-card !bg-black/90 border-lab-border shadow-2xl opacity-0 translate-y-2 pointer-events-none transition-all z-50"
+                         data-notifications-target="dropdown">
+                        <div class="p-4 border-b border-lab-border flex justify-between items-center bg-black/60">
+                            <span class="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Alertes Système</span>
+                            {% if admin_notifications_count|default(0) > 0 %}
+                                <button data-action="click->notifications#readAll" 
+                                        data-notifications-url-value="{{ path('api_admin_notifications_read_all') }}"
+                                        class="text-[8px] font-mono text-lab-primary hover:underline uppercase">Tout marquer lu</button>
+                            {% endif %}
+                        </div>
+                        <div class="max-h-80 overflow-y-auto custom-scrollbar">
+                            {% for notification in admin_notifications|default([]) %}
+                                <div class="p-4 border-b border-lab-border/30 hover:bg-white/5 transition-colors relative {% if notification.link %}cursor-pointer{% endif %}"
+                                     {% if notification.link %}onclick="window.location.href='{{ notification.link }}'"{% endif %}>
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-1.5 h-1.5 mt-1.5 rounded-full bg-{{ notification.type }}"></div>
+                                        <div class="flex-1">
+                                            <p class="text-[10px] font-bold text-white uppercase tracking-tighter">{{ notification.title }}</p>
+                                            <p class="text-[9px] text-lab-muted font-mono mt-1">{{ notification.message }}</p>
+                                            <div class="flex justify-between items-center mt-2">
+                                                <span class="text-[8px] text-lab-border font-mono">{{ notification.createdAt|date('H:i') }}</span>
+                                                {% if notification.link %}
+                                                    <a href="{{ notification.link }}" class="text-[8px] text-lab-primary hover:underline uppercase">Voir →</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="p-8 text-center text-lab-muted italic text-[10px] uppercase tracking-widest opacity-50">
+                                    Aucun événement non lu
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
                 <a href="{{ path('admin_logout') }}" class="p-2 text-lab-muted hover:text-lab-danger transition-colors" title="Déconnexion">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                 </a>
