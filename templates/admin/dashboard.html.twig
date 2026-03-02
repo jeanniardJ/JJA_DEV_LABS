@@ -70,6 +70,11 @@
             <i data-lucide="check-circle" class="w-4 h-4 inline mr-2"></i> {{ flash }}
         </div>
     {% endfor %}
+    {% for flash in app.flashes('info') %}
+        <div class="admin-card p-4 border-lab-primary/30 bg-lab-primary/5 text-[10px] font-mono text-lab-primary uppercase">
+            <i data-lucide="info" class="w-4 h-4 inline mr-2"></i> {{ flash }}
+        </div>
+    {% endfor %}
     {% for flash in app.flashes('error') %}
         <div class="admin-card p-4 border-lab-danger/30 bg-lab-danger/5 text-[10px] font-mono text-lab-danger uppercase animate-pulse">
             <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-2"></i> {{ flash }}

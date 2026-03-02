@@ -53,9 +53,6 @@ class ContactType extends AbstractType
                 ],
                 'label' => false,
                 'mapped' => false,
-                'constraints' => [
-                    new NotBlank(message: 'Veuillez valider le captcha.'),
-                ],
             ]);
         }
     }
@@ -64,7 +61,7 @@ class ContactType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Lead::class,
-            'enable_captcha' => true,
+            'enable_captcha' => false, // Désactivé par défaut, on l'activera en prod via le contrôleur
         ]);
     }
 }

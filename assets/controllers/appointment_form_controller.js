@@ -27,30 +27,53 @@ export default class extends Controller {
         const data = Object.fromEntries(formData.entries());
         
         this.submitBtnTarget.disabled = true;
+        this.submitBtnTarget.classList.add('opacity-50', 'cursor-not-allowed');
         this.submitBtnTarget.textContent = "ENVOI EN COURS...";
 
         try {
             const response = await fetch('/api/appointments/book', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify(data)
             });
+
+            // If 404, it might be due to URL being different in prod/dev or routing issue
+            if (response.status === 404) {
+                throw new Error("Point d'entrée introuvable (404).");
+            }
 
             const result = await response.json();
 
             if (response.ok) {
                 document.getElementById('booking-form').classList.add('hidden');
-                document.getElementById('success-message').classList.remove('hidden');
+                const successEl = document.getElementById('success-message');
+                successEl.classList.remove('hidden');
+                successEl.textContent = result.message || "Rendez-vous enregistré.";
+                this.dispatchToast(result.message || "Rendez-vous enregistré.", "success");
             } else {
-                alert(result.error || "Une erreur est survenue.");
-                this.submitBtnTarget.disabled = false;
-                this.submitBtnTarget.textContent = "CONFIRMER LE RDV";
+                this.dispatchToast(result.message || result.error || "Échec de la validation.", "error");
+                this.enableButton();
             }
         } catch (e) {
-            alert("Impossible de contacter le serveur.");
-            this.submitBtnTarget.disabled = false;
-            this.submitBtnTarget.textContent = "CONFIRMER LE RDV";
+            console.error("Submit error:", e);
+            this.dispatchToast(e.message || "Impossible de contacter le noyau.", "error");
+            this.enableButton();
         }
+    }
+
+    enableButton() {
+        this.submitBtnTarget.disabled = false;
+        this.submitBtnTarget.classList.remove('opacity-50', 'cursor-not-allowed');
+        this.submitBtnTarget.textContent = "CONFIRMER LE RDV";
+    }
+
+    dispatchToast(message, type) {
+        window.dispatchEvent(new CustomEvent('toast', {
+            detail: { message, type }
+        }));
     }
 
     disconnect() {

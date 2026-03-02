@@ -2,35 +2,65 @@
 
 {% block title %}2FA VERIFICATION | JJA ACCESS TERMINAL{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .auth-card {
+            background: rgba(11, 15, 20, 0.85) !important;
+            backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(0, 198, 255, 0.2) !important;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        @keyframes float-login {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-float-login {
+            animation: float-login 6s ease-in-out infinite !important;
+        }
+    </style>
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block boot_screen %}{% endblock %}
+{% block body_controller %}{% endblock %}
+
 {% block body %}
-<div class="min-h-[60vh] flex items-center justify-center py-12">
-    <!-- Main Auth Card -->
-    <main class="glass-panel w-full max-w-[420px] rounded-sm p-8 relative overflow-hidden animate-float border border-lab-primary/20 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+<div class="min-h-[100vh] flex flex-col items-center justify-center p-4">
+    <!-- CARTE D'AUTHENTIFICATION 2FA -->
+    <main class="auth-card w-full max-w-[420px] rounded-sm p-8 relative overflow-hidden animate-float-login shadow-2xl">
         
-        <!-- Decorative corner highlight -->
+        <!-- Ornement d'angle décoratif -->
         <div class="absolute top-0 right-0 w-16 h-16 pointer-events-none opacity-20">
             <div class="absolute top-0 right-0 w-full h-[2px] bg-lab-primary"></div>
             <div class="absolute top-0 right-0 w-[2px] h-full bg-lab-primary"></div>
         </div>
 
-        <!-- Header: Logo and Title -->
+        <!-- En-tête : Logo et Titre -->
         <div class="flex flex-col items-center mb-10">
             <div class="w-12 h-12 bg-lab-primary/10 border border-lab-primary flex items-center justify-center mb-4">
                 <i data-lucide="shield-alert" class="w-6 h-6 text-lab-primary animate-pulse"></i>
             </div>
-            <h1 class="font-bold tracking-[0.2em] text-white text-lg uppercase">2FA VERIFICATION</h1>
+            <h1 class="font-bold tracking-[0.2em] text-white text-lg uppercase text-center">2FA VERIFICATION</h1>
             <div class="flex items-center gap-2 mt-2">
                 <span class="w-1.5 h-1.5 bg-lab-danger rounded-full"></span>
                 <span class="text-[10px] font-mono text-lab-danger uppercase tracking-widest">Awaiting Second Factor</span>
             </div>
         </div>
 
+        <!-- Sélecteur d'onglets -->
+        <div class="flex border-b border-lab-border mb-8 font-mono text-[10px] uppercase tracking-widest text-center">
+            <div class="flex-1 py-3 text-lab-primary border-b-2 border-lab-primary">Code de Sécurité</div>
+        </div>
+
         <div class="space-y-6">
-            <p class="text-xs text-lab-muted font-mono leading-relaxed text-center">
-                Veuillez entrer le code généré par votre application d'authentification pour confirmer votre identité.
+            <p class="text-xs text-lab-muted font-mono leading-relaxed text-center mb-6">
+                Veuillez entrer le code généré par votre application d'authentification pour déverrouiller le terminal.
             </p>
 
-            <form action="{{ path('2fa_login_check') }}" method="post" class="space-y-6">
+            <form action="{{ path('2fa_login_check') }}" method="post" class="space-y-6" id="two-factor-form">
                 <div class="space-y-2">
                     <label class="font-mono text-[10px] text-lab-muted uppercase tracking-widest ml-1" for="_auth_code">AUTHENTICATION_CODE</label>
                     <div class="relative">
@@ -47,28 +77,65 @@
                 </div>
 
                 {% if authenticationError|default(null) %}
-                    <p class="text-[10px] text-lab-danger font-mono uppercase tracking-tight text-center italic">
-                        {{ authenticationError|trans(authenticationErrorData|default([]), 'SchebTwoFactorBundle') }}
-                    </p>
+                    <div class="p-3 border border-lab-danger/30 bg-lab-danger/5 rounded-sm">
+                        <p class="text-[10px] text-lab-danger font-mono uppercase tracking-tight text-center italic">
+                            {{ authenticationError|trans(authenticationErrorData|default([]), 'SchebTwoFactorBundle') }}
+                        </p>
+                    </div>
                 {% endif %}
 
-                <button type="submit" class="w-full py-4 bg-lab-primary text-black font-mono font-black uppercase text-xs tracking-[0.2em] hover:bg-lab-cyan transition-all shadow-lg shadow-lab-primary/20 flex items-center justify-center gap-2">
-                    <i data-lucide="shield-check" class="w-4 h-4"></i> EXECUTE_VERIFICATION
+                <button type="submit" class="w-full py-4 bg-lab-primary text-black font-mono font-black uppercase text-xs tracking-[0.2em] hover:bg-lab-cyan transition-all shadow-lg shadow-lab-primary/20 flex items-center justify-center gap-3 group">
+                    <i data-lucide="shield-check" class="w-4 h-4 transition-transform group-hover:scale-110"></i> 
+                    EXECUTE_VERIFICATION
                 </button>
 
-                <div class="flex justify-center">
-                    <a href="{{ path('admin_logout') }}" class="text-[9px] text-lab-muted hover:text-white uppercase tracking-widest transition-colors">
+                <div class="flex justify-center pt-2">
+                    <a href="{{ path('admin_logout') }}" class="text-[9px] text-lab-muted hover:text-white uppercase tracking-[0.2em] transition-colors flex items-center gap-2 group">
+                        <i data-lucide="log-out" class="w-3 h-3 group-hover:-translate-x-1 transition-transform"></i>
                         [ ANNULER_ET_DECONNEXION ]
                     </a>
                 </div>
             </form>
         </div>
 
-        <!-- Decorative UI footer -->
+        <!-- Overlay de statut (Chargement) -->
+        <div id="status-overlay" class="absolute inset-0 bg-lab-bg/95 flex flex-col items-center justify-center z-[70] hidden font-mono">
+            <div class="w-10 h-10 border-2 border-lab-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+            <div id="status-text" class="text-[10px] text-lab-primary uppercase tracking-[0.2em]">Vérification...</div>
+        </div>
+
+        <!-- Pied de carte décoratif -->
         <div class="mt-8 pt-4 border-t border-lab-border/30 flex justify-between items-center opacity-30">
-            <div class="text-[8px] font-mono text-lab-muted uppercase">PROTOCOL: TOTP</div>
-            <div class="text-[8px] font-mono text-lab-muted uppercase">SESSION: SECURE</div>
+            <div class="text-[8px] font-mono text-lab-muted uppercase tracking-tighter">PROTOCOL: TOTP</div>
+            <div class="text-[8px] font-mono text-lab-muted uppercase tracking-tighter">ENCRYPTION: AES-256</div>
         </div>
     </main>
+
+    <!-- BOUTON RETOUR ACCUEIL (Rollback) -->
+    <div class="mt-12 animate-fade-in-up" style="animation-delay: 300ms;">
+        <a href="{{ path('admin_logout') }}" class="flex items-center gap-3 text-lab-muted hover:text-lab-primary font-mono text-[10px] uppercase tracking-[0.3em] transition-all group">
+            <i data-lucide="corner-down-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+            ANNULER_ET_RETOURNER_A_L_ENTREE
+        </a>
+    </div>
 </div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block javascripts_footer %}
+<script>
+    document.addEventListener('turbo:load', () => {
+        const form = document.getElementById('two-factor-form');
+        const overlay = document.getElementById('status-overlay');
+        const statusText = document.getElementById('status-text');
+
+        if (form && overlay) {
+            form.addEventListener('submit', () => {
+                overlay.classList.remove('hidden');
+                statusText.innerText = 'TRAITEMENT_DU_CODE_SECURITE...';
+            });
+        }
+    });
+</script>
 {% endblock %}

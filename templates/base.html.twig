@@ -29,6 +29,8 @@
 
     {% block javascripts %}
         {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {# Chargement unique de Turnstile #}
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer data-turbo-permanent id="turnstile-script"></script>
     {% endblock %}
 </head>
 <body class="antialiased font-sans relative" {% block body_controller %}{% endblock %}>

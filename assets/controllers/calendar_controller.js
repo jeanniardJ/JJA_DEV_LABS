@@ -5,14 +5,8 @@ export default class extends Controller {
 
     connect() {
         console.log("Calendar controller connected");
-        // Vérifie si FullCalendar est disponible globalement
         if (typeof FullCalendar === 'undefined' || typeof FullCalendar.Calendar === 'undefined') {
-            console.error("FullCalendar not loaded globally. Check CDN script.");
-            // Tenter de rendre le loader visible ou afficher un message d'erreur
-            if (this.hasLoaderTarget) {
-                this.loaderTarget.classList.remove('hidden'); // S'assurer qu'il est visible
-                this.loaderTarget.innerHTML = '<span class="text-lab-danger font-mono">ERREUR : CALENDRIER NON CHARGÉ</span>';
-            }
+            console.error("FullCalendar not loaded globally.");
             return;
         }
         this.initCalendar();
@@ -20,13 +14,8 @@ export default class extends Controller {
 
     initCalendar() {
         const calendarEl = document.getElementById('calendar');
-        if (!calendarEl) {
-            console.error("Element #calendar not found");
-            return;
-        }
-        console.log("Initializing calendar on element:", calendarEl);
+        if (!calendarEl) return;
 
-        // Get color from CSS variable for consistency
         const primaryColor = getComputedStyle(document.documentElement)
             .getPropertyValue('--color-lab-primary')
             .trim() || '#00ffc3';
@@ -38,46 +27,68 @@ export default class extends Controller {
                 center: 'title',
                 right: 'timeGridWeek,timeGridDay'
             },
+            hiddenDays: [0, 6], 
             slotMinTime: '09:00:00',
-            slotMaxTime: '18:00:00',
+            slotMaxTime: '17:00:00',
             allDaySlot: false,
-            slotDuration: '00:15:00',
+            slotDuration: '00:30:00',
             selectable: true,
+            selectOverlap: false,
             locale: 'fr',
-            events: (info, successCallback, failureCallback) => {
-                const date = info.start.toISOString().split('T')[0];
-                fetch(`/api/appointments/slots?date=${date}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const events = data.map(slot => ({
-                            title: 'Disponible',
+            events: async (info, successCallback, failureCallback) => {
+                try {
+                    const start = new Date(info.start);
+                    const end = new Date(info.end);
+                    const allEvents = [];
+
+                    // On boucle sur chaque jour de la plage visible
+                    let current = new Date(start);
+                    while (current < end) {
+                        const dateStr = current.toISOString().split('T')[0];
+                        const response = await fetch(`/api/appointments/slots?date=${dateStr}`);
+                        const data = await response.json();
+
+                        const dayEvents = data.map(slot => ({
+                            id: 'available-slot',
+                            title: 'LIBRE',
                             start: slot.datetime,
-                            end: new Date(new Date(slot.datetime).getTime() + 15 * 60000).toISOString(),
-                            display: 'background',
-                            backgroundColor: primaryColor
+                            end: new Date(new Date(slot.datetime).getTime() + 30 * 60000).toISOString(),
+                            display: 'block',
+                            backgroundColor: primaryColor + '33', 
+                            borderColor: primaryColor,
+                            textColor: '#ffffff'
                         }));
-                        successCallback(events);
-                        if (this.hasLoaderTarget) {
-                            this.loaderTarget.classList.add('hidden');
-                        }
-                    })
-                    .catch(failureCallback);
-            },
-            select: (info) => {
-                // When a slot is clicked
-                const event = {
-                    detail: {
-                        datetime: info.startStr,
-                        display: info.start.toLocaleString('fr-FR', { 
-                            weekday: 'long', 
-                            day: 'numeric', 
-                            month: 'long', 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                        })
+
+                        allEvents.push(...dayEvents);
+                        current.setDate(current.getDate() + 1);
                     }
-                };
-                window.dispatchEvent(new CustomEvent('slot-selected', event));
+
+                    successCallback(allEvents);
+                    if (this.hasLoaderTarget) this.loaderTarget.classList.add('hidden');
+                } catch (e) {
+                    console.error("Error fetching slots:", e);
+                    failureCallback(e);
+                }
+            },
+            selectAllow: (selectInfo) => {
+                return selectInfo.start >= new Date();
+            },
+            eventClick: (info) => {
+                if (info.event.id === 'available-slot') {
+                    const event = {
+                        detail: {
+                            datetime: info.event.startStr,
+                            display: info.event.start.toLocaleString('fr-FR', { 
+                                weekday: 'long', 
+                                day: 'numeric', 
+                                month: 'long', 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                            })
+                        }
+                    };
+                    window.dispatchEvent(new CustomEvent('slot-selected', event));
+                }
             }
         });
 
