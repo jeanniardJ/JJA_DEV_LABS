@@ -61,7 +61,11 @@ self.addEventListener('fetch', (event) => {
                 if (event.request.mode === 'navigate') {
                     return caches.match(OFFLINE_URL);
                 }
-                return null;
+                // Always return a response or re-throw to avoid "Failed to convert value to 'Response'"
+                return new Response('Network error occurred', {
+                    status: 408,
+                    headers: { 'Content-Type': 'text/plain' }
+                });
             });
         })
     );
@@ -72,7 +76,16 @@ self.addEventListener('push', (event) => {
         return;
     }
 
-    const data = event.data ? event.data.json() : {};
+    let data = {};
+    if (event.data) {
+        try {
+            data = event.data.json();
+        } catch (e) {
+            // Si ce n'est pas du JSON, on traite comme du texte brut
+            data = { body: event.data.text() };
+        }
+    }
+
     const title = data.title || 'JJA DEV LAB';
     const options = {
         body: data.body || 'Nouvel événement sur votre labo.',
