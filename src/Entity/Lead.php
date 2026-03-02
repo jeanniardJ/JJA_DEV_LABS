@@ -35,7 +35,7 @@ class Lead
     private ?\DateTimeImmutable $createdAt = null;
 
     /** @var \Doctrine\Common\Collections\Collection<int, Appointment> */
-    #[ORM\OneToMany(mappedBy: 'lead', targetEntity: Appointment::class)]
+    #[ORM\OneToMany(mappedBy: 'lead', targetEntity: Appointment::class, cascade: ['remove'], orphanRemoval: true)]
     private \Doctrine\Common\Collections\Collection $appointments;
 
     public function __construct()

@@ -32,7 +32,7 @@ class AppInitConfigCommand extends Command
         $defaultConfigs = [
             [
                 'key' => 'admin_email',
-                'value' => 'jonathanjeanniard@sfr.fr',
+                'value' => 'jonathan@jja-dev.fr',
                 'desc' => 'Email utilisé pour l\'envoi des réponses aux leads.'
             ],
             [
@@ -54,8 +54,15 @@ class AppInitConfigCommand extends Command
 
         $io->section('Initialisation des variables');
         foreach ($defaultConfigs as $config) {
-            $this->configService->set($config['key'], $config['value'], $config['desc']);
-            $io->writeln(sprintf('Variable <info>%s</info> initialisée.', $config['key']));
+            $existing = $this->configService->get($config['key']);
+            if ($existing === null) {
+                $this->configService->set($config['key'], $config['value'], $config['desc']);
+                $io->writeln(sprintf('Variable <info>%s</info> créée.', $config['key']));
+            } else {
+                // On met quand même à jour la description au cas où
+                $this->configService->set($config['key'], $existing, $config['desc']);
+                $io->writeln(sprintf('Variable <info>%s</info> existe déjà (valeur conservée).', $config['key']));
+            }
         }
 
         // 2. Default Availabilities (Mon-Fri, 9-17)

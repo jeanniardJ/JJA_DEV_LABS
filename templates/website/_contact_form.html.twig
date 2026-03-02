@@ -2,7 +2,7 @@
     'attr': {
         'id': 'contact-form',
         'data-controller': 'contact-form',
-        'data-action': 'submit->contact-form#handleSubmit turbo:submit-end->contact-form#onPostSubmit'
+        'data-action': 'turbo:submit-start->contact-form#handleSubmit turbo:submit-end->contact-form#onPostSubmit'
     }
 }) }}
     <div class="space-y-6">

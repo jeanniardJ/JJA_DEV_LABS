@@ -50,6 +50,12 @@ class DashboardController extends AbstractController
         // Fetch real system logs
         $systemLogs = $systemLogRepository->findRecent(15);
 
+        // Nouveaux Leads Alert
+        $newLeadsCount = count($groupedLeads[LeadStatus::NEW->value] ?? []);
+        if ($newLeadsCount > 0) {
+            $this->addFlash('info', sprintf("ALERTE : %d nouveau(x) lead(s) en attente de traitement.", $newLeadsCount));
+        }
+
         // Activity Chart (Last 30 days)
         $start = new \DateTimeImmutable('-30 days');
         $end = new \DateTimeImmutable('now');

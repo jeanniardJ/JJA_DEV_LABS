@@ -41,9 +41,9 @@ class SettingsController extends AbstractController
                 
                 if ($form->isSubmitted() && $form->isValid()) {
                     $em->flush();
-                    $logService->warning("Réglage système modifié : " . $configToEdit->getSettingKey(), "CONFIG");
+                    $logService->warning("Réglage système modifié : " . $configToEdit->getSettingKey() . " (Nouvelle valeur: " . $configToEdit->getSettingValue() . ")", "CONFIG");
                     $this->addFlash('success', 'Configuration mise à jour.');
-                    return $this->redirectToRoute('admin_settings_index');
+                    return $this->redirectToRoute('admin_settings_index', [], Response::HTTP_SEE_OTHER);
                 }
                 $editForm = $form->createView();
             }

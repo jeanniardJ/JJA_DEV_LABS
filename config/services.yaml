@@ -32,6 +32,7 @@ services:
     App\Service\EmailService:
         arguments:
             $adminEmail: '%admin_email%'
+            $mailerDsn: '%env(MAILER_DSN)%'
 
     App\Service\NotificationService:
         arguments:
