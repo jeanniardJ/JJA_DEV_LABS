@@ -4,6 +4,12 @@ ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
+# Évite l'erreur GPG du dépôt Yarn présent dans l'image de base
+RUN rm -f /etc/apt/sources.list.d/yarn*.list \
+    && rm -f /usr/share/keyrings/yarnkey.gpg \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
@@ -34,8 +40,8 @@ RUN docker-php-ext-install \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd
 
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug
+# Xdebug est déjà inclus dans l'image : ne pas le réinstaller avec PECL
+RUN php -m | grep -q xdebug
 
 RUN composer self-update --2
 
@@ -43,8 +49,9 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash \
     && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony \
     && chmod +x /usr/local/bin/symfony
 
+# Configuration PHP
 COPY .devcontainer/php.ini /usr/local/etc/php/conf.d/99-jja-dev.ini
 
 USER $USERNAME
 
-WORKDIR /workspace
+WORKDIR /var/www/html

@@ -1,38 +1,47 @@
 {
-  "name": "JJA DEV LABS — Symfony 7.4 / MySQL",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
-  "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-      "version": "latest",
-      "moby": false
+  "name": "JJA DEV LABS — Symfony PHP 8.3",
+  "dockerComposeFile": [
+    "../compose.yaml",
+    "../compose.devcontainer.yaml"
+  ],
+  "service": "php",
+  "workspaceFolder": "/var/www/html",
+  "shutdownAction": "stopCompose",
+  "remoteUser": "vscode",
+  "forwardPorts": [8000, 8025],
+  "portsAttributes": {
+    "8000": {
+      "label": "Symfony local server",
+      "onAutoForward": "openBrowser"
     },
-    "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "latest"
-    },
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "22",
-      "nodeGypDependencies": true
+    "8025": {
+      "label": "Mailpit",
+      "onAutoForward": "silent"
     }
   },
   "customizations": {
     "vscode": {
       "extensions": [
-        "github.vscode-github-actions",
-        "github.copilot",
-        "GitHub.vscode-pull-request-github",
-        "bmewburn.vscode-intelephense-client",
-        "DEVSENSE.phptools-vscode",
         "xdebug.php-debug",
+        "bmewburn.vscode-intelephense-client",
+        "junstyle.php-cs-fixer",
+        "neilbrayfield.php-docblocker",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "mikestead.dotenv",
+        "EditorConfig.EditorConfig",
         "symfony.vscode-symfony",
         "bradlc.vscode-tailwindcss",
-        "ms-azuretools.vscode-docker",
+        "GitHub.vscode-pull-request-github",
         "eamodio.gitlens"
       ],
       "settings": {
+        "php.validate.executablePath": "/usr/local/bin/php",
+        "php.suggest.basic": false,
         "editor.formatOnSave": true,
+        "[php]": {
+          "editor.defaultFormatter": "junstyle.php-cs-fixer"
+        },
         "files.exclude": {
           "**/var/cache": true,
           "**/var/log": true
@@ -42,27 +51,10 @@
           "**/var/cache": true,
           "**/var/log": true,
           "**/node_modules": true
-        },
-        "php.debug.ideKey": "VSCODE"
+        }
       }
     }
   },
-  "forwardPorts": [8000, 3306, 8025],
-  "portsAttributes": {
-    "8000": {
-      "label": "Symfony local server",
-      "onAutoForward": "notify"
-    },
-    "3306": {
-      "label": "MariaDB / MySQL",
-      "onAutoForward": "silent"
-    },
-    "8025": {
-      "label": "Mailpit",
-      "onAutoForward": "notify"
-    }
-  },
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "remoteUser": "vscode",
-  "containerUser": "vscode"
+  "postStartCommand": "if ! symfony server:status | grep -q 'Running'; then symfony server:start --daemon --no-tls --allow-http --port=8000; fi"
 }

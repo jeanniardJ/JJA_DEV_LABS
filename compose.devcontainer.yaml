@@ -1,0 +1,12 @@
+services:
+  php:
+    command: sleep infinity
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: 1
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: jja_dev_labs
+      DB_USER: jja
+      DB_PASSWORD: jja
+      DB_VERSION: mariadb-10.11.2

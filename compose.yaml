@@ -1,0 +1,47 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: jja-dev-labs-php
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html:cached
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    networks:
+      - jja_network
+
+  db:
+    image: mariadb:10.11
+    container_name: jja-dev-labs-db
+    environment:
+      MARIADB_DATABASE: jja_dev_labs
+      MARIADB_USER: jja
+      MARIADB_PASSWORD: jja
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - jja_network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: jja-dev-labs-mailpit
+    networks:
+      - jja_network
+
+volumes:
+  mariadb-data:
+
+networks:
+  jja_network:
+    driver: bridge

@@ -27,4 +27,7 @@ phpstan.neon
 .geminiignore
 /.vscode/
 /.claude/
-symfony.lock
+
+*.lock
+
+/node_modules/
