@@ -38,7 +38,7 @@ export default class extends Controller {
         setTimeout(() => {
             if (this.hasScreenTarget) {
                 this.screenTarget.classList.add('opacity-0', 'pointer-events-none');
-                
+
                 // Optional: Trigger terminal typing
                 window.dispatchEvent(new CustomEvent('boot:complete'));
             }
