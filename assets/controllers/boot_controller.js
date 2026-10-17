@@ -1,47 +1,91 @@
 import { Controller } from '@hotwired/stimulus';
 
+let bootSequenceStarted = false;
+
 export default class extends Controller {
     static targets = ["screen", "bar", "status"];
 
     connect() {
-        if (sessionStorage.getItem('jja-lab-booted')) {
+        const alreadyBooted = sessionStorage.getItem('jja-lab-booted') === 'true';
+
+        if (alreadyBooted || bootSequenceStarted) {
             this.skipBootSequence();
-        } else {
-            this.startBootSequence();
+            return;
         }
+
+        bootSequenceStarted = true;
+
+        if (this.hasScreenTarget) {
+            this.screenTarget.classList.remove('hidden');
+        }
+
+        this.startBootSequence();
+    }
+
+    disconnect() {
+        this.clearTimers();
     }
 
     skipBootSequence() {
         if (this.hasScreenTarget) {
-            this.screenTarget.classList.add('hidden', 'opacity-0', 'pointer-events-none');
-            // Still dispatch event for components that wait for boot
-            window.dispatchEvent(new CustomEvent('boot:complete'));
+            this.screenTarget.classList.add(
+                'hidden',
+                'opacity-0',
+                'pointer-events-none'
+            );
         }
+
+        window.dispatchEvent(new CustomEvent('boot:complete'));
     }
 
     startBootSequence() {
         sessionStorage.setItem('jja-lab-booted', 'true');
-        // Start progress bar animation
-        setTimeout(() => {
-            if (this.hasBarTarget) {
-                this.barTarget.style.width = '100%';
-            }
-        }, 100);
 
-        // Update text status
+        this.timers = [];
+
+        this.timers.push(
+            setTimeout(() => {
+                if (this.hasBarTarget) {
+                    this.barTarget.style.width = '100%';
+                }
+            }, 100)
+        );
+
         if (this.hasStatusTarget) {
-            setTimeout(() => { this.statusTarget.textContent = "DÉMARRAGE SERVICES..." }, 800);
-            setTimeout(() => { this.statusTarget.textContent = "PRÊT" }, 1800);
+            this.timers.push(
+                setTimeout(() => {
+                    this.statusTarget.textContent = 'DÉMARRAGE SERVICES...';
+                }, 800)
+            );
+
+            this.timers.push(
+                setTimeout(() => {
+                    this.statusTarget.textContent = 'PRÊT';
+                }, 1800)
+            );
         }
 
-        // Remove boot screen
-        setTimeout(() => {
-            if (this.hasScreenTarget) {
-                this.screenTarget.classList.add('opacity-0', 'pointer-events-none');
+        this.timers.push(
+            setTimeout(() => {
+                if (this.hasScreenTarget) {
+                    this.screenTarget.classList.add(
+                        'hidden',
+                        'opacity-0',
+                        'pointer-events-none'
+                    );
 
-                // Optional: Trigger terminal typing
-                window.dispatchEvent(new CustomEvent('boot:complete'));
-            }
-        }, 2200);
+                    window.dispatchEvent(new CustomEvent('boot:complete'));
+                }
+            }, 2200)
+        );
+    }
+
+    clearTimers() {
+        if (!this.timers) {
+            return;
+        }
+
+        this.timers.forEach((timer) => clearTimeout(timer));
+        this.timers = [];
     }
 }

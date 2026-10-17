@@ -33,4 +33,4 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+//console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
