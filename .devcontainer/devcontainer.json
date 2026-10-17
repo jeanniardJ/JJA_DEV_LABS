@@ -1,0 +1,68 @@
+{
+  "name": "JJA DEV LABS — Symfony 7.4 / MySQL",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "moby": false
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22",
+      "nodeGypDependencies": true
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "github.vscode-github-actions",
+        "github.copilot",
+        "GitHub.vscode-pull-request-github",
+        "bmewburn.vscode-intelephense-client",
+        "DEVSENSE.phptools-vscode",
+        "xdebug.php-debug",
+        "symfony.vscode-symfony",
+        "bradlc.vscode-tailwindcss",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "files.exclude": {
+          "**/var/cache": true,
+          "**/var/log": true
+        },
+        "search.exclude": {
+          "**/vendor": true,
+          "**/var/cache": true,
+          "**/var/log": true,
+          "**/node_modules": true
+        },
+        "php.debug.ideKey": "VSCODE"
+      }
+    }
+  },
+  "forwardPorts": [8000, 3306, 8025],
+  "portsAttributes": {
+    "8000": {
+      "label": "Symfony local server",
+      "onAutoForward": "notify"
+    },
+    "3306": {
+      "label": "MariaDB / MySQL",
+      "onAutoForward": "silent"
+    },
+    "8025": {
+      "label": "Mailpit",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "remoteUser": "vscode",
+  "containerUser": "vscode"
+}
