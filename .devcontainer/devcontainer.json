@@ -2,6 +2,7 @@
   "name": "JJA DEV LABS — Symfony PHP 8.3",
   "dockerComposeFile": [
     "../compose.yaml",
+    "../compose.override.yaml",
     "../compose.devcontainer.yaml"
   ],
   "service": "php",
@@ -55,6 +56,6 @@
       }
     }
   },
-  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postCreateCommand": "if [ -f composer.json ]; then composer install; fi",
   "postStartCommand": "if ! symfony server:status | grep -q 'Running'; then symfony server:start --daemon --no-tls --allow-http --port=8000; fi"
 }

@@ -4,7 +4,7 @@ services:
     environment:
       APP_ENV: dev
       APP_DEBUG: 1
-      DB_HOST: db
+      DB_HOST: database
       DB_PORT: 3306
       DB_NAME: jja_dev_labs
       DB_USER: jja
