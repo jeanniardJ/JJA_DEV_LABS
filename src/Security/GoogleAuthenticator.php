@@ -7,6 +7,7 @@ use App\Repository\UserRepository;
 use App\Service\SystemLogService;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
+use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface as TotpAuthenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,9 +17,8 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
-use Symfony\Component\Security\Http\Util\TargetPathTrait;
-use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface as TotpAuthenticator;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
+use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
@@ -28,8 +28,7 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
         private ClientRegistry $clientRegistry,
         private UserRepository $userRepository,
         private RouterInterface $router,
-        private TotpAuthenticator $totpAuthenticator,
-        private SystemLogService $logService
+        private SystemLogService $logService,
     ) {
     }
 
@@ -40,7 +39,7 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
 
     public function supports(Request $request): ?bool
     {
-        return $request->attributes->get('_route') === 'connect_google_check';
+        return 'connect_google_check' === $request->attributes->get('_route');
     }
 
     public function authenticate(Request $request): Passport
@@ -64,8 +63,8 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
                 if (!$user) {
                     $user = new User();
                     $user->setEmail($email);
-                    
-                    if ($email === 'jonathanjeanniard@gmail.com') {
+
+                    if ('jonathanjeanniard@gmail.com' === $email) {
                         $user->setRoles(['ROLE_ADMIN']);
                     } else {
                         $user->setRoles(['ROLE_USER']);
@@ -73,13 +72,13 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
                 }
 
                 $user->setGoogleId($googleUser->getId());
-                
-                if (!$user->getGoogleAuthenticatorSecret()) {
-                    $user->setGoogleAuthenticatorSecret($this->totpAuthenticator->generateSecret());
-                }
 
-                $this->userRepository->upgradePassword($user, ''); 
-                
+                // if (!$user->getGoogleAuthenticatorSecret()) {
+                //    $user->setGoogleAuthenticatorSecret($this->totpAuthenticator->generateSecret());
+                // }
+
+                $this->userRepository->upgradePassword($user, '');
+
                 return $user;
             })
         );
@@ -89,7 +88,7 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
     {
         /** @var User $user */
         $user = $token->getUser();
-        $this->logService->system(sprintf("Connexion réussie de l'opérateur %s via Google OAuth", $user->getEmail()), "AUTH");
+        $this->logService->system(sprintf("Connexion réussie de l'opérateur %s via Google OAuth", $user->getEmail()), 'AUTH');
 
         $targetPath = $this->getTargetPath($request->getSession(), $firewallName);
 
@@ -103,7 +102,7 @@ class GoogleAuthenticator extends OAuth2Authenticator implements AuthenticationE
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $message = strtr($exception->getMessageKey(), $exception->getMessageData());
-        $this->logService->error("Échec de connexion Google OAuth : " . $message, "AUTH");
+        $this->logService->error('Échec de connexion Google OAuth : '.$message, 'AUTH');
 
         return new Response($message, Response::HTTP_FORBIDDEN);
     }
