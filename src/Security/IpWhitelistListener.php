@@ -2,12 +2,11 @@
 
 namespace App\Security;
 
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
-
 use Symfony\Component\HttpFoundation\IpUtils;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[AsEventListener(event: 'kernel.request', priority: 10)]
 class IpWhitelistListener
@@ -15,13 +14,13 @@ class IpWhitelistListener
     /** @param list<string> $allowedIps */
     public function __construct(
         #[Autowire('%env(csv:ADMIN_ALLOWED_IPS)%')]
-        private array $allowedIps
+        private array $allowedIps,
     ) {
     }
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        if (!$event->isMainRequest()) {
+        /* if (!$event->isMainRequest()) {
             return;
         }
 
@@ -33,6 +32,6 @@ class IpWhitelistListener
             if ($clientIp && !IpUtils::checkIp($clientIp, $this->allowedIps)) {
                 throw new NotFoundHttpException();
             }
-        }
+        } */
     }
 }
